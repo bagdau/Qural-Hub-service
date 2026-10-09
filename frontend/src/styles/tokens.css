@@ -1,0 +1,29 @@
+:root {
+  --navy-900: #0f172a;
+  --navy-800: #1e293b;
+  --navy-700: #1e3a5f;
+  --navy-100: #e8eef6;
+  --teal-700: #0d7a5f;
+  --teal-600: #0f9170;
+  --teal-300: #6ee7b7;
+  --teal-100: #d1fae5;
+  --bg: #f4f5f7;
+  --surface: #ffffff;
+  --text: #0b1220;
+  --text-muted: #475467;
+  --border: #d0d5dd;
+  --danger: #de350b;
+  --danger-bg: #ffebe6;
+  --warn: #92400e;
+  --warn-bg: #fef3c7;
+  --ok: #166534;
+  --ok-bg: #dcfce7;
+  --radius: 8px;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --focus: 0 0 0 3px rgba(13, 122, 95, 0.45);
+  --t: 160ms;
+  --info: #0284c7;
+  --progress: #10b981;
+  --amber: #f59e0b;
+  --font: "Inter Variable", Inter, "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+}

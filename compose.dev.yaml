@@ -1,0 +1,15 @@
+# Режим разработки: исходники монтируются, перезагрузка на лету, БД и API доступны на localhost.
+# Запуск: docker compose -f compose.yaml -f compose.dev.yaml up -d
+services:
+  db:
+    ports: ["127.0.0.1:5432:5432"]
+  migrate:
+    volumes: ["./backend/migrations:/app/migrations", "./backend/app:/app/app", "./backend/seed:/app/seed"]
+  api:
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--proxy-headers"]
+    volumes: ["./backend/app:/app/app", "./backend/seed:/app/seed", "./backend/migrations:/app/migrations", "files:/var/lib/alageum/files"]
+    ports: ["127.0.0.1:8000:8000"]
+  worker:
+    volumes: ["./backend/app:/app/app", "./backend/seed:/app/seed", "files:/var/lib/alageum/files"]
+  seed:
+    volumes: ["./backend/app:/app/app", "./backend/seed:/app/seed", "files:/var/lib/alageum/files"]

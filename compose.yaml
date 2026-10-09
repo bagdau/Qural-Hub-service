@@ -1,0 +1,137 @@
+name: alageum
+
+x-logging: &default-logging
+  driver: json-file
+  options: { max-size: "10m", max-file: "5" }
+
+x-backend-env: &backend-env
+  APP_ENV: ${APP_ENV:-dev}
+  APP_VERSION: ${APP_VERSION:-0.1.0}
+  APP_PUBLIC_URL: ${APP_PUBLIC_URL:-http://localhost:8080}
+  APP_CLOCK_MODE: ${APP_CLOCK_MODE:-system}
+  APP_FIXED_NOW: ${APP_FIXED_NOW:-2026-03-16T10:00:00Z}
+  POSTGRES_HOST: db
+  POSTGRES_DB: ${POSTGRES_DB:-alageum}
+  POSTGRES_USER: ${POSTGRES_USER:-alageum_app}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?задайте POSTGRES_PASSWORD в .env}
+  SECRET_KEY: ${SECRET_KEY:?задайте SECRET_KEY в .env}
+  COOKIE_SECURE: ${COOKIE_SECURE:-false}
+  SESSION_ABS_TTL_HOURS: ${SESSION_ABS_TTL_HOURS:-168}
+  SESSION_IDLE_TTL_HOURS: ${SESSION_IDLE_TTL_HOURS:-24}
+  LOGIN_MAX_FAILURES: ${LOGIN_MAX_FAILURES:-5}
+  LOGIN_LOCK_MINUTES: ${LOGIN_LOCK_MINUTES:-15}
+  FILES_DIR: /var/lib/alageum/files
+  WORKER_ENABLED: ${WORKER_ENABLED:-true}
+  LOG_LEVEL: ${LOG_LEVEL:-INFO}
+  ALLOW_DEMO_SEED: ${ALLOW_DEMO_SEED:-false}
+  DEMO_USER_PASSWORD: ${DEMO_USER_PASSWORD:-}
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-alageum}
+      POSTGRES_USER: ${POSTGRES_USER:-alageum_app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?задайте POSTGRES_PASSWORD в .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks: [internal]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    logging: *default-logging
+
+  migrate:
+    image: alageum/backend:${APP_VERSION:-0.1.0}
+    build:
+      context: ./backend
+      target: runtime
+      args: { APP_VERSION: "${APP_VERSION:-0.1.0}" }
+    command: ["alembic", "upgrade", "head"]
+    restart: "no"
+    environment: *backend-env
+    depends_on:
+      db: { condition: service_healthy }
+    networks: [internal]
+    logging: *default-logging
+
+  api:
+    image: alageum/backend:${APP_VERSION:-0.1.0}
+    restart: unless-stopped
+    environment: *backend-env
+    volumes:
+      - files:/var/lib/alageum/files
+    depends_on:
+      db: { condition: service_healthy }
+      migrate: { condition: service_completed_successfully }
+    networks: [internal]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys,urllib.request; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health/ready', timeout=4).status == 200 else 1)"]
+      interval: 10s
+      timeout: 6s
+      retries: 5
+      start_period: 30s
+    logging: *default-logging
+
+  worker:
+    image: alageum/backend:${APP_VERSION:-0.1.0}
+    command: ["python", "-m", "app.worker"]
+    restart: unless-stopped
+    environment: *backend-env
+    volumes:
+      - files:/var/lib/alageum/files
+    depends_on:
+      db: { condition: service_healthy }
+      migrate: { condition: service_completed_successfully }
+    networks: [internal]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os,sys,time; sys.exit(0 if time.time()-os.path.getmtime('/tmp/worker.heartbeat') < 120 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    logging: *default-logging
+
+  web:
+    image: alageum/frontend:${APP_VERSION:-0.1.0}
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    depends_on:
+      api: { condition: service_healthy }
+    ports:
+      - "${WEB_HTTP_PORT:-8080}:8080"
+    networks: [edge, internal]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/healthz >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    logging: *default-logging
+
+  seed:
+    image: alageum/backend:${APP_VERSION:-0.1.0}
+    profiles: ["demo"]
+    command: ["python", "-m", "app.cli", "seed-demo"]
+    restart: "no"
+    environment: *backend-env
+    volumes:
+      - files:/var/lib/alageum/files
+    depends_on:
+      db: { condition: service_healthy }
+      migrate: { condition: service_completed_successfully }
+    networks: [internal]
+
+networks:
+  edge: {}
+  internal:
+    internal: true
+
+volumes:
+  pgdata: {}
+  files: {}

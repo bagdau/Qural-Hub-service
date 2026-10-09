@@ -1,0 +1,37 @@
+# Тестовое окружение (отдельный проект, БД в памяти).
+# Запуск: docker compose -p alageum-test -f compose.yaml -f compose.test.yaml run --rm backend-tests
+services:
+  db-test:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: ${POSTGRES_USER:-alageum_app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?задайте POSTGRES_PASSWORD в .env}
+    tmpfs: ["/var/lib/postgresql/data"]
+    networks: [internal]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  backend-tests:
+    build:
+      context: ./backend
+      target: test
+    environment:
+      APP_ENV: test
+      POSTGRES_HOST: db-test
+      POSTGRES_USER: ${POSTGRES_USER:-alageum_app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?задайте POSTGRES_PASSWORD в .env}
+      FILES_DIR: /tmp/ash-files
+    volumes:
+      - ./backend/tests:/app/tests
+      - ./backend/app:/app/app
+      - ./backend/seed:/app/seed
+      - ./backend/migrations:/app/migrations
+    depends_on:
+      db-test: { condition: service_healthy }
+    networks: [internal]
+    command: ["pytest", "-q", "-p", "no:cacheprovider"]
+    profiles: ["test"]
