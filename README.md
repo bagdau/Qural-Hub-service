@@ -30,6 +30,19 @@ docker compose --profile demo run --rm seed   # demo-данные (только 
 Главный экран работы с заявками — **доска** (`/board`): канбан, список, календарь, шкала SLA, обновление в реальном времени.
 
 Demo-время зафиксировано: `2026-03-16T10:00:00Z` (`APP_CLOCK_MODE=fixed`), на нём дашборд совпадает с ожидаемыми значениями ТЗ (раздел 12.6).
+## Доступ с телефона и других устройств (локальная сеть, HTTPS)
+
+Камера в браузере работает только по HTTPS (или на `localhost`), поэтому для телефонов поднят HTTPS-порт `8443` с самоподписанным сертификатом:
+
+1. `bash scripts/make_cert.sh <IP_компьютера_в_сети>` — создаёт `certs/server.crt` и `certs/server.key` (в git не попадают).
+2. В `.env`: `APP_PUBLIC_URL=https://<IP_компьютера>:8443` (по этому адресу будут вести QR-коды).
+3. `docker compose up -d --force-recreate web api worker`.
+4. Windows: разрешить входящие порты (PowerShell от администратора):
+   `New-NetFirewallRule -DisplayName "Alageum" -Direction Inbound -Protocol TCP -LocalPort 8100,8443 -Action Allow -Profile Any`
+5. На телефоне открыть `https://<IP_компьютера>:8443`, принять предупреждение о сертификате («Дополнительно → Продолжить») — после этого работает живая камера сканера.
+
+Если после пересоздания `api` сайт отвечает 502 — `docker compose restart web`.
+
 QR-коды demo: `http://localhost:8100/e/DEMOEQUIP001` … `DEMOEQUIP010`.
 
 ## Команды
