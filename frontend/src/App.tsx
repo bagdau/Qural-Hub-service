@@ -7,7 +7,9 @@ import { Icon } from './components/Icon'
 import { ROLE } from './lib/format'
 import { LoginPage, ChangePasswordPage, ProfilePage } from './pages/Auth'
 import { DashboardPage } from './pages/Dashboard'
-import { EquipmentListPage, EquipmentDetailPage, EquipmentFormPage, QrResolverPage, ScanPage } from './pages/Equipment'
+import { EquipmentListPage, EquipmentDetailPage, EquipmentFormPage, QrResolverPage } from './pages/Equipment'
+import { ScanPage } from './pages/Scan'
+import { EquipmentQrPage, GeneratorPage } from './pages/QrPage'
 import { TicketsPage, TicketNewPage, TicketDetailPage } from './pages/Tickets'
 import { MyTasksPage, ReportPage } from './pages/Engineer'
 import { ActPage, NotificationsPage, MaintenancePage } from './pages/Misc'
@@ -20,11 +22,11 @@ const NAV: Record<string, NavItem[]> = {
     { to: '/', label: 'Дашборд', icon: 'dashboard' }, { to: '/board', label: 'Заявки', icon: 'board' }, { to: '/equipment', label: 'Оборудование', icon: 'equipment' },
     { to: '/maintenance', label: 'Плановые работы', icon: 'calendar' }, { to: '/admin/users', label: 'Пользователи', icon: 'users' },
     { to: '/admin/organizations', label: 'Организации', icon: 'building' }, { to: '/admin/spare-parts', label: 'Запчасти', icon: 'parts' },
-    { to: '/admin/checklists', label: 'Чек-листы', icon: 'checklist' }, { to: '/admin/sla', label: 'Настройки SLA', icon: 'clock' }, { to: '/admin/audit', label: 'Журнал аудита', icon: 'audit' },
+    { to: '/admin/checklists', label: 'Чек-листы', icon: 'checklist' }, { to: '/admin/sla', label: 'Настройки SLA', icon: 'clock' }, { to: '/admin/audit', label: 'Журнал аудита', icon: 'audit' }, { to: '/scan', label: 'Сканер QR', icon: 'qr' }, { to: '/generator', label: 'Генератор QR', icon: 'print' },
   ],
   dispatcher: [
     { to: '/', label: 'Дашборд', icon: 'dashboard' }, { to: '/board', label: 'Заявки', icon: 'board' }, { to: '/equipment', label: 'Оборудование', icon: 'equipment' },
-    { to: '/maintenance', label: 'Плановые работы', icon: 'calendar' }, { to: '/admin/spare-parts', label: 'Запчасти', icon: 'parts' }, { to: '/scan', label: 'Сканер QR', icon: 'qr' },
+    { to: '/maintenance', label: 'Плановые работы', icon: 'calendar' }, { to: '/admin/spare-parts', label: 'Запчасти', icon: 'parts' }, { to: '/scan', label: 'Сканер QR', icon: 'qr' }, { to: '/generator', label: 'Генератор QR', icon: 'print' },
   ],
   manager: [
     { to: '/', label: 'Дашборд', icon: 'dashboard' }, { to: '/board', label: 'Заявки', icon: 'board' }, { to: '/equipment', label: 'Оборудование', icon: 'equipment' },
@@ -64,12 +66,12 @@ function Shell() {
   return (
     <div className="shell">
       <aside className="sidebar">
-        <a className="brand" href="/"><svg viewBox="0 0 32 32" aria-hidden><rect width="32" height="32" rx="7" fill="#163a68" /><path d="M17 5 9 18h6l-1 9 9-14h-6z" fill="#2DD4BF" /></svg>Alageum Service Hub</a>
+        <a className="brand" href="/"><svg viewBox="0 0 32 32" aria-hidden><rect width="32" height="32" rx="7" fill="#163a68" /><path d="M17 5 9 18h6l-1 9 9-14h-6z" fill="#2DD4BF" /></svg><span className="brand-text">Alageum Service Hub</span></a>
         <nav className="nav" aria-label="Основное меню">
           {items.map((i) => <NavLink key={i.to} to={i.to} end={i.to === '/'}><Icon name={i.icon} />{i.label}</NavLink>)}
         </nav>
         <div className="spacer" />
-        <NavLink to="/profile" className="nav" style={{ color: '#cbd5e1', textDecoration: 'none', padding: '8px 12px' }}><Icon name="user" size={18} /> {me.full_name}<br /><span className="small">{ROLE[me.role]}</span></NavLink>
+        <NavLink to="/profile" className="prof" aria-label={`Профиль: ${me.full_name}`} style={{ color: '#cbd5e1', textDecoration: 'none', padding: '8px 12px', display: 'flex', gap: 8, alignItems: 'center' }}><Icon name="user" size={20} /><span className="prof-text">{me.full_name}<br /><span className="small">{ROLE[me.role]}</span></span></NavLink>
       </aside>
       <div className="main">
         {!online && <div className="offline" role="alert">Нет соединения. Показаны сохранённые данные; действия временно недоступны.</div>}
@@ -121,6 +123,8 @@ export function App() {
         <Route path="/equipment/new" element={<EquipmentFormPage />} />
         <Route path="/equipment/:id" element={<EquipmentDetailPage />} />
         <Route path="/equipment/:id/edit" element={<EquipmentFormPage />} />
+        <Route path="/equipment/:id/qr" element={<EquipmentQrPage />} />
+        <Route path="/generator" element={<GeneratorPage />} />
         <Route path="/e/:code" element={<QrResolverPage />} />
         <Route path="/scan" element={<ScanPage />} />
         <Route path="/board" element={<WorkspacePage />} />

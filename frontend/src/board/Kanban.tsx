@@ -65,7 +65,7 @@ function Column({ col, items, now, onOpen, onAdd, state, selectedId, canAdd }: {
   const warnings = items.filter((t) => { const v = slaView(t, now); return v.tone === 'bad' || v.tone === 'warn' }).length
   const st = state === 'valid' && isOver ? 'over' : state
   return (
-    <section className={`kcol ${st}`} ref={setNodeRef} aria-label={col.title} data-testid={`col-${col.id}`}>
+    <section id={`kcol-${col.id}`} className={`kcol ${st}`} ref={setNodeRef} aria-label={col.title} data-testid={`col-${col.id}`}>
       <header style={{ ['--a' as any]: col.accent }}>
         <div className="row between" style={{ flexWrap: 'nowrap' }}>
           <h2><span className="dot" aria-hidden />{col.title}</h2>
@@ -91,6 +91,7 @@ export function Kanban({ tickets, onOpen, onDrop, onAdd, selectedId, canAddFor }
 }) {
   const now = useNow()
   const [active, setActive] = useState<any | null>(null)
+  const [chip, setChip] = useState<string>('new')
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 220, tolerance: 8 } }),
@@ -117,6 +118,12 @@ export function Kanban({ tickets, onOpen, onDrop, onAdd, selectedId, canAddFor }
   }
   return (
     <DndContext sensors={sensors} onDragStart={start} onDragEnd={end} onDragCancel={() => setActive(null)}>
+      <div className="kchips" role="navigation" aria-label="Переход к колонке">
+        {COLUMNS.map((c) => (
+          <button key={c.id} className={`kchip ${chip === c.id ? 'on' : ''}`} onClick={() => { setChip(c.id); document.getElementById(`kcol-${c.id}`)?.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' }) }}>
+            {c.title}<b>{byCol[c.id].length}</b>
+          </button>))}
+      </div>
       <div className="kanban" role="group" aria-label="Канбан-доска заявок">
         {COLUMNS.map((c) => (
           <Column key={c.id} col={c} items={byCol[c.id]} now={now} onOpen={onOpen} onAdd={onAdd} selectedId={selectedId} canAdd={canAddFor(c.id)}

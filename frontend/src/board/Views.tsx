@@ -27,14 +27,14 @@ export function ListView({ tickets, onOpen, selectedId }: { tickets: any[]; onOp
   )
   return (
     <div className="card table-wrap" style={{ padding: 0 }}>
-      <table className="dense">
+      <table className="dense rtable">
         <thead><tr><H k="number">Номер</H><H k="title">Тема</H><H k="client">Клиент / оборудование</H><H k="status">Статус</H><H k="priority">Приоритет</H><H k="sla">SLA</H><H k="engineer">Инженер</H><H k="created">Создана</H></tr></thead>
         <tbody>{rows.map((t) => (
           <tr key={t.id} className={`link ${selectedId === t.id ? 'sel' : ''}`} onClick={() => onOpen(t.id)} tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && onOpen(t.id)}>
-            <td><strong>{t.number}</strong></td><td>{t.title}</td>
-            <td>{t.organization.name}<div className="small muted">{t.equipment.name}</div></td>
-            <td><StatusBadge status={t.status} /></td><td><PriorityPill p={t.priority} /></td><td><SlaBadge t={t} now={now} /></td>
-            <td>{t.assigned_engineer?.full_name ?? <span className="muted">—</span>}</td><td className="small">{fmtDateTime(t.created_at)}</td>
+            <td data-label="Номер"><strong>{t.number}</strong></td><td data-label="Тема">{t.title}</td>
+            <td data-label="Клиент">{t.organization.name}<div className="small muted">{t.equipment.name}</div></td>
+            <td data-label="Статус"><StatusBadge status={t.status} /></td><td data-label="Приоритет"><PriorityPill p={t.priority} /></td><td data-label="SLA"><SlaBadge t={t} now={now} /></td>
+            <td data-label="Инженер">{t.assigned_engineer?.full_name ?? <span className="muted">—</span>}</td><td className="small" data-label="Создана">{fmtDateTime(t.created_at)}</td>
           </tr>))}</tbody>
       </table>
     </div>

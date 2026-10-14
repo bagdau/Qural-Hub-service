@@ -24,7 +24,7 @@ export function EquipmentListPage() {
       <div className="row between">
         <div><h1>Оборудование</h1><div className="muted small">Реестр единиц оборудования и цифровые паспорта</div></div>
         <div className="row">
-          {staff && sel.length > 0 && <a className="btn" href={`/api/v1/equipment/qr-labels.pdf?ids=${sel.join(',')}`} target="_blank" rel="noreferrer">Печать этикеток ({sel.length})</a>}
+          {staff && sel.length > 0 && <Link className="btn" to={`/generator?ids=${sel.join(',')}`}><Icon name="print" size={18} /> Этикетки ({sel.length})</Link>}
           {staff && <Link className="btn primary" to="/equipment/new">Добавить</Link>}
         </div>
       </div>
@@ -36,14 +36,15 @@ export function EquipmentListPage() {
         <div className="card"><Empty title="Оборудование не найдено" text="Измените условия поиска или попросите диспетчера добавить оборудование." /></div>
       ) : (
         <div className="card table-wrap">
-          <table>
-            <thead><tr>{staff && <th />}<th>Название</th><th>Инв. №</th><th className="hide-sm">Тип</th><th className="hide-sm">Площадка</th><th>Состояние</th><th className="hide-sm">Ближайшее ТО</th><th>Заявки</th></tr></thead>
+          <table className="rtable">
+            <thead><tr>{staff && <th />}<th>Название</th><th>Инв. №</th><th className="hide-sm">Тип</th><th className="hide-sm">Площадка</th><th>Состояние</th><th className="hide-sm">Ближайшее ТО</th><th>Заявки</th><th>QR</th></tr></thead>
             <tbody>{data.data.items.map((e: any) => (
               <tr key={e.id}>
-                {staff && <td><input type="checkbox" aria-label={`Выбрать ${e.name}`} checked={sel.includes(e.id)} onChange={(ev) => setSel(ev.target.checked ? [...sel, e.id] : sel.filter((x) => x !== e.id))} /></td>}
-                <td><Link to={`/equipment/${e.id}`}><strong>{e.name}</strong></Link></td><td className="mono">{e.inventory_number}</td>
-                <td className="hide-sm">{e.type_label}</td><td className="hide-sm">{e.site?.name}</td><td>{EQ_STATE[e.technical_state]}</td>
-                <td className="hide-sm">{e.next_due_date ? fmtDate(e.next_due_date) : '—'}</td><td>{e.active_tickets_count || '—'}</td>
+                {staff && <td className="nolabel"><label className="chk"><input type="checkbox" aria-label={`Выбрать ${e.name}`} checked={sel.includes(e.id)} onChange={(ev) => setSel(ev.target.checked ? [...sel, e.id] : sel.filter((x) => x !== e.id))} /></label></td>}
+                <td className="nolabel"><Link to={`/equipment/${e.id}`}><strong>{e.name}</strong></Link></td><td className="mono" data-label="Инв. №">{e.inventory_number}</td>
+                <td className="hide-sm">{e.type_label}</td><td className="hide-sm">{e.site?.name}</td><td data-label="Состояние">{EQ_STATE[e.technical_state]}</td>
+                <td className="hide-sm">{e.next_due_date ? fmtDate(e.next_due_date) : '—'}</td><td data-label="Заявки">{e.active_tickets_count || '—'}</td>
+                <td className="nolabel"><Link className="btn sm" to={`/equipment/${e.id}/qr`} aria-label={`QR-код: ${e.name}`}><Icon name="qr" size={16} /> QR</Link></td>
               </tr>))}</tbody>
           </table>
           <Pagination page={data.data.page} totalPages={data.data.total_pages} onPage={setPage} />
@@ -74,6 +75,7 @@ export function EquipmentDetailPage() {
         <div><h1>{d.name}</h1><div className="muted">{d.type_label} · инв. № {d.inventory_number} · {d.organization.name}</div></div>
         <div className="row">
           {(me?.role === 'client' || me?.role === 'dispatcher') && !d.archived_at && <Link className="btn primary" to={`/tickets/new?equipment=${d.id}`}>Создать заявку</Link>}
+          <Link className="btn" to={`/equipment/${d.id}/qr`}><Icon name="qr" size={18} /> QR-код</Link>
           {staff && <Link className="btn" to={`/equipment/${d.id}/edit`}>Изменить</Link>}
         </div>
       </div>
@@ -95,11 +97,11 @@ export function EquipmentDetailPage() {
           </div>
           <div className="card" style={{ textAlign: 'center' }}>
             <h2>QR-код паспорта</h2>
-            <img src={`/api/v1/equipment/${d.id}/qr?format=svg&size=8`} alt={`QR-код оборудования ${d.name}`} width={200} height={200} />
+            <Link to={`/equipment/${d.id}/qr`} aria-label="Открыть страницу QR-кода"><img src={`/api/v1/equipment/${d.id}/qr?format=svg&size=8`} alt={`QR-код оборудования ${d.name}`} width={200} height={200} /></Link>
             <div className="small muted">Код: <span className="mono">{d.qr_code}</span></div>
             <div className="small muted" style={{ wordBreak: 'break-all' }}>{d.qr_url}</div>
             {staff && <div className="row" style={{ justifyContent: 'center', marginTop: 8 }}>
-              <a className="btn sm" href={`/api/v1/equipment/qr-labels.pdf?ids=${d.id}`} target="_blank" rel="noreferrer">Печать этикетки</a>
+              <Link className="btn sm" to={`/equipment/${d.id}/qr`}>Печать и PDF</Link>
               <Button small onClick={() => setRotate(true)}>Перевыпустить</Button></div>}
           </div>
         </div>
@@ -255,7 +257,7 @@ export function QrResolverPage() {
   )
 }
 
-function ManualSearch() {
+export function ManualSearch() {
   const [v, setV] = useState('')
   const dv = useDebounced(v, 350)
   const nav = useNavigate()
@@ -275,53 +277,6 @@ function ManualSearch() {
           {r.data.tickets.map((t: any) => <Link key={t.id} to={`/tickets/${t.id}`} className="btn" style={{ justifyContent: 'flex-start' }}><Icon name="board" size={16} /> {t.number} · {t.title}</Link>)}
           {!r.data.equipment.length && !r.data.tickets.length && <Empty icon="search" title="Ничего не найдено" />}
         </div>)}
-    </div>
-  )
-}
-
-export function ScanPage() {
-  const nav = useNavigate()
-  const video = useRef<HTMLVideoElement>(null)
-  const [on, setOn] = useState(false)
-  const [msg, setMsg] = useState<string | null>(null)
-  const stream = useRef<MediaStream | null>(null)
-  const secure = window.isSecureContext
-  const supported = 'BarcodeDetector' in window
-  const stop = () => { stream.current?.getTracks().forEach((t) => t.stop()); stream.current = null; setOn(false) }
-  useEffect(() => stop, [])
-  const start = async () => {
-    setMsg(null)
-    try {
-      const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-      stream.current = s; setOn(true)
-      await new Promise((r) => setTimeout(r, 50))
-      if (video.current) { video.current.srcObject = s; await video.current.play() }
-      const det = new (window as any).BarcodeDetector({ formats: ['qr_code'] })
-      const loop = async () => {
-        if (!stream.current || !video.current) return
-        try {
-          const codes = await det.detect(video.current)
-          for (const c of codes) {
-            const m = String(c.rawValue).match(/\/e\/([A-Za-z0-9]{12})/)
-            if (m) { navigator.vibrate?.(60); stop(); nav(`/e/${m[1].toUpperCase()}`); return }
-          }
-        } catch { /* кадр не готов */ }
-        setTimeout(loop, 250)
-      }
-      loop()
-    } catch { setMsg('Нет доступа к камере. Разрешите доступ в настройках браузера или воспользуйтесь ручным поиском ниже.'); stop() }
-  }
-  return (
-    <div className="stack">
-      <h1>Сканер QR-кода</h1>
-      <div className="card stack">
-        <p className="muted" style={{ margin: 0 }}>Самый простой способ — навести <strong>штатную камеру телефона</strong> на QR-код: откроется паспорт оборудования. Встроенный сканер ниже работает только по HTTPS.</p>
-        {!secure && <div className="banner warn">Страница открыта не по HTTPS — встроенный сканер недоступен. Используйте камеру телефона или ручной поиск.</div>}
-        {secure && !supported && <div className="banner warn">Этот браузер не поддерживает распознавание QR. Используйте камеру телефона или ручной поиск.</div>}
-        {msg && <div className="banner err" role="alert">{msg}</div>}
-        {secure && supported && (on ? <><video ref={video} muted playsInline style={{ width: '100%', borderRadius: 8, background: '#000' }} /><Button onClick={stop}>Выключить камеру</Button></> : <Button variant="primary" onClick={start}>Включить камеру</Button>)}
-      </div>
-      <ManualSearch />
     </div>
   )
 }

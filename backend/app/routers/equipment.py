@@ -1,18 +1,13 @@
-import io
 import secrets
 import uuid
 from datetime import timedelta
 
-import segno
 from fastapi import APIRouter, Depends, Query, Request, Response
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.units import mm
-from reportlab.pdfgen import canvas
-from reportlab.lib.utils import ImageReader
 from sqlalchemy import and_, exists, func, or_, select
 from sqlalchemy.orm import Session as DbSession
 
-from .. import clock, metrics, pdf
+from .. import clock, metrics
+from ..generators import documents, qr as qrgen
 from ..config import get_settings
 from ..db import get_db
 from ..errors import ApiError, conflict, field_error, not_found
@@ -157,52 +152,37 @@ def by_qr(code: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db
     return {"equipment_id": e.id, "redirect": f"/equipment/{e.id}", "my_active_ticket_id": my}
 
 
+def _qr_url(e: Equipment) -> str:
+    return f"{get_settings().app_public_url}/e/{e.qr_code}"
+
+
+def _label_item(db: DbSession, e: Equipment) -> dict:
+    site = db.get(Site, e.site_id)
+    return {"code": e.qr_code, "url": _qr_url(e), "inventory": e.inventory_number, "name": e.name, "site": site.name if site else ""}
+
+
+def _pdf(data: bytes, name: str, download: int = 0) -> Response:
+    return Response(data, media_type="application/pdf", headers={
+        "Content-Disposition": f'{"attachment" if download else "inline"}; filename="{name}"', "Cache-Control": "private, no-store",
+        "X-Content-Type-Options": "nosniff"})
+
+
+@router.get("/equipment/qr-layouts")
+def qr_layouts(ctx: Ctx = Depends(get_ctx)):
+    return [{"id": l.id, "title": l.title} for l in documents.LAYOUTS.values()]
+
+
 @router.get("/equipment/qr-labels.pdf")
-def qr_labels(ids: str = Query(...), ctx: Ctx = Depends(require("admin", "dispatcher")), db: DbSession = Depends(get_db)):
-    id_list = [_uuid(i) for i in ids.split(",") if i][:24]
+def qr_labels(ids: str = Query(...), layout: str = "sheet8", download: int = 0,
+              ctx: Ctx = Depends(require("admin", "dispatcher")), db: DbSession = Depends(get_db)):
+    id_list = [_uuid(i) for i in ids.split(",") if i][:48]
     if not id_list:
         raise field_error("ids", "required", "Выберите оборудование.")
-    rows = list(db.scalars(select(Equipment).where(Equipment.id.in_(id_list))))
-    pdf._register()
-    buf = io.BytesIO()
-    c = canvas.Canvas(buf, pagesize=A4)
-    W, H = A4
-    cw, ch = W / 2, H / 4
-    for i, e in enumerate(rows):
-        if i and i % 8 == 0:
-            c.showPage()
-        col, row = i % 2, (i % 8) // 2
-        x0, y0 = col * cw, H - (row + 1) * ch
-        c.setStrokeColorRGB(.8, .8, .8)
-        c.rect(x0 + 6 * mm, y0 + 6 * mm, cw - 12 * mm, ch - 12 * mm)
-        url = f"{get_settings().app_public_url}/e/{e.qr_code}"
-        png = io.BytesIO()
-        segno.make(url, error="m").save(png, kind="png", scale=8, border=4)
-        png.seek(0)
-        c.drawImage(ImageReader(png), x0 + 10 * mm, y0 + 12 * mm, 40 * mm, 40 * mm)
-        c.setFont(pdf.FONT_B, 10)
-        c.drawString(x0 + 54 * mm, y0 + 44 * mm, e.inventory_number)
-        c.setFont(pdf.FONT, 8.5)
-        for j, line in enumerate(_wrap(e.name, 24)[:3]):
-            c.drawString(x0 + 54 * mm, y0 + (38 - 5 * j) * mm, line)
-        site = db.get(Site, e.site_id)
-        for j, line in enumerate(_wrap(site.name, 24)[:2]):
-            c.drawString(x0 + 54 * mm, y0 + (20 - 5 * j) * mm, line)
-        c.setFont(pdf.FONT, 7)
-        c.drawString(x0 + 10 * mm, y0 + 9 * mm, "Alageum Service Hub · отсканируйте для открытия паспорта")
-    c.save()
-    return Response(buf.getvalue(), media_type="application/pdf", headers={"Cache-Control": "private, no-store"})
-
-
-def _wrap(text: str, n: int) -> list[str]:
-    words, lines, cur = text.split(), [], ""
-    for w in words:
-        if len(cur) + len(w) + 1 > n and cur:
-            lines.append(cur)
-            cur = w
-        else:
-            cur = (cur + " " + w).strip()
-    return lines + ([cur] if cur else [])
+    documents.layout(layout)
+    rows = list(db.scalars(select(Equipment).where(Equipment.id.in_(id_list)).order_by(Equipment.inventory_number)))
+    if not rows:
+        raise not_found()
+    return _pdf(documents.qr_labels([_label_item(db, e) for e in rows], layout), "qr-labels.pdf", download)
 
 
 @router.get("/equipment/{equipment_id}")
@@ -291,17 +271,46 @@ def history(equipment_id: str, request: Request, kind: str | None = None, status
 
 
 @router.get("/equipment/{equipment_id}/qr")
-def qr_image(equipment_id: str, format: str = "svg", size: int = Query(8, ge=2, le=20),
-             ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def qr_image(equipment_id: str, format: str = "svg", size: int = Query(10, ge=2, le=40), ec: str = "q",
+             border: int = Query(4, ge=4, le=10), download: int = 0, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
     e = get_equipment(db, ctx, _uuid(equipment_id))
-    url = f"{get_settings().app_public_url}/e/{e.qr_code}"
-    buf = io.BytesIO()
-    qr = segno.make(url, error="m")
+    url = _qr_url(e)
     if format == "png":
-        qr.save(buf, kind="png", scale=size, border=4)
-        return Response(buf.getvalue(), media_type="image/png", headers={"Cache-Control": "private, no-store"})
-    qr.save(buf, kind="svg", scale=size, border=4, xmldecl=False)
-    return Response(buf.getvalue(), media_type="image/svg+xml", headers={"Cache-Control": "private, no-store"})
+        data, mt, ext = qrgen.png(url, size, border, ec), "image/png", "png"
+    elif format == "svg":
+        data, mt, ext = qrgen.svg(url, size, border, ec), "image/svg+xml", "svg"
+    else:
+        raise field_error("format", "invalid", "Формат: svg или png.")
+    headers = {"Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff"}
+    if download:
+        headers["Content-Disposition"] = f'attachment; filename="qr-{e.inventory_number}.{ext}"'
+    return Response(data, media_type=mt, headers=headers)
+
+
+@router.get("/equipment/{equipment_id}/qr-label.pdf")
+def qr_label_pdf(equipment_id: str, layout: str = "label100x70", download: int = 0, ctx: Ctx = Depends(get_ctx),
+                 db: DbSession = Depends(get_db)):
+    e = get_equipment(db, ctx, _uuid(equipment_id))
+    documents.layout(layout)
+    return _pdf(documents.qr_labels([_label_item(db, e)], layout), f"qr-{e.inventory_number}.pdf", download)
+
+
+@router.get("/equipment/{equipment_id}/passport.pdf")
+def passport_pdf(equipment_id: str, download: int = 0, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+    e = get_equipment(db, ctx, _uuid(equipment_id))
+    d = eq_full(db, ctx, e)
+    d["state_label"] = {"operational": "Исправно", "degraded": "Ограниченно", "out_of_service": "Выведено из работы"}[e.technical_state]
+    for k in ("next_due_date", "last_done_on"):
+        d[k] = d[k].strftime("%d.%m.%Y") if d.get(k) else None
+    tickets = list(db.scalars(select(Ticket).where(Ticket.equipment_id == e.id, *ticket_conditions(ctx))
+                              .order_by(Ticket.created_at.desc()).limit(14)))
+    hist = []
+    for t in tickets:
+        rep = db.scalar(select(WorkReport).where(WorkReport.ticket_id == t.id, WorkReport.status == "submitted")
+                        .order_by(WorkReport.revision.desc()).limit(1))
+        hist.append({"number": t.number, "date": t.created_at.strftime("%d.%m.%Y"), "kind": "план" if t.kind == "planned" else "ремонт",
+                     "status": t.status, "title": t.title, "diagnosis": rep.diagnosis if rep else None})
+    return _pdf(documents.equipment_passport(d, hist, _qr_url(e)), f"passport-{e.inventory_number}.pdf", download)
 
 
 @router.post("/equipment/{equipment_id}/qr/rotate")

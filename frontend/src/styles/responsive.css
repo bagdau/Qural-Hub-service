@@ -1,0 +1,92 @@
+/* ===== Адаптация под устройства =====
+   Компьютер (≥1025 px): администраторы и диспетчеры — боковая панель, плотные таблицы, канбан с панелью подробностей.
+   Планшет (641–1024 px): инженеры и клиенты — узкая панель иконок, крупные элементы управления.
+   Телефон (≤640 px): все роли — нижняя навигация, карточки вместо таблиц, нижние «шторки» вместо окон. */
+
+.brand-text { white-space: nowrap; }
+.kchips { display: none; }
+
+/* ---------- Планшет ---------- */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .shell { grid-template-columns: 92px 1fr; }
+  .sidebar { display: flex; padding: 10px 6px; width: 92px; }
+  .bottomnav { display: none; }
+  .brand { justify-content: center; padding: 8px 0 14px; }
+  .brand-text, .prof-text { display: none; }
+  .nav a { flex-direction: column; justify-content: center; gap: 4px; font-size: 11px; line-height: 1.15; text-align: center; padding: 10px 2px; min-height: 62px; }
+  .nav a.active { box-shadow: none; background: var(--navy-700); }
+  .nav a .icon { width: 24px; height: 24px; }
+  .sidebar .prof { justify-content: center; padding: 10px 0 !important; }
+  .content { padding: 20px; }
+  .content.wide { padding: 14px; }
+  .topbar { padding: 10px 20px; }
+  .btn { min-height: 48px; padding: 8px 18px; }
+  .btn.sm { min-height: 44px; }
+  .input, select.input, textarea.input, .dt input, .search input { min-height: 48px; }
+  .tab { min-height: 48px; }
+  .seg button { min-height: 44px; }
+  .addbtn { width: 40px; height: 40px; }
+  .ms-opt, .gen-row { min-height: 52px; }
+  .kanban { grid-template-columns: repeat(5, 44vw); }
+  .kchips { display: flex; }
+  .drawer { width: 78vw; min-width: 480px; }
+  .grid.cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hide-sm { display: table-cell; }
+}
+
+/* ---------- Телефон ---------- */
+@media (max-width: 640px) {
+  body { font-size: 15.5px; }
+  .content, .content.wide { padding: 12px; padding-bottom: 92px; }
+  .btn { min-height: 48px; }
+  .btn.sm { min-height: 44px; }
+  .input, select.input, textarea.input, .dt input, .search input { min-height: 48px; font-size: 16px; }
+  .field input, .field select, .field textarea { font-size: 16px; } /* iOS не приближает поля при фокусе */
+  .topbar { padding: 8px 12px; }
+  .topbar .btn { min-height: 40px; }
+  .wsbar { gap: 8px; }
+  .seg { overflow-x: auto; max-width: 100%; }
+  .seg button { padding: 8px 10px; white-space: nowrap; min-height: 44px; }
+  .wsright { width: 100%; justify-content: space-between; }
+  .wsright .btn.primary { flex: 1; }
+  .search { flex: 1 1 100%; max-width: none; }
+  .dt { flex: 1; }
+  .dt input { width: 100%; min-width: 0; }
+  .kanban { grid-template-columns: repeat(5, 86vw); gap: 10px; }
+  .kchips { display: flex; }
+  .kcol { max-height: 68vh; }
+  .addbtn { width: 44px; height: 44px; }
+  .drawer { width: 100vw; min-width: 0; }
+  .drawer-body { padding: 12px 12px 90px; }
+  .drawer-head { padding: 12px 12px 4px; }
+  .facts { grid-template-columns: 1fr; gap: 0; } .facts dt { margin-top: 8px; }
+  .overlay { align-items: flex-end; padding: 0; }
+  .modal { width: 100%; max-height: 90vh; border-radius: 16px 16px 0 0; padding: 18px 16px 24px; }
+  .sticky-actions { position: sticky; bottom: 64px; z-index: 5; }
+  .cal { gap: 2px; } .calc { min-height: 60px; padding: 2px; } .calchip { font-size: 10px; padding: 1px 3px; }
+  .gantt { grid-template-columns: 130px 1fr; } .gname { font-size: 11px; }
+  .qr-inv { font-size: 22px; }
+  .gen-preview { height: 50vh; }
+  /* таблицы → карточки */
+  .rtable, .rtable tbody { display: block; }
+  .rtable thead { display: none; }
+  .rtable tr { display: block; background: #fff; border: 1px solid var(--border); border-radius: 10px; margin: 8px; padding: 8px 12px; box-shadow: var(--shadow); }
+  .rtable td { display: flex; justify-content: space-between; gap: 12px; border: 0; padding: 4px 0; text-align: right; }
+  .rtable td::before { content: attr(data-label); color: var(--text-muted); font-size: 12px; text-align: left; flex: none; }
+  .rtable td.nolabel::before { content: none; }
+  .hide-sm { display: none !important; }
+}
+
+/* чипы переходов между колонками канбана (планшет и телефон) */
+.kchips { gap: 6px; overflow-x: auto; padding: 2px 0 8px; position: sticky; top: 0; z-index: 4; background: var(--bg); }
+.kchip { flex: none; display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border); background: #fff; border-radius: 999px; padding: 8px 14px; min-height: 44px; font-weight: 600; cursor: pointer; }
+.kchip b { background: #eef2f7; border-radius: 999px; padding: 0 8px; font-size: 12px; }
+.kchip.on { background: var(--navy-900); color: #fff; border-color: var(--navy-900); }
+.kchip.on b { background: rgba(255, 255, 255, .2); color: #fff; }
+
+/* крупные области нажатия для флажков (планшет и телефон) */
+.chk { display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+@media (max-width: 1024px) {
+  input[type=checkbox], input[type=radio] { width: 22px; height: 22px; }
+  .chk, .gen-row, .ms-opt { min-width: 44px; min-height: 44px; }
+}
