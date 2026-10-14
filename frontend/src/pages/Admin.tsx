@@ -4,6 +4,7 @@ import { ApiError, get, patch, post, put, uuid } from '../api/client'
 import { useAuth } from '../auth/AuthContext'
 import { Button, ConfirmModal, Empty, ErrorBox, Field, Modal, Pagination, Skeleton, Tabs, errText, useDebounced, useToast } from '../components/ui'
 import { fmtDateTime, ROLE, EQ_TYPE } from '../lib/format'
+import { Icon } from '../components/Icon'
 
 // ---------------- Пользователи ----------------
 export function UsersPage() {
@@ -102,7 +103,7 @@ export function OrganizationsPage() {
         <div key={o.id} className="card stack">
           <div className="row between"><div><h2 style={{ margin: 0 }}>{o.name}</h2><div className="muted small">{o.kind === 'service' ? 'Сервисная организация' : 'Клиент'}{o.archived_at && ' · в архиве'}</div></div>
             {o.kind === 'client' && <div className="row"><Button small onClick={() => setSiteFor(o)}>Добавить площадку</Button><Button small onClick={() => archive.mutate(o)}>{o.archived_at ? 'Вернуть из архива' : 'Архивировать'}</Button></div>}</div>
-          {sites.data?.items.filter((s: any) => s.organization_id === o.id).map((s: any) => <div key={s.id} className="small">📍 <strong>{s.name}</strong> — {s.address}</div>)}
+          {sites.data?.items.filter((s: any) => s.organization_id === o.id).map((s: any) => <div key={s.id} className="small"><Icon name="pin" size={13} /> <strong>{s.name}</strong> — {s.address}</div>)}
         </div>))}
       {org && <OrgForm onClose={() => setOrg(false)} onSaved={() => { setOrg(false); qc.invalidateQueries({ queryKey: ['orgs-admin'] }) }} />}
       {siteFor && <SiteForm org={siteFor} onClose={() => setSiteFor(null)} onSaved={() => { setSiteFor(null); qc.invalidateQueries({ queryKey: ['sites-admin'] }) }} />}

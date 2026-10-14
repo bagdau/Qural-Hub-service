@@ -3,11 +3,12 @@ import { DndContext, DragOverlay, MouseSensor, TouchSensor, useDraggable, useDro
 import { PRIORITY_COLOR } from '../lib/format'
 import { COLUMNS, avatarColor, columnOf, initials, resolveDrop, slaView, sortForBoard, useNow, PRIORITY_TITLE, type ColumnId, type Drop } from './boardLib'
 import { useLive } from './live'
+import { Icon } from '../components/Icon'
 
 export function SlaBadge({ t, now }: { t: any; now: number }) {
   const v = slaView(t, now)
   if (!v.text) return null
-  return <span className={`sla ${v.tone}`}><span aria-hidden>{v.tone === 'bad' ? '⚠' : v.tone === 'warn' ? '⏱' : v.tone === 'ok' ? '⏱' : '⏸'}</span>{v.text}</span>
+  return <span className={`sla ${v.tone}`}><Icon name={v.tone === 'bad' ? 'alert' : v.tone === 'idle' ? 'pause' : 'clock'} size={13} />{v.text}</span>
 }
 
 export function PriorityPill({ p }: { p: string }) {
@@ -26,9 +27,9 @@ export function TicketCard({ t, now, onOpen, overlay, selected }: { t: any; now:
       </div>
       <div className="kcard-title">{t.title}</div>
       <div className="kcard-meta">
-        <div title={t.equipment.name}>⚡ {t.equipment.name}{t.equipment.model ? <span className="muted"> · {t.equipment.model}</span> : null}</div>
-        <div className="muted">🏢 {t.organization.name}</div>
-        <div className="muted">📍 {t.site.name}</div>
+        <div title={t.equipment.name}><Icon name="equipment" size={13} /> {t.equipment.name}{t.equipment.model ? <span className="muted"> · {t.equipment.model}</span> : null}</div>
+        <div className="muted"><Icon name="building" size={13} /> {t.organization.name}</div>
+        <div className="muted"><Icon name="pin" size={13} /> {t.site.name}</div>
       </div>
       <SlaBadge t={t} now={now} />
       <div className="kcard-foot">
@@ -36,9 +37,9 @@ export function TicketCard({ t, now, onOpen, overlay, selected }: { t: any; now:
           ? <span className="who" title={t.assigned_engineer.full_name}><i style={{ background: avatarColor(t.assigned_engineer.id) }} aria-hidden>{initials(t.assigned_engineer.full_name)}</i>{t.assigned_engineer.full_name}</span>
           : <span className="who muted">Не назначен</span>}
         <span className="counters">
-          {cl && cl.total > 0 && <span title="Чек-лист" className={cl.done === cl.total ? 'done' : ''}>☑ {cl.done}/{cl.total}</span>}
-          {t.parts_count > 0 && <span title="Запчасти">🔩 {t.parts_count}</span>}
-          {t.comments_count > 0 && <span title="Комментарии">💬 {t.comments_count}</span>}
+          {cl && cl.total > 0 && <span title="Чек-лист" className={cl.done === cl.total ? 'done' : ''}><Icon name="checklist" size={13} /> {cl.done}/{cl.total}</span>}
+          {t.parts_count > 0 && <span title="Запчасти"><Icon name="parts" size={13} /> {t.parts_count}</span>}
+          {t.comments_count > 0 && <span title="Комментарии"><Icon name="message" size={13} /> {t.comments_count}</span>}
         </span>
       </div>
     </div>
@@ -69,7 +70,7 @@ function Column({ col, items, now, onOpen, onAdd, state, selectedId, canAdd }: {
         <div className="row between" style={{ flexWrap: 'nowrap' }}>
           <h2><span className="dot" aria-hidden />{col.title}</h2>
           <div className="row" style={{ gap: 6, flexWrap: 'nowrap' }}>
-            {warnings > 0 && <span className="warnbadge" title="Заявок с SLA под угрозой или просрочкой">⚠ {warnings}</span>}
+            {warnings > 0 && <span className="warnbadge" title="Заявок с SLA под угрозой или просрочкой"><Icon name="alert" size={12} /> {warnings}</span>}
             <span className="count" aria-label={`Заявок: ${items.length}`}>{items.length}</span>
             <button className="addbtn" onClick={() => onAdd(col.id)} disabled={!canAdd.enabled} title={canAdd.hint} aria-label={`Создать заявку: ${col.title}`}>+</button>
           </div>

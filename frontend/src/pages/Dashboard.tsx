@@ -96,7 +96,7 @@ export function DashboardPage() {
           <div className="grid cols-2">
             <div className="card">
               <h2>Просроченные заявки</h2>
-              {od.isLoading ? <Skeleton /> : !od.data?.items.length ? <Empty icon="✅" title="Просроченных заявок нет" /> : (
+              {od.isLoading ? <Skeleton /> : !od.data?.items.length ? <Empty icon="check-circle" title="Просроченных заявок нет" /> : (
                 <div className="stack">{od.data.items.map((t: any) => (
                   <Link key={t.id} to={`/tickets/${t.id}`} className="row between" style={{ textDecoration: 'none', color: 'inherit' }}>
                     <span><strong>{t.number}</strong> {t.title}<div className="small muted">{t.equipment.name}</div></span>

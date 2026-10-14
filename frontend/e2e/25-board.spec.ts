@@ -29,7 +29,7 @@ test('BOARD-01 канбан: колонки, карточки, SLA, фильтр
   const c8 = page.getByTestId('card-SR-2026-0008')
   await expect(c8).toContainText('Просрочено на 1 ч 30 мин')
   await expect(c8).toContainText('Инженер Демо-2')
-  await expect(c8).toContainText('☑')
+  await expect(c8).toContainText('0/7')
   await expect(page.getByTestId('col-in_progress').getByTestId('card-SR-2026-0009')).toContainText(/Осталось/)
   await page.screenshot({ path: 'artifacts/screens/board-kanban.png' })
 

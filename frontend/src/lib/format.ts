@@ -1,13 +1,13 @@
 export const STATUS: Record<string, { label: string; icon: string; bg: string; fg: string }> = {
-  new: { label: 'Новая', icon: '●', bg: '#dbeafe', fg: '#1e3a8a' },
-  accepted: { label: 'Принята', icon: '✔', bg: '#e0e7ff', fg: '#3730a3' },
-  assigned: { label: 'Назначена', icon: '👤', bg: '#ccfbf1', fg: '#115e59' },
-  in_progress: { label: 'В работе', icon: '⚙', bg: '#d1fae5', fg: '#065f46' },
-  paused: { label: 'На паузе', icon: '⏸', bg: '#fef3c7', fg: '#92400e' },
-  awaiting_confirmation: { label: 'Ждёт подтверждения', icon: '⏳', bg: '#ede9fe', fg: '#5b21b6' },
-  closed: { label: 'Закрыта', icon: '✔', bg: '#dcfce7', fg: '#166534' },
-  rejected: { label: 'Отклонена', icon: '✖', bg: '#fee2e2', fg: '#991b1b' },
-  cancelled: { label: 'Отменена', icon: '⊘', bg: '#e5e7eb', fg: '#374151' },
+  new: { label: 'Новая', icon: 'dot', bg: '#dbeafe', fg: '#1e3a8a' },
+  accepted: { label: 'Принята', icon: 'check', bg: '#e0e7ff', fg: '#3730a3' },
+  assigned: { label: 'Назначена', icon: 'user', bg: '#ccfbf1', fg: '#115e59' },
+  in_progress: { label: 'В работе', icon: 'cog', bg: '#d1fae5', fg: '#065f46' },
+  paused: { label: 'На паузе', icon: 'pause', bg: '#fef3c7', fg: '#92400e' },
+  awaiting_confirmation: { label: 'Ждёт подтверждения', icon: 'hourglass', bg: '#ede9fe', fg: '#5b21b6' },
+  closed: { label: 'Закрыта', icon: 'check', bg: '#dcfce7', fg: '#166534' },
+  rejected: { label: 'Отклонена', icon: 'x', bg: '#fee2e2', fg: '#991b1b' },
+  cancelled: { label: 'Отменена', icon: 'ban', bg: '#e5e7eb', fg: '#374151' },
 }
 export const PRIORITY: Record<string, string> = { low: 'Низкий', normal: 'Обычный', high: 'Высокий', critical: 'Критический' }
 export const PRIORITY_COLOR: Record<string, string> = { low: '#475467', normal: '#1e3a8a', high: '#b45309', critical: '#c9300a' }

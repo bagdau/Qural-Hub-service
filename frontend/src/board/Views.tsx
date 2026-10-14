@@ -4,6 +4,7 @@ import { nowMs } from '../api/client'
 import { DAY_TZ, PRIORITY_RANK, dayKey, slaView, sortForBoard, useNow } from './boardLib'
 import { PriorityPill, SlaBadge } from './Kanban'
 import { Empty, StatusBadge } from '../components/ui'
+import { Icon } from '../components/Icon'
 
 // ---------------- Список ----------------
 export function ListView({ tickets, onOpen, selectedId }: { tickets: any[]; onOpen: (id: string) => void; selectedId: string | null }) {
@@ -138,7 +139,7 @@ export function GanttView({ tickets, onOpen }: { tickets: any[]; onOpen: (id: st
                   <span className={`gbar ${v.tone}`} style={{ left: x(created), width: Math.max(4, x(barEnd) - x(created)) }} title={`${t.number}: создана ${fmtDateTime(t.created_at)}`} />
                   {due && due > now && <span className="gbudget" style={{ left: x(now), width: Math.max(2, x(due) - x(now)) }} title={`Осталось до срока SLA: до ${fmtDateTime(t.sla.due_at)}`} />}
                   {due && <i className={`gdue ${due < now ? 'late' : ''}`} style={{ left: x(due) }} title={`Срок SLA: ${fmtDateTime(t.sla.due_at)}`} />}
-                  {!due && ['paused', 'awaiting_confirmation'].includes(t.status) && <span className="gstop" style={{ left: x(now), width: 18 }} title="Часы SLA остановлены">⏸</span>}
+                  {!due && ['paused', 'awaiting_confirmation'].includes(t.status) && <span className="gstop" style={{ left: x(now), width: 18 }} title="Часы SLA остановлены"><Icon name="pause" size={14} /></span>}
                   <span className="glabel" style={{ left: x(Math.max(created, start)) + 4 }}>{STATUS[t.status]?.label}</span>
                 </div>
               )
@@ -147,7 +148,7 @@ export function GanttView({ tickets, onOpen }: { tickets: any[]; onOpen: (id: st
         </div>
       </div>
       <div className="small muted row" style={{ marginTop: 8 }}>
-        <span><i className="lg ok" /> в пределах срока</span><span><i className="lg warn" /> срок поджимает</span><span><i className="lg bad" /> просрочено</span><span><i className="lg idle" /> часы остановлены</span><span>▏ срок SLA · линия «сейчас»</span>
+        <span><i className="lg ok" /> в пределах срока</span><span><i className="lg warn" /> срок поджимает</span><span><i className="lg bad" /> просрочено</span><span><i className="lg idle" /> часы остановлены</span><span>│ срок SLA · красная линия — «сейчас»</span>
       </div>
     </div>
   )

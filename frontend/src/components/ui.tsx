@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { ApiError } from '../api/client'
 import { PRIORITY, PRIORITY_COLOR, STATUS, slaText } from '../lib/format'
+import { Icon } from './Icon'
 
 // ---------- toasts ----------
 type Toast = { id: number; text: string; err?: boolean }
@@ -82,7 +83,7 @@ export function Modal({ title, onClose, children, wide }: { title: string; onClo
 
 export function StatusBadge({ status }: { status: string }) {
   const s = STATUS[status] ?? { label: status, icon: '', bg: '#eee', fg: '#333' }
-  return <span className="badge" style={{ background: s.bg, color: s.fg }}><span aria-hidden>{s.icon}</span>{s.label}</span>
+  return <span className="badge" style={{ background: s.bg, color: s.fg }}><Icon name={s.icon} size={13} />{s.label}</span>
 }
 export function PriorityBadge({ priority }: { priority: string }) {
   return <span className="badge" style={{ background: '#fff', border: `1px solid ${PRIORITY_COLOR[priority]}`, color: PRIORITY_COLOR[priority] }}>{PRIORITY[priority] ?? priority}</span>
@@ -90,14 +91,14 @@ export function PriorityBadge({ priority }: { priority: string }) {
 export function SlaChip({ sla, status }: { sla: any; status: string }) {
   const { text, bad } = slaText(sla, status)
   if (!text) return null
-  return <span className="badge" style={{ background: bad ? 'var(--danger-bg)' : '#f1f5f9', color: bad ? '#b42318' : 'var(--text-muted)' }}>{bad ? '⚠ ' : ''}{text}</span>
+  return <span className="badge" style={{ background: bad ? 'var(--danger-bg)' : '#f1f5f9', color: bad ? '#b42318' : 'var(--text-muted)' }}>{bad && <Icon name="alert" size={13} />}{text}</span>
 }
 
 export function Skeleton({ lines = 3 }: { lines?: number }) {
   return <div className="stack" aria-busy="true" aria-label="Загрузка">{Array.from({ length: lines }).map((_, i) => <div key={i} className="skeleton" style={{ width: `${90 - i * 12}%` }} />)}</div>
 }
-export function Empty({ icon = '📭', title, text, action }: { icon?: string; title: string; text?: string; action?: React.ReactNode }) {
-  return <div className="empty"><div className="ico" aria-hidden>{icon}</div><h3>{title}</h3>{text && <p>{text}</p>}{action}</div>
+export function Empty({ icon = 'inbox', title, text, action }: { icon?: string; title: string; text?: string; action?: React.ReactNode }) {
+  return <div className="empty"><div className="ico" aria-hidden><Icon name={icon} size={36} /></div><h3>{title}</h3>{text && <p>{text}</p>}{action}</div>
 }
 export function ErrorBox({ error, retry }: { error: unknown; retry?: () => void }) {
   const e = error instanceof ApiError ? error : null

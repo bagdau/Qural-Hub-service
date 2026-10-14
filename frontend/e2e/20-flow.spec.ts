@@ -18,7 +18,7 @@ test('E2E-01 полный цикл заявки', async ({ browser }) => {
   await expect(heading).toBeVisible()
   const number = (await heading.textContent())!.match(/SR-\d{4}-\d{4}/)![0]
   await cl.page.locator('input[type=file][multiple]').setInputFiles({ name: 'problem.png', mimeType: 'image/png', buffer: png() })
-  await expect(cl.page.getByText('✔ Загружено')).toBeVisible()
+  await expect(cl.page.getByText('✓ Загружено')).toBeVisible()
   await cl.page.getByRole('button', { name: /Готово/ }).click()
   await expect(cl.page.getByRole('heading', { name: 'E2E: гул и нагрев КТП' })).toBeVisible()
   const ticketUrl = cl.page.url()

@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { ApiError, api, uuid } from '../api/client'
 import { Button, errText, useOnline } from './ui'
 import { STAGE } from '../lib/format'
+import { Icon } from './Icon'
 
 interface Item { id: string; file: File; key: string; pct: number; status: 'queued' | 'uploading' | 'done' | 'error'; error?: string; preview?: string }
 
@@ -74,20 +75,20 @@ export function Uploader({ ticketId, stages = ['before', 'during', 'after', 'oth
       <input ref={gal} type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onChange={(e) => { add(e.target.files, 'photo'); e.target.value = '' }} />
       <input ref={doc} type="file" accept="application/pdf" hidden onChange={(e) => { add(e.target.files, 'document'); e.target.value = '' }} />
       <div className="row">
-        <Button onClick={() => cam.current?.click()} disabled={!online}>📷 Сделать фото</Button>
-        <Button onClick={() => gal.current?.click()} disabled={!online}>🖼 Из галереи</Button>
-        {allowDocs && <Button onClick={() => doc.current?.click()} disabled={!online}>📄 PDF-документ</Button>}
+        <Button onClick={() => cam.current?.click()} disabled={!online}><Icon name="camera" size={16} /> Сделать фото</Button>
+        <Button onClick={() => gal.current?.click()} disabled={!online}><Icon name="image" size={16} /> Из галереи</Button>
+        {allowDocs && <Button onClick={() => doc.current?.click()} disabled={!online}><Icon name="file" size={16} /> PDF-документ</Button>}
       </div>
       {items.length > 0 && (
         <div className="stack" aria-live="polite">
           <div className="small muted">Загружено {items.filter((i) => i.status === 'done').length} из {items.length}</div>
           {items.map((it) => (
             <div key={it.id} className="row" style={{ flexWrap: 'nowrap' }}>
-              {it.preview ? <img src={it.preview} alt="" width={48} height={36} style={{ objectFit: 'cover', borderRadius: 4 }} /> : <span aria-hidden>📄</span>}
+              {it.preview ? <img src={it.preview} alt="" width={48} height={36} style={{ objectFit: 'cover', borderRadius: 4 }} /> : <Icon name="file" size={20} />}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div className="small" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{it.file.name}</div>
                 {it.status === 'uploading' && <div className="progress" role="progressbar" aria-valuenow={it.pct} aria-valuemin={0} aria-valuemax={100}><i style={{ width: `${it.pct}%` }} /></div>}
-                {it.status === 'done' && <div className="small" style={{ color: 'var(--ok)' }}>✔ Загружено</div>}
+                {it.status === 'done' && <div className="small" style={{ color: 'var(--ok)' }}>✓ Загружено</div>}
                 {it.status === 'error' && <div className="err" role="alert">{it.error}</div>}
               </div>
               {it.status === 'error' && <Button small onClick={() => retry(it)}>Повторить</Button>}

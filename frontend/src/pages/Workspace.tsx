@@ -11,11 +11,12 @@ import { LiveIndicator, LiveProvider, useLive } from '../board/live'
 import { QuickCreate } from '../board/QuickCreate'
 import { CalendarView, GanttView, ListView } from '../board/Views'
 import { ActionModal } from './Tickets'
+import { Icon } from '../components/Icon'
 import {
   COLUMNS, DEFAULT_WS, EMPTY_FILTERS, PRIORITY_TITLE, applyFilters, loadWorkspace, matchesQuery, saveWorkspace, columnOf, type ColumnId, type Drop, type Filters, type ViewId, type Workspace as WS,
 } from '../board/boardLib'
 
-const VIEWS: [ViewId, string, string][] = [['kanban', 'Канбан', '▥'], ['list', 'Список', '☰'], ['calendar', 'Календарь', '📅'], ['gantt', 'Шкала SLA', '▭']]
+const VIEWS: [ViewId, string, string][] = [['kanban', 'Канбан', 'board'], ['list', 'Список', 'list'], ['calendar', 'Календарь', 'calendar'], ['gantt', 'Шкала SLA', 'gantt']]
 
 function MultiSelect({ label, options, value, onChange }: { label: string; options: [string, string][]; value: string[]; onChange: (v: string[]) => void }) {
   const [open, setOpen] = useState(false)
@@ -139,11 +140,11 @@ function WorkspaceInner() {
     <div className={`workspace ${ws.density}`} data-density={ws.density}>
       <div className="wsbar">
         <div className="seg" role="tablist" aria-label="Представление">
-          {VIEWS.map(([id, label, icon]) => <button key={id} role="tab" aria-selected={ws.view === id} className={ws.view === id ? 'on' : ''} onClick={() => setWs({ ...ws, view: id })}><span aria-hidden>{icon}</span> {label}</button>)}
+          {VIEWS.map(([id, label, icon]) => <button key={id} role="tab" aria-selected={ws.view === id} className={ws.view === id ? 'on' : ''} onClick={() => setWs({ ...ws, view: id })}><Icon name={icon} size={16} /> {label}</button>)}
         </div>
         <div className="wsright">
           <LiveIndicator />
-          <button className="btn sm" onClick={() => setWs({ ...ws, density: ws.density === 'compact' ? 'standard' : 'compact' })} aria-pressed={ws.density === 'compact'} title="Плотность интерфейса">{ws.density === 'compact' ? '▤ Компактно' : '▦ Стандарт'}</button>
+          <button className="btn sm" onClick={() => setWs({ ...ws, density: ws.density === 'compact' ? 'standard' : 'compact' })} aria-pressed={ws.density === 'compact'} title="Плотность интерфейса">{ws.density === 'compact' ? <><Icon name="compact" size={16} /> Компактно</> : <><Icon name="standard" size={16} /> Стандарт</>}</button>
           {canCreate && <Button variant="primary" onClick={() => setCreate('new')}>+ Создать заявку</Button>}
         </div>
       </div>
@@ -156,7 +157,7 @@ function WorkspaceInner() {
         <span className="muted">—</span>
         <label className="dt"><span className="sr-only">Создана по</span><input type="date" value={ws.filters.to} onChange={(e) => setF({ to: e.target.value })} aria-label="Создана по" /></label>
         {activeFilters > 0 && <button className="btn sm ghost" onClick={() => setWs({ ...ws, filters: EMPTY_FILTERS })}>✕ Сбросить ({activeFilters})</button>}
-        <span className="small muted" style={{ marginLeft: 'auto' }}>{filtered.length} из {tickets.length}{warnTotal > 0 && <> · <span style={{ color: 'var(--danger)' }}>⚠ просрочено: {warnTotal}</span></>}</span>
+        <span className="small muted" style={{ marginLeft: 'auto' }}>{filtered.length} из {tickets.length}{warnTotal > 0 && <> · <span style={{ color: 'var(--danger)' }}><Icon name="alert" size={13} /> просрочено: {warnTotal}</span></>}</span>
       </div>
       {board.isLoading ? <div className="card"><Skeleton lines={6} /></div> : board.error ? <ErrorBox error={board.error} retry={() => board.refetch()} /> : (
         <div className={`wsmain ${selected ? 'withdrawer' : ''}`}>

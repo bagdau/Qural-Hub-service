@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useAuth } from './auth/AuthContext'
 import { get } from './api/client'
 import { Button, Skeleton, useOnline } from './components/ui'
+import { Icon } from './components/Icon'
 import { ROLE } from './lib/format'
 import { LoginPage, ChangePasswordPage, ProfilePage } from './pages/Auth'
 import { DashboardPage } from './pages/Dashboard'
@@ -16,30 +17,30 @@ import { UsersPage, OrganizationsPage, SparePartsPage, ChecklistsPage, SlaPage, 
 type NavItem = { to: string; label: string; icon: string }
 const NAV: Record<string, NavItem[]> = {
   admin: [
-    { to: '/', label: 'Дашборд', icon: '📊' }, { to: '/board', label: 'Заявки', icon: '🛠' }, { to: '/equipment', label: 'Оборудование', icon: '⚡' },
-    { to: '/maintenance', label: 'Плановые работы', icon: '📅' }, { to: '/admin/users', label: 'Пользователи', icon: '👥' },
-    { to: '/admin/organizations', label: 'Организации', icon: '🏢' }, { to: '/admin/spare-parts', label: 'Запчасти', icon: '🔩' },
-    { to: '/admin/checklists', label: 'Чек-листы', icon: '☑' }, { to: '/admin/sla', label: 'Настройки SLA', icon: '⏱' }, { to: '/admin/audit', label: 'Журнал аудита', icon: '📜' },
+    { to: '/', label: 'Дашборд', icon: 'dashboard' }, { to: '/board', label: 'Заявки', icon: 'board' }, { to: '/equipment', label: 'Оборудование', icon: 'equipment' },
+    { to: '/maintenance', label: 'Плановые работы', icon: 'calendar' }, { to: '/admin/users', label: 'Пользователи', icon: 'users' },
+    { to: '/admin/organizations', label: 'Организации', icon: 'building' }, { to: '/admin/spare-parts', label: 'Запчасти', icon: 'parts' },
+    { to: '/admin/checklists', label: 'Чек-листы', icon: 'checklist' }, { to: '/admin/sla', label: 'Настройки SLA', icon: 'clock' }, { to: '/admin/audit', label: 'Журнал аудита', icon: 'audit' },
   ],
   dispatcher: [
-    { to: '/', label: 'Дашборд', icon: '📊' }, { to: '/board', label: 'Заявки', icon: '🛠' }, { to: '/equipment', label: 'Оборудование', icon: '⚡' },
-    { to: '/maintenance', label: 'Плановые работы', icon: '📅' }, { to: '/admin/spare-parts', label: 'Запчасти', icon: '🔩' }, { to: '/scan', label: 'Сканер QR', icon: '▣' },
+    { to: '/', label: 'Дашборд', icon: 'dashboard' }, { to: '/board', label: 'Заявки', icon: 'board' }, { to: '/equipment', label: 'Оборудование', icon: 'equipment' },
+    { to: '/maintenance', label: 'Плановые работы', icon: 'calendar' }, { to: '/admin/spare-parts', label: 'Запчасти', icon: 'parts' }, { to: '/scan', label: 'Сканер QR', icon: 'qr' },
   ],
   manager: [
-    { to: '/', label: 'Дашборд', icon: '📊' }, { to: '/board', label: 'Заявки', icon: '🛠' }, { to: '/equipment', label: 'Оборудование', icon: '⚡' },
-    { to: '/maintenance', label: 'Плановые работы', icon: '📅' }, { to: '/admin/users', label: 'Пользователи', icon: '👥' },
+    { to: '/', label: 'Дашборд', icon: 'dashboard' }, { to: '/board', label: 'Заявки', icon: 'board' }, { to: '/equipment', label: 'Оборудование', icon: 'equipment' },
+    { to: '/maintenance', label: 'Плановые работы', icon: 'calendar' }, { to: '/admin/users', label: 'Пользователи', icon: 'users' },
   ],
   engineer: [
-    { to: '/my-tasks', label: 'Мои задания', icon: '🛠' }, { to: '/board', label: 'Доска заявок', icon: '▥' }, { to: '/scan', label: 'Сканер QR', icon: '▣' }, { to: '/equipment', label: 'Оборудование', icon: '⚡' },
+    { to: '/my-tasks', label: 'Мои задания', icon: 'tasks' }, { to: '/board', label: 'Доска заявок', icon: 'board' }, { to: '/scan', label: 'Сканер QR', icon: 'qr' }, { to: '/equipment', label: 'Оборудование', icon: 'equipment' },
   ],
   client: [
-    { to: '/', label: 'Главная', icon: '📊' }, { to: '/board', label: 'Мои заявки', icon: '🛠' }, { to: '/equipment', label: 'Оборудование', icon: '⚡' },
-    { to: '/maintenance', label: 'Плановые работы', icon: '📅' },
+    { to: '/', label: 'Главная', icon: 'dashboard' }, { to: '/board', label: 'Мои заявки', icon: 'board' }, { to: '/equipment', label: 'Оборудование', icon: 'equipment' },
+    { to: '/maintenance', label: 'Плановые работы', icon: 'calendar' },
   ],
 }
 const BOTTOM: Record<string, NavItem[]> = {
-  engineer: [{ to: '/my-tasks', label: 'Задания', icon: '🛠' }, { to: '/scan', label: 'Скан', icon: '▣' }, { to: '/notifications', label: 'Уведомл.', icon: '🔔' }, { to: '/profile', label: 'Профиль', icon: '👤' }],
-  default: [{ to: '/', label: 'Главная', icon: '📊' }, { to: '/board', label: 'Заявки', icon: '🛠' }, { to: '/equipment', label: 'Оборудование', icon: '⚡' }, { to: '/notifications', label: 'Уведомл.', icon: '🔔' }, { to: '/profile', label: 'Ещё', icon: '☰' }],
+  engineer: [{ to: '/my-tasks', label: 'Задания', icon: 'tasks' }, { to: '/scan', label: 'Скан', icon: 'qr' }, { to: '/notifications', label: 'Уведомл.', icon: 'bell' }, { to: '/profile', label: 'Профиль', icon: 'user' }],
+  default: [{ to: '/', label: 'Главная', icon: 'dashboard' }, { to: '/board', label: 'Заявки', icon: 'board' }, { to: '/equipment', label: 'Оборудование', icon: 'equipment' }, { to: '/notifications', label: 'Уведомл.', icon: 'bell' }, { to: '/profile', label: 'Ещё', icon: 'menu' }],
 }
 
 function Bell() {
@@ -48,7 +49,7 @@ function Bell() {
   const n = q.data?.count ?? 0
   return (
     <button className="bell" onClick={() => nav('/notifications')} aria-label={`Уведомления${n ? `, непрочитанных: ${n}` : ''}`}>
-      🔔{n > 0 && <span className="count">{n > 99 ? '99+' : n}</span>}
+      <Icon name="bell" size={20} />{n > 0 && <span className="count">{n > 99 ? '99+' : n}</span>}
     </button>
   )
 }
@@ -65,10 +66,10 @@ function Shell() {
       <aside className="sidebar">
         <a className="brand" href="/"><svg viewBox="0 0 32 32" aria-hidden><rect width="32" height="32" rx="7" fill="#163a68" /><path d="M17 5 9 18h6l-1 9 9-14h-6z" fill="#2DD4BF" /></svg>Alageum Service Hub</a>
         <nav className="nav" aria-label="Основное меню">
-          {items.map((i) => <NavLink key={i.to} to={i.to} end={i.to === '/'}><span aria-hidden>{i.icon}</span>{i.label}</NavLink>)}
+          {items.map((i) => <NavLink key={i.to} to={i.to} end={i.to === '/'}><Icon name={i.icon} />{i.label}</NavLink>)}
         </nav>
         <div className="spacer" />
-        <NavLink to="/profile" className="nav" style={{ color: '#cbd5e1', textDecoration: 'none', padding: '8px 12px' }}>👤 {me.full_name}<br /><span className="small">{ROLE[me.role]}</span></NavLink>
+        <NavLink to="/profile" className="nav" style={{ color: '#cbd5e1', textDecoration: 'none', padding: '8px 12px' }}><Icon name="user" size={18} /> {me.full_name}<br /><span className="small">{ROLE[me.role]}</span></NavLink>
       </aside>
       <div className="main">
         {!online && <div className="offline" role="alert">Нет соединения. Показаны сохранённые данные; действия временно недоступны.</div>}
@@ -79,7 +80,7 @@ function Shell() {
         <main className={`content ${loc.pathname === '/board' ? 'wide' : ''}`} id="main"><Outlet /></main>
       </div>
       <nav className="bottomnav" aria-label="Быстрая навигация">
-        {bottom.map((i) => <NavLink key={i.to} to={i.to} end={i.to === '/'}><span className="ico" aria-hidden>{i.icon}</span>{i.label}</NavLink>)}
+        {bottom.map((i) => <NavLink key={i.to} to={i.to} end={i.to === '/'}><Icon name={i.icon} size={22} />{i.label}</NavLink>)}
       </nav>
     </div>
   )

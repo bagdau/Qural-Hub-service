@@ -6,6 +6,7 @@ import { useAuth } from '../auth/AuthContext'
 import { Button, Empty, ErrorBox, Pagination, Skeleton, errText, useToast } from '../components/ui'
 import { fmtDate, fmtDateTime } from '../lib/format'
 import { ActionModal } from './Tickets'
+import { Icon } from '../components/Icon'
 
 export function ActPage() {
   const { id } = useParams()
@@ -27,7 +28,7 @@ export function ActPage() {
         <div><div className="muted small">{ticket && <Link to={`/tickets/${ticket.id}`}>{ticket.number}</Link>} / акт</div><h1>Акт {a.number}</h1>
           <span className="badge" style={{ background: status[1], color: status[2] }}>{status[0]}</span> <span className="muted small">версия {a.version} · сформирован {fmtDateTime(a.generated_at)}</span></div>
         <div className="row">
-          <a className="btn" href={`/api/v1/acts/${a.id}/pdf?download=1`}>⬇ Скачать PDF</a>
+          <a className="btn" href={`/api/v1/acts/${a.id}/pdf?download=1`}><Icon name="download" size={16} /> Скачать PDF</a>
           {a.decision === 'confirmed' && <a className="btn" href={`/api/v1/acts/${a.id}/confirmation.pdf`} target="_blank" rel="noreferrer">Лист подтверждения</a>}
         </div>
       </div>
@@ -63,11 +64,11 @@ export function NotificationsPage() {
   return (
     <div className="stack">
       <div className="row between"><h1>Уведомления</h1><div className="row"><label className="row small"><input type="checkbox" checked={unread} onChange={(e) => { setUnread(e.target.checked); setPage(1) }} /> Только непрочитанные</label><Button small onClick={() => readAll.mutate()}>Прочитать все</Button></div></div>
-      {q.isLoading ? <div className="card"><Skeleton lines={4} /></div> : q.error ? <ErrorBox error={q.error} /> : !q.data.items.length ? <div className="card"><Empty icon="🔔" title="Уведомлений нет" /></div> : (
+      {q.isLoading ? <div className="card"><Skeleton lines={4} /></div> : q.error ? <ErrorBox error={q.error} /> : !q.data.items.length ? <div className="card"><Empty icon="bell" title="Уведомлений нет" /></div> : (
         <div className="card" style={{ padding: 0 }}>
           {q.data.items.map((n: any) => (
             <button key={n.id} onClick={() => open(n)} style={{ display: 'block', width: '100%', textAlign: 'left', background: n.read_at ? 'transparent' : '#f0fdfa', border: 0, borderBottom: '1px solid var(--border)', padding: '12px 16px', cursor: 'pointer', minHeight: 56 }}>
-              <div style={{ fontWeight: n.read_at ? 400 : 700 }}>{!n.read_at && <span aria-label="не прочитано">● </span>}{n.title}</div>
+              <div style={{ fontWeight: n.read_at ? 400 : 700 }}>{!n.read_at && <span className="udot" aria-label="не прочитано" />}{n.title}</div>
               <div className="small muted">{n.body} · {fmtDateTime(n.created_at)}</div>
             </button>))}
         </div>)}
@@ -81,7 +82,7 @@ export function MaintenancePage() {
   return (
     <div className="stack">
       <h1>Плановые работы</h1>
-      {q.isLoading ? <div className="card"><Skeleton lines={4} /></div> : q.error ? <ErrorBox error={q.error} /> : !q.data.items.length ? <div className="card"><Empty icon="📅" title="Планов обслуживания нет" text="Планы добавляются в паспорте оборудования (вкладка «План»)." /></div> : (
+      {q.isLoading ? <div className="card"><Skeleton lines={4} /></div> : q.error ? <ErrorBox error={q.error} /> : !q.data.items.length ? <div className="card"><Empty icon="calendar" title="Планов обслуживания нет" text="Планы добавляются в паспорте оборудования (вкладка «План»)." /></div> : (
         <div className="card table-wrap"><table><thead><tr><th>Оборудование</th><th>План</th><th>Интервал</th><th>Последнее</th><th>Следующее</th></tr></thead>
           <tbody>{q.data.items.map((p: any) => {
             const over = new Date(p.next_due_date) < new Date()

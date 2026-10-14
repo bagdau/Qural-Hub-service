@@ -10,6 +10,7 @@ import { flagOf } from '../pages/Engineer'
 import { ActionModal } from '../pages/Tickets'
 import { avatarColor, initials, slaView, useNow } from './boardLib'
 import { SlaBadge } from './Kanban'
+import { Icon } from '../components/Icon'
 
 const ACTION_LABEL: Record<string, string> = {
   accept: 'Принять', reject: 'Отклонить', assign: 'Назначить инженера', reassign: 'Переназначить', start: 'Начать работу', pause: 'Приостановить',
@@ -44,7 +45,7 @@ export function Drawer({ id, allTickets, onClose, onOpen }: { id: string; allTic
                 <div className="row" style={{ gap: 8 }}><StatusBadge status={d.status} /><PriorityBadge priority={d.priority} /><SlaBadge t={d} now={now} /></div>
               </div>
               <div className="row" style={{ flexWrap: 'nowrap' }}>
-                <Link className="btn sm" to={`/tickets/${d.id}`} title="Открыть на отдельной странице">⤢</Link>
+                <Link className="btn sm" to={`/tickets/${d.id}`} title="Открыть на отдельной странице" aria-label="Открыть на отдельной странице"><Icon name="expand" size={16} /></Link>
                 <button className="btn sm" onClick={onClose} aria-label="Закрыть панель">✕</button>
               </div>
             </div>
@@ -128,9 +129,9 @@ function ChecklistTab({ t }: { t: any }) {
   const [saving, setSaving] = useState<'saved' | 'saving' | 'error'>('saved')
   useEffect(() => { if (r.data) { version.current = r.data.version; setAnswers(r.data.checklist_answers ?? {}) } }, [r.data?.id, r.data?.revision]) // eslint-disable-line
   const editable = me?.role === 'engineer' && t.assigned_engineer?.id === me.id && r.data?.status === 'draft' && ['assigned', 'in_progress', 'paused'].includes(t.status)
-  if (me?.role === 'client') return <Empty icon="📄" title="Чек-лист доступен в акте" text="После завершения работ результаты проверок включаются в акт." />
+  if (me?.role === 'client') return <Empty icon="file" title="Чек-лист доступен в акте" text="После завершения работ результаты проверок включаются в акт." />
   if (r.isLoading) return <Skeleton lines={4} />
-  if (r.error) return <Empty icon="☑" title="Чек-лист ещё не начат" text="Он появится, когда инженер начнёт работу." />
+  if (r.error) return <Empty icon="checklist" title="Чек-лист ещё не начат" text="Он появится, когда инженер начнёт работу." />
   const items: any[] = r.data.template.schema.items
   const ans = answers ?? {}
   const done = items.filter((i) => i.type !== 'text' && ans[i.key]?.value !== undefined && ans[i.key]?.value !== null && ans[i.key]?.value !== '').length
@@ -154,7 +155,7 @@ function ChecklistTab({ t }: { t: any }) {
     <div className="stack">
       <div className="card">
         <div className="row between"><strong>{r.data.template.title}</strong><span className="small muted">версия {r.data.template.version}</span></div>
-        <div className="row between small" style={{ margin: '8px 0 4px' }}><span>Выполнено {done} из {total}</span><span aria-live="polite" className="muted">{editable ? (saving === 'saved' ? '✔ Сохранено' : saving === 'saving' ? 'Сохранение…' : 'Ошибка сохранения') : 'Только просмотр'}</span></div>
+        <div className="row between small" style={{ margin: '8px 0 4px' }}><span>Выполнено {done} из {total}</span><span aria-live="polite" className="muted">{editable ? (saving === 'saved' ? '✓ Сохранено' : saving === 'saving' ? 'Сохранение…' : 'Ошибка сохранения') : 'Только просмотр'}</span></div>
         <div className="progress"><i style={{ width: `${total ? (100 * done) / total : 0}%` }} /></div>
       </div>
       <ol className="steps-list">
@@ -200,7 +201,7 @@ function PartsTab({ t }: { t: any }) {
   return (
     <div className="stack">
       <div className="banner info small">Фиксируется то, что <strong>использовано при ремонте</strong>, — оно попадает в акт. Складской учёт (остатки, списание, резервирование) в MVP не ведётся.</div>
-      {parts.isLoading ? <Skeleton /> : !parts.data?.length ? <Empty icon="🔩" title="Запчасти не добавлены" text={editable ? 'Добавьте использованные позиции ниже.' : undefined} /> : (
+      {parts.isLoading ? <Skeleton /> : !parts.data?.length ? <Empty icon="parts" title="Запчасти не добавлены" text={editable ? 'Добавьте использованные позиции ниже.' : undefined} /> : (
         <div className="card table-wrap" style={{ padding: 0 }}><table className="dense"><thead><tr><th>Код</th><th>Наименование</th><th>Кол-во</th>{editable && <th />}</tr></thead>
           <tbody>{parts.data.map((p: any) => <tr key={p.id}><td className="mono"><b>{p.sku}</b></td><td>{p.name}</td><td>{p.quantity} {UNIT[p.unit] ?? p.unit}</td>{editable && <td><Button small onClick={() => rm.mutate(p.id)}>Удалить</Button></td>}</tr>)}</tbody></table></div>)}
       {editable && <div className="card row" style={{ alignItems: 'flex-end' }}>
@@ -247,7 +248,7 @@ function LogTab({ t }: { t: any }) {
       <div className="card chat" aria-live="polite" aria-label="Журнал действий и комментарии">
         {events.isLoading || comments.isLoading ? <Skeleton lines={4} /> : !feed.length ? <Empty title="Записей пока нет" /> : feed.map((x: any) => x.kind === 'event' ? (
           <div key={x.id} className="evt"><span className="evt-dot" aria-hidden />
-            <div><strong>{EVENT[x.e.event_type] ?? x.e.event_type}</strong>{x.e.to_status && x.e.from_status !== x.e.to_status && <> → {STATUS[x.e.to_status]?.label}</>}{x.e.visibility === 'internal' && ' 🔒'}
+            <div><strong>{EVENT[x.e.event_type] ?? x.e.event_type}</strong>{x.e.to_status && x.e.from_status !== x.e.to_status && <> → {STATUS[x.e.to_status]?.label}</>}{x.e.visibility === 'internal' && <span title="Видно только сотрудникам"> <Icon name="lock" size={13} /></span>}
               <div className="small muted">{fmtDateTime(x.e.created_at)} · {x.e.actor?.full_name ?? 'Система'}{SLA_NOTE[x.e.event_type] ? ` · ${SLA_NOTE[x.e.event_type]}` : ''}</div>
               {x.e.event_type === 'paused' && <div className="small">{PAUSE_REASON[x.e.payload?.reason_code]}</div>}
               {x.e.event_type === 'priority_changed' && <div className="small">{PRIORITY[x.e.payload?.from]} → {PRIORITY[x.e.payload?.to]}</div>}
@@ -255,7 +256,7 @@ function LogTab({ t }: { t: any }) {
               {x.e.comment && <div className="small" style={{ whiteSpace: 'pre-wrap' }}>«{x.e.comment}»</div>}</div></div>
         ) : (
           <div key={x.id} className={`msg ${x.c.author?.id === me?.id ? 'mine' : ''} ${x.c.visibility === 'internal' ? 'internal' : ''}`}>
-            <div className="small muted">{x.c.author?.full_name} · {fmtDateTime(x.c.created_at)}{x.c.visibility === 'internal' && ' · 🔒 внутренний'}</div>
+            <div className="small muted">{x.c.author?.full_name} · {fmtDateTime(x.c.created_at)}{x.c.visibility === 'internal' && <> · <Icon name="lock" size={13} /> внутренний</>}</div>
             <div style={{ whiteSpace: 'pre-wrap' }}>{x.c.body}</div></div>))}
         <div ref={endRef} />
       </div>

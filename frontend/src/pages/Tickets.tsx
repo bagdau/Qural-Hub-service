@@ -6,6 +6,7 @@ import { useAuth } from '../auth/AuthContext'
 import { Uploader } from '../components/Uploader'
 import { Button, Empty, ErrorBox, Field, Modal, Pagination, PriorityBadge, Skeleton, SlaChip, StatusBadge, errText, useDebounced, useToast } from '../components/ui'
 import { EVENT, UNIT, fmtDateTime, KIND, PAUSE_REASON, PRIORITY, STAGE, STATUS, URGENCY } from '../lib/format'
+import { Icon } from '../components/Icon'
 
 export function TicketsPage() {
   const { me } = useAuth()
@@ -26,7 +27,7 @@ export function TicketsPage() {
       <div className="card stack">
         <div className="row">
           <Button small variant={!status && !overdue ? 'primary' : undefined} onClick={() => { setSp({}); setQ('') }}>Все</Button>
-          <Button small variant={overdue ? 'primary' : undefined} onClick={() => set('overdue', overdue ? '' : '1')}>⚠ Просроченные</Button>
+          <Button small variant={overdue ? 'primary' : undefined} onClick={() => set('overdue', overdue ? '' : '1')}><Icon name="alert" size={15} /> Просроченные</Button>
           <Button small variant={status === 'awaiting_confirmation' ? 'primary' : undefined} onClick={() => set('status', status === 'awaiting_confirmation' ? '' : 'awaiting_confirmation')}>Ждут подтверждения</Button>
         </div>
         <div className="row">
@@ -245,7 +246,7 @@ export function TicketDetailPage() {
             <h2>Фотографии и документы</h2>
             {atts.isLoading ? <Skeleton /> : !photos.length && !docs.length ? <p className="muted">Файлов пока нет.</p> : <>
               {photos.length > 0 && <div className="photos">{photos.map((a: any) => <a key={a.id} href={a.urls.download} target="_blank" rel="noreferrer" title={`${STAGE[a.stage] ?? ''} · ${fmtDateTime(a.uploaded_at)}`}><img src={a.urls.thumbnail} alt={`Фото: ${STAGE[a.stage] ?? ''}`} loading="lazy" /><div className="small muted">{STAGE[a.stage]}</div></a>)}</div>}
-              {docs.map((a: any) => <div key={a.id}><a href={a.urls.download} target="_blank" rel="noreferrer">📄 {a.original_filename}</a></div>)}</>}
+              {docs.map((a: any) => <div key={a.id}><a href={a.urls.download} target="_blank" rel="noreferrer"><Icon name="file" size={15} /> {a.original_filename}</a></div>)}</>}
             {canUpload && <details style={{ marginTop: 12 }}><summary style={{ cursor: 'pointer', fontWeight: 600 }}>Добавить файлы</summary><div style={{ marginTop: 8 }}><Uploader ticketId={d.id} stages={me?.role === 'client' ? ['other'] : ['before', 'during', 'after', 'other']} defaultStage={me?.role === 'client' ? 'other' : 'before'} visibilityChoice={me?.role !== 'client'} onUploaded={refresh} /></div></details>}
           </div>
           {(parts.data?.length ?? 0) > 0 && <div className="card"><h2>Использованные запчасти</h2><ul style={{ margin: 0, paddingLeft: 18 }}>{parts.data.map((p: any) => <li key={p.id}>{p.name} ({p.sku}) — {p.quantity} {UNIT[p.unit] ?? p.unit}</li>)}</ul></div>}
@@ -262,7 +263,7 @@ export function TicketDetailPage() {
             {events.isLoading ? <Skeleton lines={4} /> : (
               <ol className="timeline">{events.data?.items.filter((e: any) => !['attachment_added'].includes(e.event_type)).map((e: any) => (
                 <li key={e.id} className={e.visibility === 'internal' ? 'internal' : ''}>
-                  <div><strong>{EVENT[e.event_type] ?? e.event_type}</strong>{e.to_status && e.event_type !== 'comment_added' && e.from_status !== e.to_status && <> → {STATUS[e.to_status]?.label}</>}{e.visibility === 'internal' && <span title="Видно только сотрудникам"> 🔒</span>}</div>
+                  <div><strong>{EVENT[e.event_type] ?? e.event_type}</strong>{e.to_status && e.event_type !== 'comment_added' && e.from_status !== e.to_status && <> → {STATUS[e.to_status]?.label}</>}{e.visibility === 'internal' && <span title="Видно только сотрудникам"> <Icon name="lock" size={13} /></span>}</div>
                   <div className="small muted">{fmtDateTime(e.created_at)} · {e.actor?.full_name ?? 'Система'}</div>
                   {e.event_type === 'assigned' && (e.payload?.engineer_name) && <div className="small">Инженер: {e.payload.engineer_name}</div>}
                   {e.event_type === 'reassigned' && <div className="small">{e.payload.from_name} → {e.payload.to_name}</div>}
@@ -304,7 +305,7 @@ function Comments({ ticketId, data, loading, onAdded }: { ticketId: string; data
     <div className="card stack">
       <h2>Комментарии</h2>
       {loading ? <Skeleton /> : !data.length ? <p className="muted">Комментариев пока нет.</p> : data.map((c) => (
-        <div key={c.id}><div className="small muted">{c.author?.full_name} · {fmtDateTime(c.created_at)}{c.visibility === 'internal' && ' · 🔒 внутренний'}</div><div style={{ whiteSpace: 'pre-wrap' }}>{c.body}</div></div>))}
+        <div key={c.id}><div className="small muted">{c.author?.full_name} · {fmtDateTime(c.created_at)}{c.visibility === 'internal' && <> · <Icon name="lock" size={13} /> внутренний</>}</div><div style={{ whiteSpace: 'pre-wrap' }}>{c.body}</div></div>))}
       <form onSubmit={(e) => { e.preventDefault(); if (body.trim()) m.mutate() }} className="stack">
         <Field label="Новый комментарий"><textarea value={body} onChange={(e) => setBody(e.target.value)} maxLength={4000} /></Field>
         <div className="row between">{me?.role !== 'client' ? <label className="row small"><input type="checkbox" checked={internal} onChange={(e) => setInternal(e.target.checked)} /> Внутренний (клиент не увидит)</label> : <span />}

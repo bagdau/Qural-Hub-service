@@ -59,7 +59,7 @@ test('E2E-06 потеря соединения при заполнении от�
   await expect(page.locator('.badge[aria-live=polite]')).toContainText('Нет сети', { timeout: 10000 })
   await ctx.setOffline(false)
   await page.evaluate(() => window.dispatchEvent(new Event('online')))
-  await expect(page.getByText('✔ Сохранено')).toBeVisible({ timeout: 15000 })
+  await expect(page.getByText('✓ Сохранено')).toBeVisible({ timeout: 15000 })
   await page.reload()
   await expect(page.getByLabel('Результаты диагностики')).toHaveValue(/заклинивает при включении, требуется замена пружины/)
   await ctx.close()

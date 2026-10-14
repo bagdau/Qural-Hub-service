@@ -5,6 +5,7 @@ import { ApiError, api, get, patch, post, uuid } from '../api/client'
 import { useAuth } from '../auth/AuthContext'
 import { Button, ConfirmModal, Empty, ErrorBox, Field, Modal, Pagination, Skeleton, StatusBadge, Tabs, errText, useDebounced, useToast } from '../components/ui'
 import { EQ_STATE, EQ_TYPE, UNIT, fmtDate, fmtDateTime, PRIORITY } from '../lib/format'
+import { Icon } from '../components/Icon'
 
 export function EquipmentListPage() {
   const { me } = useAuth()
@@ -150,7 +151,7 @@ function Docs({ id, canEdit }: { id: string; canEdit: boolean }) {
       {canEdit && <div><input ref={ref} type="file" accept="application/pdf" hidden onChange={(e) => e.target.files?.[0] && up(e.target.files[0])} /><Button onClick={() => ref.current?.click()}>Загрузить PDF</Button>
         {pct !== null && <div className="progress" style={{ marginTop: 8 }} role="progressbar" aria-valuenow={pct}><i style={{ width: `${pct}%` }} /></div>}</div>}
       {docs.isLoading ? <Skeleton /> : !docs.data?.length ? <Empty title="Документов нет" /> : docs.data.map((a: any) => (
-        <div className="row between" key={a.id}><span>📄 {a.original_filename} <span className="muted small">{fmtDateTime(a.uploaded_at)}</span></span><a className="btn sm" href={a.urls.download} target="_blank" rel="noreferrer">Открыть</a></div>))}
+        <div className="row between" key={a.id}><span><Icon name="file" size={16} /> {a.original_filename} <span className="muted small">{fmtDateTime(a.uploaded_at)}</span></span><a className="btn sm" href={a.urls.download} target="_blank" rel="noreferrer">Открыть</a></div>))}
     </div>
   )
 }
@@ -270,9 +271,9 @@ function ManualSearch() {
       <form onSubmit={submit}><Field label="Инвентарный/серийный номер, код QR или номер заявки"><input value={v} onChange={(e) => setV(e.target.value)} placeholder="Например: DM-KTP-0002 или SR-2026-0013" autoComplete="off" /></Field></form>
       {r.data && (
         <div className="stack">
-          {r.data.equipment.map((e: any) => <Link key={e.id} to={`/equipment/${e.id}`} className="btn" style={{ justifyContent: 'flex-start' }}>⚡ {e.name} · {e.inventory_number}</Link>)}
-          {r.data.tickets.map((t: any) => <Link key={t.id} to={`/tickets/${t.id}`} className="btn" style={{ justifyContent: 'flex-start' }}>🛠 {t.number} · {t.title}</Link>)}
-          {!r.data.equipment.length && !r.data.tickets.length && <Empty icon="🔍" title="Ничего не найдено" />}
+          {r.data.equipment.map((e: any) => <Link key={e.id} to={`/equipment/${e.id}`} className="btn" style={{ justifyContent: 'flex-start' }}><Icon name="equipment" size={16} /> {e.name} · {e.inventory_number}</Link>)}
+          {r.data.tickets.map((t: any) => <Link key={t.id} to={`/tickets/${t.id}`} className="btn" style={{ justifyContent: 'flex-start' }}><Icon name="board" size={16} /> {t.number} · {t.title}</Link>)}
+          {!r.data.equipment.length && !r.data.tickets.length && <Empty icon="search" title="Ничего не найдено" />}
         </div>)}
     </div>
   )

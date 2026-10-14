@@ -5,6 +5,7 @@ import { ApiError, del, get, post, put, uuid } from '../api/client'
 import { Uploader } from '../components/Uploader'
 import { Button, Empty, ErrorBox, Field, Modal, PriorityBadge, Skeleton, SlaChip, StatusBadge, errText, useOnline, useToast } from '../components/ui'
 import { fmtDateTime, PAUSE_REASON } from '../lib/format'
+import { Icon } from '../components/Icon'
 
 const GROUPS: [string, string][] = [['today', 'Сегодня'], ['upcoming', 'Ближайшие'], ['paused', 'На паузе'], ['awaiting', 'Ожидают подтверждения клиента'], ['done', 'Завершённые']]
 
@@ -13,10 +14,10 @@ export function MyTasksPage() {
   const [open, setOpen] = useState<Record<string, boolean>>({ done: false })
   return (
     <div className="stack">
-      <div className="row between"><h1>Мои задания</h1><Link className="btn" to="/scan">▣ Сканер QR</Link></div>
+      <div className="row between"><h1>Мои задания</h1><Link className="btn" to="/scan"><Icon name="qr" size={16} /> Сканер QR</Link></div>
       {q.isLoading ? <div className="card"><Skeleton lines={4} /></div> : q.error ? <ErrorBox error={q.error} retry={() => q.refetch()} /> : (
         <>
-          {Object.values<any[]>(q.data).every((g) => !g.length) && <div className="card"><Empty icon="🛠" title="У вас пока нет заданий" text="Когда диспетчер назначит заявку, она появится здесь." /></div>}
+          {Object.values<any[]>(q.data).every((g) => !g.length) && <div className="card"><Empty icon="tasks" title="У вас пока нет заданий" text="Когда диспетчер назначит заявку, она появится здесь." /></div>}
           {GROUPS.map(([k, label]) => {
             const items: any[] = q.data[k] ?? []
             if (!items.length) return null
@@ -28,7 +29,7 @@ export function MyTasksPage() {
                   <Link key={t.id} to={`/tickets/${t.id}`} className="card task stack">
                     <div className="row between"><strong>{t.number}</strong><StatusBadge status={t.status} /></div>
                     <div><strong>{t.title}</strong></div>
-                    <div className="small muted">⚡ {t.equipment.name} · {t.equipment.inventory_number}<br />📍 {t.site.name}, {t.site.address}{t.scheduled_at && <><br />🕒 Визит: {fmtDateTime(t.scheduled_at)}</>}</div>
+                    <div className="small muted"><Icon name="equipment" size={13} /> {t.equipment.name} · {t.equipment.inventory_number}<br /><Icon name="pin" size={13} /> {t.site.name}, {t.site.address}{t.scheduled_at && <><br /><Icon name="visit" size={13} /> Визит: {fmtDateTime(t.scheduled_at)}</>}</div>
                     <div className="row"><PriorityBadge priority={t.priority} /><SlaChip sla={t.sla} status={t.status} />{t.work_stage && <span className="badge" style={{ background: '#f1f5f9' }}>{t.work_stage === 'diagnostics' ? 'Диагностика' : t.work_stage === 'repair' ? 'Выполнение работ' : 'Готово к завершению'}</span>}</div>
                   </Link>))}</div>}
               </section>
@@ -116,7 +117,7 @@ export function ReportPage() {
   const sections = Array.from(new Set(items.map((i) => i.section ?? '')))
   const ans = local.checklist_answers ?? {}
   const setAns = (key: string, patch: any) => change({ checklist_answers: { ...ans, [key]: { ...(ans[key] ?? {}), ...patch } } })
-  const badges: Record<string, string> = { saved: '✔ Сохранено', saving: 'Сохранение…', dirty: 'Не сохранено', offline: '⚠ Нет сети — черновик сохранён на устройстве' }
+  const badges: Record<string, string> = { saved: '✓ Сохранено', saving: 'Сохранение…', dirty: 'Не сохранено', offline: 'Нет сети — черновик сохранён на устройстве' }
   const failedCodes = (failed ?? check.data?.failed_checks ?? []) as any[]
 
   return (
@@ -167,7 +168,7 @@ export function ReportPage() {
             <strong>Съёмка невозможна?</strong>
             {rep.photo_exception.status === 'none' || rep.photo_exception.status === 'rejected'
               ? <><span>{rep.photo_exception.status === 'rejected' ? `Исключение отклонено: ${rep.photo_exception.comment ?? ''}` : 'Запросите согласованное исключение у диспетчера.'}</span><div><Button onClick={() => setPex(true)}>Запросить исключение</Button></div></>
-              : rep.photo_exception.status === 'requested' ? <span>Запрос отправлен диспетчеру, ожидайте решения.</span> : <span style={{ color: 'var(--ok)' }}>✔ Исключение согласовано: {rep.photo_exception.reason}</span>}</div>}
+              : rep.photo_exception.status === 'requested' ? <span>Запрос отправлен диспетчеру, ожидайте решения.</span> : <span style={{ color: 'var(--ok)' }}>✓ Исключение согласовано: {rep.photo_exception.reason}</span>}</div>}
         </>}
         {step === 5 && <>
           <h2>Проверка и завершение</h2>
@@ -181,7 +182,7 @@ export function ReportPage() {
       <div className="sticky-actions">
         <Button onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0}>← Назад</Button>
         {step < 5 ? <Button variant="primary" onClick={() => setStep(step + 1)}>Далее →</Button> : editable && <Button variant="primary" disabled={!online || state !== 'saved' || !check.data?.ok} loading={complete.isPending} onClick={() => { setFailed(null); complete.mutate() }}>Завершить работы</Button>}
-        {editable && t.data.status === 'in_progress' && <Button onClick={() => setPause(true)}>⏸ Приостановить</Button>}
+        {editable && t.data.status === 'in_progress' && <Button onClick={() => setPause(true)}><Icon name="pause" size={16} /> Приостановить</Button>}
         {!online && <span className="err">Нет сети: завершение недоступно</span>}
       </div>
       {pause && <PauseModal t={t.data} onClose={() => setPause(false)} onDone={() => { setPause(false); ['ticket', 'my-tasks'].forEach((k) => qc.invalidateQueries({ queryKey: [k] })); nav(`/tickets/${id}`) }} />}
@@ -220,7 +221,7 @@ function PartsStep({ id, rep, editable, confirmed, onConfirm, onChanged }: any) 
     <>
       <h2>Использованные запчасти</h2>
       <p className="muted" style={{ marginTop: 0 }}>Фиксируется только то, что использовано при ремонте. Остатки и закупки не ведутся.</p>
-      {!rep.parts.length ? <Empty icon="🔩" title="Запчасти не добавлены" /> : rep.parts.map((p: any) => <div key={p.id} className="row between"><span>{p.name} · {p.sku} — <strong>{p.quantity} {p.unit}</strong></span>{editable && <Button small onClick={() => rm.mutate(p.id)}>Удалить</Button>}</div>)}
+      {!rep.parts.length ? <Empty icon="parts" title="Запчасти не добавлены" /> : rep.parts.map((p: any) => <div key={p.id} className="row between"><span>{p.name} · {p.sku} — <strong>{p.quantity} {p.unit}</strong></span>{editable && <Button small onClick={() => rm.mutate(p.id)}>Удалить</Button>}</div>)}
       {editable && <div className="row" style={{ alignItems: 'flex-end' }}>
         <div style={{ flex: 1, minWidth: 200 }}><Field label="Позиция справочника"><select value={part} onChange={(e) => setPart(e.target.value)}><option value="">Выберите…</option>{cat.data?.items.map((p: any) => <option key={p.id} value={p.id}>{p.name} ({p.unit})</option>)}</select></Field></div>
         <div style={{ width: 110 }}><Field label="Кол-во"><input type="number" min="0.001" step="any" value={qty} onChange={(e) => setQty(e.target.value)} /></Field></div>

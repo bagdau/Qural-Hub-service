@@ -79,3 +79,13 @@ tbody tr.link:hover { background: #f1f5f9; cursor: pointer; }
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
   .skeleton { background: #e5e7eb; }
 }
+
+.icon { flex: none; display: inline-block; vertical-align: middle; }
+.bottomnav .icon { margin-bottom: 2px; }
+.bell { display: inline-flex; align-items: center; justify-content: center; color: var(--navy-900); }
+
+.kcard-meta .icon, .counters .icon, .sla .icon, .warnbadge .icon { vertical-align: -2px; margin-right: 2px; }
+.btn .icon { margin: 0; }
+.empty .ico { color: #94a3b8; display: flex; justify-content: center; }
+.udot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--teal-700); margin-right: 6px; }
+.badge .icon { margin: 0; }
