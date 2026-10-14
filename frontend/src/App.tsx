@@ -41,8 +41,8 @@ const NAV: Record<string, NavItem[]> = {
   ],
 }
 const BOTTOM: Record<string, NavItem[]> = {
-  engineer: [{ to: '/my-tasks', label: 'Задания', icon: 'tasks' }, { to: '/scan', label: 'Скан', icon: 'qr' }, { to: '/notifications', label: 'Уведомл.', icon: 'bell' }, { to: '/profile', label: 'Профиль', icon: 'user' }],
-  default: [{ to: '/', label: 'Главная', icon: 'dashboard' }, { to: '/board', label: 'Заявки', icon: 'board' }, { to: '/equipment', label: 'Оборудование', icon: 'equipment' }, { to: '/notifications', label: 'Уведомл.', icon: 'bell' }, { to: '/profile', label: 'Ещё', icon: 'menu' }],
+  engineer: [{ to: '/my-tasks', label: 'Задания', icon: 'tasks' }, { to: '/scan', label: 'Скан', icon: 'qr' }, { to: '/equipment', label: 'Оборудование', icon: 'equipment' }, { to: '/profile', label: 'Профиль', icon: 'user' }],
+  default: [{ to: '/', label: 'Главная', icon: 'dashboard' }, { to: '/board', label: 'Заявки', icon: 'board' }, { to: '/scan', label: 'Сканер QR', icon: 'qr' }, { to: '/equipment', label: 'Оборудование', icon: 'equipment' }, { to: '/profile', label: 'Ещё', icon: 'menu' }],
 }
 
 function Bell() {

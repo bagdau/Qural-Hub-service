@@ -1,10 +1,16 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button } from '../components/ui'
+import { Button, Modal } from '../components/ui'
 import { Icon } from '../components/Icon'
 import { decodeFile, extractCode } from '../lib/qr/decoder'
 import { useQrScanner } from '../lib/qr/useQrScanner'
 import { ManualSearch } from './Equipment'
+
+const CONSENT_KEY = 'alageum.camera-consent'
+const readConsent = () => { try { return sessionStorage.getItem(CONSENT_KEY) === '1' } catch { return false } }
+const saveConsent = () => { try { sessionStorage.setItem(CONSENT_KEY, '1') } catch { /* режим без хранилища */ } }
+/** Тот же сайт по HTTPS (порт 8443 стенда; при уже защищённом адресе не нужен) */
+const httpsUrl = () => `https://${window.location.hostname}:8443/scan`
 
 type Result = { kind: 'ok' | 'warn' | 'err'; text: string } | null
 
@@ -13,6 +19,7 @@ export function ScanPage() {
   const [result, setResult] = useState<Result>(null)
   const [busy, setBusy] = useState(false)
   const file = useRef<HTMLInputElement>(null)
+  const [ask, setAsk] = useState(false)
 
   const handleRaw = (raw: string) => {
     const code = extractCode(raw)
@@ -32,6 +39,13 @@ export function ScanPage() {
       setResult({ kind: 'err', text: 'Не удалось обработать фото. Попробуйте другой снимок.' })
     } finally { setBusy(false); if (file.current) file.current.value = '' }
   }
+  const secure = window.isSecureContext
+  const requestCamera = () => {
+    setResult(null)
+    if (secure && readConsent()) sc.start()
+    else setAsk(true)
+  }
+  const allow = () => { saveConsent(); setAsk(false); sc.start() }
   const scanning = sc.state === 'scanning' || sc.state === 'starting'
 
   return (
@@ -47,7 +61,7 @@ export function ScanPage() {
         </div>
         <div className="row">
           {!scanning
-            ? <Button variant="primary" onClick={() => { setResult(null); sc.start() }}><Icon name="camera" size={18} /> Включить камеру</Button>
+            ? <Button variant="primary" onClick={requestCamera}><Icon name="camera" size={18} /> Включить камеру</Button>
             : <Button onClick={sc.stop}>Выключить камеру</Button>}
           <Button onClick={() => file.current?.click()} loading={busy}><Icon name="image" size={18} /> Снять фото QR</Button>
           <input ref={file} type="file" accept="image/*" capture="environment" hidden onChange={(e) => onPhoto(e.target.files?.[0])} />
@@ -59,6 +73,7 @@ export function ScanPage() {
             <input type="range" min={sc.caps.zoom.min} max={sc.caps.zoom.max} step={sc.caps.zoom.step} value={sc.zoom} onChange={(e) => sc.setZoom(Number(e.target.value))} style={{ flex: 1 }} aria-label="Зум камеры" />
             <span className="mono">×{sc.zoom.toFixed(1)}</span>
           </label>)}
+        {sc.error?.kind === 'denied' && <div className="row"><Button onClick={() => { setAsk(true) }}>Повторить запрос камеры</Button></div>}
         {sc.error && <div className={`banner ${sc.error.kind === 'insecure' || sc.error.kind === 'unsupported' ? 'warn' : 'err'}`} role="alert">{sc.error.message}</div>}
         {result && <div className={`banner ${result.kind === 'ok' ? 'ok' : result.kind === 'warn' ? 'warn' : 'err'}`} role="status">{result.text}</div>}
         <details className="small">
@@ -72,6 +87,26 @@ export function ScanPage() {
         </details>
       </div>
       <ManualSearch />
+      {ask && (secure ? (
+        <Modal title="Разрешить доступ к камере?" onClose={() => setAsk(false)}>
+          <p>Для сканирования QR-кода приложению нужна камера устройства (задняя). Видео не записывается и не отправляется на сервер — изображение обрабатывается только на вашем устройстве.</p>
+          <p className="small muted">Сейчас браузер покажет собственный запрос — нажмите в нём «Разрешить» (на iPhone — «Allow»). Если вы случайно отказали, разрешите камеру для этого сайта в настройках браузера и повторите.</p>
+          <div className="row" style={{ justifyContent: 'flex-end' }}>
+            <Button onClick={() => setAsk(false)}>Отмена</Button>
+            <Button variant="primary" onClick={allow} autoFocus><Icon name="camera" size={18} /> Разрешить камеру</Button>
+          </div>
+        </Modal>
+      ) : (
+        <Modal title="Камера недоступна без HTTPS" onClose={() => setAsk(false)}>
+          <p>Браузер разрешает камеру только на защищённых страницах (HTTPS). Эта страница открыта по обычному HTTP, поэтому запрос доступа к камере не появится.</p>
+          <p className="small muted">Откройте тот же сайт по HTTPS. При первом входе браузер предупредит о самоподписанном сертификате — нажмите «Дополнительно» → «Продолжить»: это наш тестовый стенд. Либо снимите QR на фото — это работает и без HTTPS.</p>
+          <div className="row" style={{ justifyContent: 'flex-end' }}>
+            <Button onClick={() => setAsk(false)}>Закрыть</Button>
+            <Button onClick={() => { setAsk(false); file.current?.click() }}><Icon name="image" size={18} /> Снять фото QR</Button>
+            <a className="btn primary" href={httpsUrl()}>Открыть по HTTPS</a>
+          </div>
+        </Modal>
+      ))}
     </div>
   )
 }

@@ -4,6 +4,15 @@ import { as } from './helpers'
 
 const FX = process.env.FIXTURES_DIR ?? '/work/e2e/fixtures'
 
+/** Кнопка «Включить камеру» → предупредительное окно → «Разрешить камеру» */
+async function enableCamera(page: Page) {
+  await page.getByRole('button', { name: /Включить камеру/ }).click()
+  const dlg = page.getByRole('dialog', { name: 'Разрешить доступ к камере?' })
+  await expect(dlg).toBeVisible()
+  await dlg.getByRole('button', { name: /Разрешить камеру/ }).click()
+  await expect(dlg).toBeHidden()
+}
+
 /** Собирает ошибки консоли и необработанные исключения: сканер должен работать без единой ошибки */
 function watch(page: Page) {
   const errors: string[] = []
@@ -24,7 +33,7 @@ test('SCAN-01 камера: HD-поток, распознавание QR и пе
   })
   await page.goto('/scan')
   await expect(page.getByRole('heading', { name: 'Сканер QR-кода' })).toBeVisible()
-  await page.getByRole('button', { name: /Включить камеру/ }).click()
+  await enableCamera(page)
   await expect(page).toHaveURL(/\/equipment\/[0-9a-f-]{36}$/, { timeout: 20000 })
   await expect(page.getByRole('heading', { name: 'КТП-160' })).toBeVisible()
   const gum = await page.evaluate(() => (window as any).__gum)
@@ -73,7 +82,7 @@ test('SCAN-04 доступ к камере запрещён: инструкци�
     navigator.mediaDevices.getUserMedia = () => Promise.reject(Object.assign(new Error('denied'), { name: 'NotAllowedError' }))
   })
   await page.goto('/scan')
-  await page.getByRole('button', { name: /Включить камеру/ }).click()
+  await enableCamera(page)
   await expect(page.getByRole('alert').filter({ hasText: 'Доступ к камере запрещён' })).toBeVisible()
   await expect(page.getByLabel(/Инвентарный\/серийный номер/)).toBeVisible()
   expect(errors, errors.join('\n')).toEqual([])
@@ -86,7 +95,7 @@ test('SCAN-05 нет камеры и занятая камера: сообщен
     const errors = watch(page)
     await page.addInitScript((n) => { navigator.mediaDevices.getUserMedia = () => Promise.reject(Object.assign(new Error(n), { name: n })) }, name)
     await page.goto('/scan')
-    await page.getByRole('button', { name: /Включить камеру/ }).click()
+    await enableCamera(page)
     await expect(page.getByRole('alert').filter({ hasText: text })).toBeVisible()
     expect(errors, errors.join('\n')).toEqual([])
     await ctx.close()
@@ -107,7 +116,7 @@ test('SCAN-06 камера без QR в кадре: сканирование и�
     }
   })
   await page.goto('/scan')
-  await page.getByRole('button', { name: /Включить камеру/ }).click()
+  await enableCamera(page)
   await expect(page.getByRole('button', { name: 'Выключить камеру' })).toBeVisible()
   await expect(page.getByRole('checkbox', { name: 'Плохая видимость' })).toBeVisible()
   await page.waitForTimeout(1500) // несколько циклов распознавания пустого кадра — без ошибок и без ложных срабатываний

@@ -53,6 +53,11 @@ test('RESP: раскладка и отсутствие горизонтальн�
       } else {
         await expect(side, where).toBeHidden()
         await expect(bottom, where).toBeVisible()
+        // на телефоне в нижней панели нет «Уведомлений» (колокольчик — в верхней панели), есть «Сканер QR»/«Скан» и «Оборудование»
+        await expect(bottom.getByRole('link', { name: /Уведомл/ }), where).toHaveCount(0)
+        await expect(bottom.getByRole('link', { name: /Скан/ }), where).toHaveCount(1)
+        await expect(bottom.getByRole('link', { name: 'Оборудование' }), where).toHaveCount(1)
+        await expect(page.getByRole('button', { name: /^Уведомления/ }), where).toBeVisible()
       }
       try { await noOverflow(page, where) } catch (e: any) { problems.push(e.message) }
       if (device !== 'desktop' && !['/scan'].includes(url)) {
