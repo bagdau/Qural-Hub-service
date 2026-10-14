@@ -16,6 +16,7 @@ import {
   COLUMNS, DEFAULT_WS, EMPTY_FILTERS, PRIORITY_TITLE, applyFilters, loadWorkspace, matchesQuery, saveWorkspace, columnOf, type ColumnId, type Drop, type Filters, type ViewId, type Workspace as WS,
 } from '../board/boardLib'
 
+const VIEW_COLOR: Record<string, string> = { kanban: '#0d7a5f', list: '#2563eb', calendar: '#d97706', gantt: '#7c3aed' }
 const VIEWS: [ViewId, string, string][] = [['kanban', 'Канбан', 'board'], ['list', 'Список', 'list'], ['calendar', 'Календарь', 'calendar'], ['gantt', 'Шкала SLA', 'gantt']]
 
 function MultiSelect({ label, options, value, onChange }: { label: string; options: [string, string][]; value: string[]; onChange: (v: string[]) => void }) {
@@ -140,7 +141,7 @@ function WorkspaceInner() {
     <div className={`workspace ${ws.density}`} data-density={ws.density}>
       <div className="wsbar">
         <div className="seg" role="tablist" aria-label="Представление">
-          {VIEWS.map(([id, label, icon]) => <button key={id} role="tab" aria-selected={ws.view === id} className={ws.view === id ? 'on' : ''} onClick={() => setWs({ ...ws, view: id })}><Icon name={icon} size={16} /> {label}</button>)}
+          {VIEWS.map(([id, label, icon]) => <button key={id} role="tab" aria-selected={ws.view === id} className={ws.view === id ? 'on' : ''} onClick={() => setWs({ ...ws, view: id })}><Icon name={icon} size={16} color={VIEW_COLOR[id]} /> {label}</button>)}
         </div>
         <div className="wsright">
           <LiveIndicator />

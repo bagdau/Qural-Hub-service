@@ -27,9 +27,9 @@ export function TicketCard({ t, now, onOpen, overlay, selected }: { t: any; now:
       </div>
       <div className="kcard-title">{t.title}</div>
       <div className="kcard-meta">
-        <div title={t.equipment.name}><Icon name="equipment" size={13} /> {t.equipment.name}{t.equipment.model ? <span className="muted"> · {t.equipment.model}</span> : null}</div>
-        <div className="muted"><Icon name="building" size={13} /> {t.organization.name}</div>
-        <div className="muted"><Icon name="pin" size={13} /> {t.site.name}</div>
+        <div title={t.equipment.name}><Icon name="equipment" size={14} color="#d97706" /> {t.equipment.name}{t.equipment.model ? <span className="muted"> · {t.equipment.model}</span> : null}</div>
+        <div className="muted"><Icon name="building" size={14} color="#2563eb" /> {t.organization.name}</div>
+        <div className="muted"><Icon name="pin" size={14} color="#dc2626" /> {t.site.name}</div>
       </div>
       <SlaBadge t={t} now={now} />
       <div className="kcard-foot">

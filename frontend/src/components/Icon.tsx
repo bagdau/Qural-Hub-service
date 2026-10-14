@@ -45,9 +45,9 @@ const P: Record<string, ReactNode> = {
 
 export type IconName = keyof typeof P
 
-export function Icon({ name, size = 20 }: { name: string; size?: number }) {
+export function Icon({ name, size = 20, color }: { name: string; size?: number; color?: string }) {
   return (
-    <svg className="icon" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
+    <svg className="icon" style={color ? { color } : undefined} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
       strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">{P[name] ?? P.board}</svg>
   )
 }
