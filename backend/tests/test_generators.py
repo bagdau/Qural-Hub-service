@@ -47,3 +47,18 @@ def test_label_and_passport_access(u):
         assert u.eng1.get(path).status_code == 404
     assert u.cl1.get("/equipment/qr-labels.pdf", params={"ids": own}).status_code == 403  # пакетная печать — только диспетчер и администратор
     assert u.eng1.get(f"/equipment/{equipment_id(u.dsp, 'DL-KTP-0002')}/passport.pdf").status_code == 200  # свой объект инженера
+
+
+@pytest.mark.parametrize("name,kind,short,full", [
+    ("КТП-160", "substation", "КТП-160", "Трансформаторная подстанция КТП-160"),
+    ("Трансформатор ТМ-1000/10", "transformer", "ТМ-1000/10", "Силовой трансформатор ТМ-1000/10"),
+    ("РУ-6 кВ, 12 ячеек", "switchgear", "РУ-6 кВ", "Распределительное устройство РУ-6 кВ, 12 ячеек"),
+])
+def test_label_names(name, kind, short, full):
+    from app.generators import documents
+    assert documents.names(name, kind) == (short, full)
+
+
+def test_equipment_card_has_short_and_full_name(u):
+    d = u.dsp.get(f"/equipment/{equipment_id(u.dsp, 'DL-KTP-0002')}").json()
+    assert d["short_name"] == "КТП-160" and d["full_name"].endswith("КТП-160") and d["full_name"] != d["short_name"]

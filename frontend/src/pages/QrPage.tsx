@@ -5,7 +5,6 @@ import { get } from '../api/client'
 import { useAuth } from '../auth/AuthContext'
 import { Button, Empty, ErrorBox, Field, Skeleton, useDebounced } from '../components/ui'
 import { Icon } from '../components/Icon'
-import { EQ_TYPE } from '../lib/format'
 
 const LAYOUT_HINT: Record<string, string> = {
   label100x70: 'Одна этикетка 100×70 мм (термопринтер, наклейка на шкаф)',
@@ -45,11 +44,13 @@ export function EquipmentQrPage() {
           <div className="ps-body">
             <img className="qr-big" src={qrSrc} alt={`QR-код: ${d.name}, инвентарный номер ${d.inventory_number}`} />
             <div className="qr-meta">
-              <div className="qr-inv">{d.inventory_number}</div>
-              <div className="qr-name">{d.name}</div>
-              <div className="muted">{EQ_TYPE[d.type]} · {d.organization.name}</div>
-              <div className="muted">{d.site.name}, {d.site.address}</div>
-              <div className="qr-code">Код: <b>{d.qr_code}</b></div>
+              <div className="qr-short">{d.short_name}</div>
+              <div className="qr-full">{d.full_name}</div>
+              <dl className="qr-fields">
+                <dt>Инвентарный номер</dt><dd className="qr-inv">{d.inventory_number}</dd>
+                <dt>Местоположение</dt><dd>{d.site.name}, {d.site.address}</dd>
+                <dt>Имя завода</dt><dd>{d.organization.name}</dd>
+              </dl>
             </div>
           </div>
           <div className="ps-foot">При неисправностях отсканируйте QR-код и создайте заявку</div>

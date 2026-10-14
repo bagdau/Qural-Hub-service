@@ -65,7 +65,7 @@
   .sticky-actions { position: sticky; bottom: 64px; z-index: 5; }
   .cal { gap: 2px; } .calc { min-height: 60px; padding: 2px; } .calchip { font-size: 10px; padding: 1px 3px; }
   .gantt { grid-template-columns: 130px 1fr; } .gname { font-size: 11px; }
-  .qr-inv { font-size: 22px; }
+  .qr-short { font-size: 34px; }
   .gen-preview { height: 50vh; }
   /* таблицы → карточки */
   .rtable, .rtable tbody { display: block; }

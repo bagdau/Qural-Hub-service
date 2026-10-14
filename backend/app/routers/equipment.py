@@ -60,7 +60,8 @@ def eq_full(db: DbSession, ctx: Ctx, e: Equipment) -> dict:
               "rated_power_kva": float(e.rated_power_kva) if e.rated_power_kva else None,
               "location_description": e.location_description, "passport_data": e.passport_data, "notes": e.notes,
               "qr_code": e.qr_code if ctx.role in ("admin", "dispatcher", "engineer", "manager", "client") else None,
-              "qr_url": f"{get_settings().app_public_url}/e/{e.qr_code}", "created_at": e.created_at})
+              "qr_url": f"{get_settings().app_public_url}/e/{e.qr_code}", "created_at": e.created_at,
+              "short_name": documents.names(e.name, e.type)[0], "full_name": documents.names(e.name, e.type)[1]})
     conds = ticket_conditions(ctx)
     d["active_tickets_count"] = db.scalar(select(func.count()).select_from(Ticket).where(
         Ticket.equipment_id == e.id, Ticket.status.in_(list(ACTIVE)), *conds))
@@ -158,7 +159,11 @@ def _qr_url(e: Equipment) -> str:
 
 def _label_item(db: DbSession, e: Equipment) -> dict:
     site = db.get(Site, e.site_id)
-    return {"code": e.qr_code, "url": _qr_url(e), "inventory": e.inventory_number, "name": e.name, "site": site.name if site else ""}
+    org = db.get(Organization, e.organization_id)
+    short, full = documents.names(e.name, e.type)
+    location = ", ".join(x for x in (site.name if site else "", site.address if site else "") if x)
+    return {"code": e.qr_code, "url": _qr_url(e), "inventory": e.inventory_number, "short": short, "full": full,
+            "location": location, "org": org.name if org else ""}
 
 
 def _pdf(data: bytes, name: str, download: int = 0) -> Response:

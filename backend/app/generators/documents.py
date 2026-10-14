@@ -1,5 +1,6 @@
 """Генератор документов (отдельный модуль): QR-этикетки в нескольких форматах и паспорт оборудования (PDF)."""
 import io
+import re
 from dataclasses import dataclass
 
 from reportlab.lib import colors
@@ -25,8 +26,8 @@ class Layout:
 
 
 LAYOUTS: dict[str, Layout] = {
-    "sheet8": Layout("sheet8", "Лист A4: 8 этикеток (2×4)", A4, 2, 4, 38),
-    "label100x70": Layout("label100x70", "Одна этикетка 100×70 мм", (100 * mm, 70 * mm), 1, 1, 42),
+    "sheet8": Layout("sheet8", "Лист A4: 8 этикеток (2×4)", A4, 2, 4, 32),
+    "label100x70": Layout("label100x70", "Одна этикетка 100×70 мм", (100 * mm, 70 * mm), 1, 1, 34),
     "sticker50x30": Layout("sticker50x30", "Наклейка 50×30 мм", (50 * mm, 30 * mm), 1, 1, 24, compact=True),
 }
 
@@ -35,6 +36,21 @@ def layout(layout_id: str) -> Layout:
     if layout_id not in LAYOUTS:
         raise field_error("layout", "invalid", "Формат: " + ", ".join(LAYOUTS))
     return LAYOUTS[layout_id]
+
+
+TYPE_FULL = {"transformer": "Силовой трансформатор", "substation": "Трансформаторная подстанция",
+             "switchgear": "Распределительное устройство"}
+_TYPE_PREFIX = re.compile(r"^(трансформатор|подстанция|распределительное устройство)\s+", re.I)
+
+
+def names(name: str, eq_type: str) -> tuple[str, str]:
+    """(краткое, полное) название. «Трансформатор ТМ-1000/10» → «ТМ-1000/10» / «Силовой трансформатор ТМ-1000/10»;
+    «КТП-160» → «КТП-160» / «Трансформаторная подстанция КТП-160»."""
+    core = _TYPE_PREFIX.sub("", (name or "").strip())
+    short = core.split(",")[0].strip() or name
+    kind = TYPE_FULL.get(eq_type, "")
+    full = f"{kind} {core}".strip() if kind and kind.lower() not in core.lower() else core
+    return short, full
 
 
 def _wrap(text: str, n: int) -> list[str]:
@@ -48,8 +64,26 @@ def _wrap(text: str, n: int) -> list[str]:
     return lines + ([cur] if cur else [])
 
 
+def _wrap_w(c: canvas.Canvas, text: str, font: str, size: float, maxw: float) -> list[str]:
+    lines, cur = [], ""
+    for w in (text or "").split():
+        t = (cur + " " + w).strip()
+        if cur and c.stringWidth(t, font, size) > maxw:
+            lines.append(cur)
+            cur = w
+        else:
+            cur = t
+    return lines + ([cur] if cur else [])
+
+
+def _fit(c: canvas.Canvas, text: str, font: str, size: float, maxw: float, min_size: float) -> float:
+    while size > min_size and c.stringWidth(text, font, size) > maxw:
+        size -= 0.5
+    return size
+
+
 FOOT_TEXT = "При неисправностях отсканируйте QR-код и создайте заявку"
-NAVY, TEAL = colors.HexColor("#0f172a"), colors.HexColor("#0d7a5f")
+NAVY, TEAL, GREY = colors.HexColor("#0f172a"), colors.HexColor("#0d7a5f"), colors.HexColor("#475467")
 
 
 def _draw_compact(c: canvas.Canvas, x: float, y: float, w: float, h: float, item: dict, lay: Layout) -> None:
@@ -57,21 +91,21 @@ def _draw_compact(c: canvas.Canvas, x: float, y: float, w: float, h: float, item
     q = lay.qr_mm * mm
     c.drawImage(ImageReader(io.BytesIO(qr.png(item["url"], scale=12, border=4, ec="m"))), x + pad, y + (h - q) / 2, q, q)
     tx = x + pad + q + 3 * mm
-    ty = y + h - pad - 3 * mm
+    maxw = x + w - pad - tx
     c.setFillColor(colors.black)
-    c.setFont(pdf.FONT_B, 8)
-    c.drawString(tx, ty, item["inventory"])
-    c.setFont(pdf.FONT, 6.5)
-    cur = ty - 3 * mm
-    for line in _wrap(item["name"], 14)[:2]:
+    size = _fit(c, item["short"], pdf.FONT_B, 11, maxw, 6)
+    c.setFont(pdf.FONT_B, size)
+    ty = y + h - pad - 3.5 * mm
+    c.drawString(tx, ty, item["short"])
+    c.setFont(pdf.FONT, 6)
+    cur = ty - 3.2 * mm
+    for line in _wrap_w(c, item["inventory"], pdf.FONT, 6, maxw)[:1] + _wrap_w(c, item["org"], pdf.FONT, 6, maxw)[:2]:
         c.drawString(tx, cur, line)
-        cur -= 3 * mm
-    c.setFont(pdf.FONT, 5.5)
-    c.drawString(tx, y + pad, item["code"])
+        cur -= 2.8 * mm
 
 
 def _draw_label(c: canvas.Canvas, x: float, y: float, w: float, h: float, item: dict, lay: Layout) -> None:
-    """Этикетка: шапка «ОБОРУДОВАНИЕ» → QR и данные → подвал «При неисправностях отсканируйте…»."""
+    """Этикетка: шапка «ОБОРУДОВАНИЕ» → QR + краткое/полное название, инв. №, местоположение, завод → подвал."""
     if lay.compact:
         return _draw_compact(c, x, y, w, h, item, lay)
     head, foot = 8 * mm, 9 * mm
@@ -97,27 +131,39 @@ def _draw_label(c: canvas.Canvas, x: float, y: float, w: float, h: float, item: 
     pad = 4 * mm
     c.drawImage(ImageReader(io.BytesIO(qr.png(item["url"], scale=12, border=4, ec="q"))), x + pad, y + foot + (body_h - q) / 2, q, q)
     tx = x + pad + q + 3 * mm
-    width_chars = max(12, int((x + w - 3 * mm - tx) / (1.75 * mm)))
-    ty = y + h - head - 6 * mm
+    maxw = x + w - 3 * mm - tx
+    ty = y + h - head - 3 * mm
+    # краткое название — крупно, чёрным, жирным
     c.setFillColor(colors.black)
-    c.setFont(pdf.FONT_B, 12)
-    c.drawString(tx, ty, item["inventory"])
-    c.setFont(pdf.FONT, 9)
-    step = 4.4 * mm
-    cur = ty - step
-    for line in _wrap(item["name"], width_chars)[:3]:
+    size = _fit(c, item["short"], pdf.FONT_B, 22, maxw, 12)
+    c.setFont(pdf.FONT_B, size)
+    ty -= size * 0.3528 * mm * 0.95
+    c.drawString(tx, ty, item["short"])
+    cur = ty - 4.6 * mm
+    # полное название
+    c.setFont(pdf.FONT_B, 8)
+    for line in _wrap_w(c, item["full"], pdf.FONT_B, 8, maxw)[:3]:
         c.drawString(tx, cur, line)
-        cur -= step
-    c.setFillColor(colors.HexColor("#475467"))
-    for line in _wrap(item.get("site") or "", width_chars)[:2]:
-        c.drawString(tx, cur, line)
-        cur -= step
-    c.setFont(pdf.FONT, 7)
-    c.drawString(tx, y + foot + 2.5 * mm, f"Код: {item['code']}")
+        cur -= 3.5 * mm
+    cur -= 1.2 * mm
+    # подписанные поля
+    for label, value, font, size_, n in (("Инвентарный номер", item["inventory"], pdf.FONT_B, 9, 1),
+                                         ("Местоположение", item["location"], pdf.FONT, 7.5, 2),
+                                         ("Имя завода", item["org"], pdf.FONT, 7.5, 2)):
+        c.setFillColor(GREY)
+        c.setFont(pdf.FONT, 6)
+        c.drawString(tx, cur, label)
+        cur -= 3.1 * mm
+        c.setFillColor(colors.black)
+        c.setFont(font, size_)
+        for line in _wrap_w(c, value, font, size_, maxw)[:n]:
+            c.drawString(tx, cur, line)
+            cur -= (size_ + 1.4) * 0.3528 * mm
+        cur -= 1.1 * mm
 
 
 def qr_labels(items: list[dict], layout_id: str = "sheet8") -> bytes:
-    """items: {code, url, inventory, name, site}"""
+    """items: {code, url, inventory, short, full, location, org}"""
     pdf._register()
     lay = layout(layout_id)
     buf = io.BytesIO()
