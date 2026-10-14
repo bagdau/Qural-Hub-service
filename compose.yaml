@@ -7,7 +7,7 @@ x-logging: &default-logging
 x-backend-env: &backend-env
   APP_ENV: ${APP_ENV:-dev}
   APP_VERSION: ${APP_VERSION:-0.1.0}
-  APP_PUBLIC_URL: ${APP_PUBLIC_URL:-http://localhost:8080}
+  APP_PUBLIC_URL: ${APP_PUBLIC_URL:-http://localhost:8100}
   APP_CLOCK_MODE: ${APP_CLOCK_MODE:-system}
   APP_FIXED_NOW: ${APP_FIXED_NOW:-2026-03-16T10:00:00Z}
   POSTGRES_HOST: db
@@ -104,7 +104,7 @@ services:
     depends_on:
       api: { condition: service_healthy }
     ports:
-      - "${WEB_HTTP_PORT:-8080}:8080"
+      - "${WEB_HTTP_PORT:-8100}:8080"
     networks: [edge, internal]
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/healthz >/dev/null 2>&1"]

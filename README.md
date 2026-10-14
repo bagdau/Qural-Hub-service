@@ -17,7 +17,7 @@ docker compose up -d --wait              # db → migrate → api → worker →
 docker compose --profile demo run --rm seed   # demo-данные (только APP_ENV=demo/dev/test)
 ```
 
-Откройте http://localhost:8080. Пароль всех demo-пользователей — значение `DEMO_USER_PASSWORD` из `.env`.
+Откройте http://localhost:8100. Пароль всех demo-пользователей — значение `DEMO_USER_PASSWORD` из `.env`.
 
 | Роль | Email |
 |---|---|
@@ -30,7 +30,7 @@ docker compose --profile demo run --rm seed   # demo-данные (только 
 Главный экран работы с заявками — **доска** (`/board`): канбан, список, календарь, шкала SLA, обновление в реальном времени.
 
 Demo-время зафиксировано: `2026-03-16T10:00:00Z` (`APP_CLOCK_MODE=fixed`), на нём дашборд совпадает с ожидаемыми значениями ТЗ (раздел 12.6).
-QR-коды demo: `http://localhost:8080/e/DEMOEQUIP001` … `DEMOEQUIP010`.
+QR-коды demo: `http://localhost:8100/e/DEMOEQUIP001` … `DEMOEQUIP010`.
 
 ## Команды
 

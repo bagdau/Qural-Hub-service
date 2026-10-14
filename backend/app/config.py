@@ -17,7 +17,7 @@ class Settings(BaseSettings):
 
     app_env: str = "dev"  # dev | test | demo | pilot
     app_version: str = "0.1.0"
-    app_public_url: str = "http://localhost:8080"
+    app_public_url: str = "http://localhost:8100"
     app_timezone_default: str = "Asia/Almaty"
     app_clock_mode: str = "system"  # system | fixed | shifted
     app_fixed_now: str = "2026-03-16T10:00:00Z"
