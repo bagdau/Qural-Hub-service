@@ -3,6 +3,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ApiError, get, patch, post, put, uuid } from '../api/client'
 import { useAuth } from '../auth/AuthContext'
 import { Button, ConfirmModal, Empty, ErrorBox, Field, Modal, Pagination, Skeleton, Tabs, errText, useDebounced, useToast } from '../components/ui'
+import { DataTable } from '../components/DataTable'
+import { PageHeader } from '../components/PageHeader'
+import { QueryBoundary } from '../components/QueryBoundary'
 import { fmtDateTime, ROLE, EQ_TYPE } from '../lib/format'
 import { Icon } from '../components/Icon'
 
@@ -31,18 +34,25 @@ export function UsersPage() {
   })
   return (
     <div className="stack">
-      <div className="row between"><h1>Пользователи</h1>{isAdmin && <Button variant="primary" onClick={() => setEdit('new')}>Создать пользователя</Button>}</div>
+      <PageHeader title="Пользователи" actions={isAdmin && <Button variant="primary" onClick={() => setEdit('new')}>Создать пользователя</Button>} />
       <div className="card row"><div style={{ flex: 1, minWidth: 200 }}><Field label="Поиск"><input type="search" value={q} onChange={(e) => { setQ(e.target.value); setPage(1) }} placeholder="ФИО или email" /></Field></div>
         <div style={{ minWidth: 180 }}><Field label="Роль"><select value={role} onChange={(e) => { setRole(e.target.value); setPage(1) }}><option value="">Все</option>{Object.entries(ROLE).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></Field></div></div>
-      {users.isLoading ? <div className="card"><Skeleton lines={5} /></div> : users.error ? <ErrorBox error={users.error} /> : !users.data.items.length ? <div className="card"><Empty title="Пользователей не найдено" /></div> : (
-        <div className="card table-wrap"><table><thead><tr><th>ФИО</th><th>Email</th><th>Роль</th><th className="hide-sm">Организация</th><th>Статус</th>{isAdmin && <th />}</tr></thead>
-          <tbody>{users.data.items.map((u: any) => (
-            <tr key={u.id}><td><strong>{u.full_name}</strong></td><td>{u.email}</td><td>{ROLE[u.role]}</td><td className="hide-sm">{u.organization.name}</td>
-              <td>{u.is_active ? (u.must_change_password ? 'Ждёт смены пароля' : 'Активен') : 'Деактивирован'}</td>
-              {isAdmin && <td><div className="row">
-                <Button small onClick={() => setEdit(u)}>Изменить</Button>
-                {u.is_active ? <><Button small onClick={() => setConfirm({ u, kind: 'reset' })}>Сбросить пароль</Button><Button small onClick={() => setConfirm({ u, kind: 'deactivate' })}>Деактивировать</Button></> : <Button small onClick={() => setConfirm({ u, kind: 'activate' })}>Активировать</Button>}</div></td>}
-            </tr>))}</tbody></table><Pagination page={users.data.page} totalPages={users.data.total_pages} onPage={setPage} /></div>)}
+      <QueryBoundary query={users} isEmpty={(d) => !d.items.length} empty={<Empty title="Пользователей не найдено" />}>
+        {(d) => (
+          <DataTable rows={d.items} rowKey={(u: any) => u.id} footer={<Pagination page={d.page} totalPages={d.total_pages} onPage={setPage} />}
+            columns={[
+              { header: 'ФИО', cell: (u: any) => <strong>{u.full_name}</strong> },
+              { header: 'Email', cell: (u: any) => u.email },
+              { header: 'Роль', cell: (u: any) => ROLE[u.role] },
+              { header: 'Организация', hideSm: true, cell: (u: any) => u.organization.name },
+              { header: 'Статус', cell: (u: any) => (u.is_active ? (u.must_change_password ? 'Ждёт смены пароля' : 'Активен') : 'Деактивирован') },
+              ...(isAdmin ? [{ header: '', bare: true, cell: (u: any) => (
+                <div className="row">
+                  <Button small onClick={() => setEdit(u)}>Изменить</Button>
+                  {u.is_active ? <><Button small onClick={() => setConfirm({ u, kind: 'reset' })}>Сбросить пароль</Button><Button small onClick={() => setConfirm({ u, kind: 'deactivate' })}>Деактивировать</Button></> : <Button small onClick={() => setConfirm({ u, kind: 'activate' })}>Активировать</Button>}
+                </div>) }] : []),
+            ]} />)}
+      </QueryBoundary>
       {edit && <UserForm user={edit === 'new' ? null : edit} onClose={() => setEdit(null)} onSaved={(r) => { setEdit(null); qc.invalidateQueries({ queryKey: ['users'] }); if (r?.temp_password) setTemp({ pw: r.temp_password, email: r.user.email }) }} />}
       {confirm && <ConfirmModal title={confirm.kind === 'deactivate' ? 'Деактивировать пользователя?' : confirm.kind === 'reset' ? 'Сбросить пароль?' : 'Активировать пользователя?'}
         text={confirm.kind === 'deactivate' ? `${confirm.u.full_name} потеряет доступ, все его сессии будут завершены.` : confirm.kind === 'reset' ? `Будет создан новый временный пароль для ${confirm.u.full_name}, все его сессии завершатся.` : `Для ${confirm.u.full_name} будет создан временный пароль.`}
@@ -98,7 +108,7 @@ export function OrganizationsPage() {
   const archive = useMutation({ mutationFn: (o: any) => post(`/organizations/${o.id}/${o.archived_at ? 'unarchive' : 'archive'}`, { version: o.version }), onSuccess: () => qc.invalidateQueries({ queryKey: ['orgs-admin'] }), onError: (x) => toast(errText(x), true) })
   return (
     <div className="stack">
-      <div className="row between"><h1>Организации и площадки</h1><Button variant="primary" onClick={() => setOrg(true)}>Добавить клиента</Button></div>
+      <PageHeader title="Организации и площадки" actions={<Button variant="primary" onClick={() => setOrg(true)}>Добавить клиента</Button>} />
       {orgs.isLoading ? <div className="card"><Skeleton /></div> : orgs.error ? <ErrorBox error={orgs.error} /> : orgs.data.items.map((o: any) => (
         <div key={o.id} className="card stack">
           <div className="row between"><div><h2 style={{ margin: 0 }}>{o.name}</h2><div className="muted small">{o.kind === 'service' ? 'Сервисная организация' : 'Клиент'}{o.archived_at && ' · в архиве'}</div></div>
@@ -137,10 +147,17 @@ export function SparePartsPage() {
   const toggle = useMutation({ mutationFn: (p: any) => patch(`/spare-parts/${p.id}`, { version: p.version, is_active: !p.is_active }), onSuccess: () => qc.invalidateQueries({ queryKey: ['spare-parts'] }), onError: (x) => toast(errText(x), true) })
   return (
     <div className="stack">
-      <div className="row between"><div><h1>Справочник запчастей</h1><div className="muted small">Фиксируется только использованное при ремонте. Остатки, закупки и резервирование не ведутся.</div></div><Button variant="primary" onClick={() => { setErrs({}); setAdd(true) }}>Добавить позицию</Button></div>
-      {q.isLoading ? <div className="card"><Skeleton /></div> : q.error ? <ErrorBox error={q.error} /> : (
-        <div className="card table-wrap"><table><thead><tr><th>Артикул</th><th>Название</th><th>Ед.</th><th>Статус</th><th /></tr></thead>
-          <tbody>{q.data.items.map((p: any) => <tr key={p.id}><td className="mono">{p.sku}</td><td>{p.name}</td><td>{UNITS[p.unit]}</td><td>{p.is_active ? 'Активна' : 'Отключена'}</td><td><Button small onClick={() => toggle.mutate(p)}>{p.is_active ? 'Отключить' : 'Включить'}</Button></td></tr>)}</tbody></table></div>)}
+      <PageHeader title="Справочник запчастей" subtitle="Фиксируется только использованное при ремонте. Остатки, закупки и резервирование не ведутся." actions={<Button variant="primary" onClick={() => { setErrs({}); setAdd(true) }}>Добавить позицию</Button>} />
+      <QueryBoundary query={q} lines={3}>
+        {(d) => (
+          <DataTable rows={d.items} rowKey={(p: any) => p.id} columns={[
+            { header: 'Артикул', className: 'mono', cell: (p: any) => p.sku },
+            { header: 'Название', cell: (p: any) => p.name },
+            { header: 'Ед.', cell: (p: any) => UNITS[p.unit] },
+            { header: 'Статус', cell: (p: any) => (p.is_active ? 'Активна' : 'Отключена') },
+            { header: '', bare: true, cell: (p: any) => <Button small onClick={() => toggle.mutate(p)}>{p.is_active ? 'Отключить' : 'Включить'}</Button> },
+          ]} />)}
+      </QueryBoundary>
       {add && <Modal title="Новая позиция" onClose={() => setAdd(false)}><form className="stack" onSubmit={(e) => { e.preventDefault(); setErrs({}); create.mutate() }}>
         <Field label="Артикул" error={errs.sku}><input value={f.sku} onChange={(e) => setF({ ...f, sku: e.target.value })} required /></Field><Field label="Название" error={errs.name}><input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} required /></Field>
         <Field label="Единица"><select value={f.unit} onChange={(e) => setF({ ...f, unit: e.target.value })}>{Object.entries(UNITS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></Field>
@@ -160,12 +177,19 @@ export function ChecklistsPage() {
   const st: Record<string, string> = { draft: 'Черновик', active: 'Активна', retired: 'Выведена' }
   return (
     <div className="stack">
-      <h1>Шаблоны чек-листов</h1>
-      <div className="muted small">Опубликованные версии не изменяются. Заявка привязывается к версии, активной на момент начала работ.</div>
-      {list.isLoading ? <div className="card"><Skeleton /></div> : list.error ? <ErrorBox error={list.error} /> : (
-        <div className="card table-wrap"><table><thead><tr><th>Шаблон</th><th>Тип</th><th>Версия</th><th>Статус</th><th>Публикация</th><th /></tr></thead>
-          <tbody>{list.data.map((t: any) => <tr key={t.id}><td>{t.title}<div className="small muted">{t.code}</div></td><td>{EQ_TYPE[t.equipment_type]}</td><td>{t.version}</td><td>{st[t.status]}</td><td>{fmtDateTime(t.published_at)}</td>
-            <td><div className="row"><Button small onClick={() => setView(t.id)}>Пункты</Button>{me?.role === 'admin' && (t.status === 'draft' ? <Button small variant="primary" onClick={() => pub.mutate(t.id)}>Опубликовать</Button> : <Button small onClick={() => nv.mutate(t.id)}>Новая версия</Button>)}</div></td></tr>)}</tbody></table></div>)}
+      <PageHeader title="Шаблоны чек-листов" subtitle="Опубликованные версии не изменяются. Заявка привязывается к версии, активной на момент начала работ." />
+      <QueryBoundary query={list} lines={3}>
+        {(items: any[]) => (
+          <DataTable rows={items} rowKey={(t: any) => t.id} columns={[
+            { header: 'Шаблон', cell: (t: any) => <>{t.title}<div className="small muted">{t.code}</div></> },
+            { header: 'Тип', cell: (t: any) => EQ_TYPE[t.equipment_type] },
+            { header: 'Версия', cell: (t: any) => t.version },
+            { header: 'Статус', cell: (t: any) => st[t.status] },
+            { header: 'Публикация', cell: (t: any) => fmtDateTime(t.published_at) },
+            { header: '', bare: true, cell: (t: any) => (
+              <div className="row"><Button small onClick={() => setView(t.id)}>Пункты</Button>{me?.role === 'admin' && (t.status === 'draft' ? <Button small variant="primary" onClick={() => pub.mutate(t.id)}>Опубликовать</Button> : <Button small onClick={() => nv.mutate(t.id)}>Новая версия</Button>)}</div>) },
+          ]} />)}
+      </QueryBoundary>
       {view && <Modal title="Пункты шаблона" onClose={() => setView(null)} wide>{detail.isLoading ? <Skeleton /> : detail.data && (
         <ol>{detail.data.schema.items.map((i: any) => <li key={i.key}>{i.label} <span className="muted small">[{i.type}{i.unit ? `, ${i.unit}` : ''}{i.required ? ', обязательно' : ''}]</span></li>)}</ol>)}</Modal>}
     </div>
@@ -182,15 +206,23 @@ export function SlaPage() {
   const save = useMutation({ mutationFn: () => put('/settings/sla', { items: data!.map((r: any) => ({ priority: r.priority, reaction_minutes: Number(r.reaction_minutes), resolution_minutes: Number(r.resolution_minutes) })) }), onSuccess: () => { toast('Настройки сохранены. Они применяются к новым заявкам.'); setRows(null); qc.invalidateQueries({ queryKey: ['sla'] }) }, onError: (x) => toast(errText(x), true) })
   return (
     <div className="stack">
-      <h1>Настройки SLA</h1>
+      <PageHeader title="Настройки SLA" />
       <div className="banner info">Демонстрационные значения для согласования с компанией. Время календарное (24/7), часы SLA останавливаются на паузе и в ожидании подтверждения клиента. Изменение действует на новые заявки.</div>
-      {q.isLoading ? <div className="card"><Skeleton /></div> : q.error ? <ErrorBox error={q.error} /> : (
-        <div className="card table-wrap"><table><thead><tr><th>Приоритет</th><th>Реакция, мин</th><th>Выполнение, мин</th><th>Выполнение, ч</th></tr></thead>
-          <tbody>{data!.map((r: any, i: number) => <tr key={r.priority}><td>{names[r.priority]}</td>
-            <td><input className="input" type="number" min={1} disabled={me?.role !== 'admin'} value={r.reaction_minutes} onChange={(e) => setRows(data!.map((x: any, j: number) => (j === i ? { ...x, reaction_minutes: e.target.value } : x)))} aria-label={`Реакция: ${names[r.priority]}`} /></td>
-            <td><input className="input" type="number" min={1} disabled={me?.role !== 'admin'} value={r.resolution_minutes} onChange={(e) => setRows(data!.map((x: any, j: number) => (j === i ? { ...x, resolution_minutes: e.target.value } : x)))} aria-label={`Выполнение: ${names[r.priority]}`} /></td>
-            <td className="mono">{(Number(r.resolution_minutes) / 60).toFixed(1)}</td></tr>)}</tbody></table>
-          {me?.role === 'admin' && <div className="row" style={{ justifyContent: 'flex-end', marginTop: 12 }}><Button variant="primary" disabled={!rows} loading={save.isPending} onClick={() => save.mutate()}>Сохранить</Button></div>}</div>)}
+      <QueryBoundary query={q} lines={3}>
+        {() => (
+          <DataTable rows={data!} rowKey={(r: any) => r.priority}
+            footer={me?.role === 'admin' && <div className="row" style={{ justifyContent: 'flex-end', marginTop: 12 }}><Button variant="primary" disabled={!rows} loading={save.isPending} onClick={() => save.mutate()}>Сохранить</Button></div>}
+            columns={[
+              { header: 'Приоритет', cell: (r: any) => names[r.priority] },
+              { header: 'Реакция, мин', cell: (r: any) => (
+                <input className="input" type="number" inputMode="numeric" min={1} disabled={me?.role !== 'admin'} value={r.reaction_minutes} aria-label={`Реакция: ${names[r.priority]}`}
+                  onChange={(e) => setRows(data!.map((x: any) => (x.priority === r.priority ? { ...x, reaction_minutes: e.target.value } : x)))} />) },
+              { header: 'Выполнение, мин', cell: (r: any) => (
+                <input className="input" type="number" inputMode="numeric" min={1} disabled={me?.role !== 'admin'} value={r.resolution_minutes} aria-label={`Выполнение: ${names[r.priority]}`}
+                  onChange={(e) => setRows(data!.map((x: any) => (x.priority === r.priority ? { ...x, resolution_minutes: e.target.value } : x)))} />) },
+              { header: 'Выполнение, ч', className: 'mono', cell: (r: any) => (Number(r.resolution_minutes) / 60).toFixed(1) },
+            ]} />)}
+      </QueryBoundary>
     </div>
   )
 }
@@ -201,12 +233,18 @@ export function AuditPage() {
   const q = useQuery({ queryKey: ['audit', page, action], queryFn: () => get('/audit-log', { page, page_size: 30, action }) })
   return (
     <div className="stack">
-      <h1>Журнал аудита</h1>
+      <PageHeader title="Журнал аудита" />
       <div className="card"><Field label="Действие (код)"><input value={action} onChange={(e) => { setAction(e.target.value); setPage(1) }} placeholder="login_failed, user_created, access_denied…" /></Field></div>
-      {q.isLoading ? <div className="card"><Skeleton /></div> : q.error ? <ErrorBox error={q.error} /> : !q.data.items.length ? <div className="card"><Empty title="Записей нет" /></div> : (
-        <div className="card table-wrap"><table><thead><tr><th>Время</th><th>Действие</th><th>Роль</th><th>Объект</th><th>IP</th></tr></thead>
-          <tbody>{q.data.items.map((r: any) => <tr key={r.id}><td>{fmtDateTime(r.occurred_at)}</td><td className="mono">{r.action}</td><td>{r.actor_role ?? '—'}</td><td className="small">{r.object_type ?? ''} {r.object_id?.slice(0, 8) ?? ''}</td><td className="small">{r.ip}</td></tr>)}</tbody></table>
-          <Pagination page={q.data.page} totalPages={q.data.total_pages} onPage={setPage} /></div>)}
+      <QueryBoundary query={q} isEmpty={(d) => !d.items.length} empty={<Empty title="Записей нет" />}>
+        {(d) => (
+          <DataTable rows={d.items} rowKey={(r: any) => r.id} footer={<Pagination page={d.page} totalPages={d.total_pages} onPage={setPage} />} columns={[
+            { header: 'Время', cell: (r: any) => fmtDateTime(r.occurred_at) },
+            { header: 'Действие', className: 'mono', cell: (r: any) => r.action },
+            { header: 'Роль', cell: (r: any) => r.actor_role ?? '—' },
+            { header: 'Объект', className: 'small', cell: (r: any) => `${r.object_type ?? ''} ${r.object_id?.slice(0, 8) ?? ''}` },
+            { header: 'IP', className: 'small', cell: (r: any) => r.ip },
+          ]} />)}
+      </QueryBoundary>
     </div>
   )
 }

@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query'
 import { get, post, uuid } from '../api/client'
 import { useAuth } from '../auth/AuthContext'
 import { Button, ErrorBox, Skeleton, errText, useToast } from '../components/ui'
@@ -85,17 +85,20 @@ function WorkspaceInner() {
   const board = useQuery({
     queryKey: ['board'],
     queryFn: async () => {
-      let page = 1, all: any[] = [], total = 1
-      do {
-        const r = await get('/tickets', { page, page_size: 100, sort: '-created_at' })
-        all = all.concat(r.items); total = r.total_pages; page++
-      } while (page <= total && page <= 10)
-      return all
+      // первая страница показывает доску сразу, остальные страницы догружаются параллельно
+      const first = await get('/tickets', { page: 1, page_size: 100, sort: '-created_at' })
+      const pages = Math.min(first.total_pages ?? 1, 10)
+      if (pages <= 1) return first.items as any[]
+      const rest = await Promise.all(Array.from({ length: pages - 1 }, (_, i) => get('/tickets', { page: i + 2, page_size: 100, sort: '-created_at' })))
+      return rest.reduce((all, r) => all.concat(r.items), first.items as any[])
     },
+    placeholderData: keepPreviousData,
     refetchInterval: 60_000,
   })
   const tickets: any[] = board.data ?? []
-  const filtered = useMemo(() => applyFilters(tickets, ws.filters), [tickets, ws.filters])
+  const deferredFilters = useDeferredValue(ws.filters) // набор текста в поиске не блокирует ввод: перерисовка доски идёт с пониженным приоритетом
+  const filtered = useMemo(() => applyFilters(tickets, deferredFilters), [tickets, deferredFilters])
+  const [fOpen, setFOpen] = useState(false)
   const engineers = useMemo(() => {
     const m = new Map<string, string>()
     tickets.forEach((t) => t.assigned_engineer && m.set(t.assigned_engineer.id, t.assigned_engineer.full_name))
@@ -149,16 +152,19 @@ function WorkspaceInner() {
           {canCreate && <Button variant="primary" onClick={() => setCreate('new')}>+ Создать заявку</Button>}
         </div>
       </div>
-      <div className="wsfilters">
+      <div className={`wsfilters ${fOpen ? '' : 'collapsed'}`}>
         <SearchBox tickets={tickets} value={ws.filters.q} onChange={(q) => setF({ q })} onPick={open} />
-        <MultiSelect label="Статусы" options={Object.entries(STATUS).map(([k, v]) => [k, v.label])} value={ws.filters.statuses} onChange={(statuses) => setF({ statuses })} />
-        <MultiSelect label="Приоритеты" options={Object.entries(PRIORITY_TITLE).map(([k, v]) => [k, v])} value={ws.filters.priorities} onChange={(priorities) => setF({ priorities })} />
-        {me!.role !== 'engineer' && <MultiSelect label="Инженеры" options={[['none', 'Не назначен'], ...engineers]} value={ws.filters.engineers} onChange={(engineers) => setF({ engineers })} />}
-        <label className="dt"><span className="sr-only">Создана с</span><input type="date" value={ws.filters.from} onChange={(e) => setF({ from: e.target.value })} aria-label="Создана с" /></label>
-        <span className="muted">—</span>
-        <label className="dt"><span className="sr-only">Создана по</span><input type="date" value={ws.filters.to} onChange={(e) => setF({ to: e.target.value })} aria-label="Создана по" /></label>
-        {activeFilters > 0 && <button className="btn sm ghost" onClick={() => setWs({ ...ws, filters: EMPTY_FILTERS })}>✕ Сбросить ({activeFilters})</button>}
-        <span className="small muted" style={{ marginLeft: 'auto' }}>{filtered.length} из {tickets.length}{warnTotal > 0 && <> · <span style={{ color: 'var(--danger)' }}><Icon name="alert" size={13} /> просрочено: {warnTotal}</span></>}</span>
+        <button className="btn sm fbtn" aria-expanded={fOpen} aria-controls="ws-fgroup" onClick={() => setFOpen(!fOpen)}><Icon name="filter" size={16} /> Фильтры{activeFilters > 0 ? ` · ${activeFilters}` : ''}</button>
+        <div className="fgroup" id="ws-fgroup">
+          <MultiSelect label="Статусы" options={Object.entries(STATUS).map(([k, v]) => [k, v.label])} value={ws.filters.statuses} onChange={(statuses) => setF({ statuses })} />
+          <MultiSelect label="Приоритеты" options={Object.entries(PRIORITY_TITLE).map(([k, v]) => [k, v])} value={ws.filters.priorities} onChange={(priorities) => setF({ priorities })} />
+          {me!.role !== 'engineer' && <MultiSelect label="Инженеры" options={[['none', 'Не назначен'], ...engineers]} value={ws.filters.engineers} onChange={(engineers) => setF({ engineers })} />}
+          <label className="dt"><span className="sr-only">Создана с</span><input type="date" value={ws.filters.from} onChange={(e) => setF({ from: e.target.value })} aria-label="Создана с" /></label>
+          <span className="muted dash">—</span>
+          <label className="dt"><span className="sr-only">Создана по</span><input type="date" value={ws.filters.to} onChange={(e) => setF({ to: e.target.value })} aria-label="Создана по" /></label>
+          {activeFilters > 0 && <button className="btn sm ghost" onClick={() => setWs({ ...ws, filters: EMPTY_FILTERS })}>✕ Сбросить ({activeFilters})</button>}
+        </div>
+        <span className="small muted fcount">{filtered.length} из {tickets.length}{warnTotal > 0 && <> · <span style={{ color: 'var(--danger)' }}><Icon name="alert" size={13} /> просрочено: {warnTotal}</span></>}</span>
       </div>
       {board.isLoading ? <div className="card"><Skeleton lines={6} /></div> : board.error ? <ErrorBox error={board.error} retry={() => board.refetch()} /> : (
         <div className={`wsmain ${selected ? 'withdrawer' : ''}`}>

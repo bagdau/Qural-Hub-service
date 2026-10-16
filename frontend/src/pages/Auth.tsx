@@ -1,4 +1,5 @@
 import { FormEvent, useState } from 'react'
+import { DataTable } from '../components/DataTable'
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../auth/AuthContext'
@@ -103,11 +104,12 @@ export function ProfilePage() {
       <div className="card">
         <h2>Активные сессии</h2>
         {sessions.isLoading ? <Skeleton /> : !sessions.data?.length ? <Empty title="Нет активных сессий" /> : (
-          <div className="table-wrap"><table><thead><tr><th>Начало</th><th>Последняя активность</th><th>Устройство</th><th /></tr></thead>
-            <tbody>{sessions.data.map((s: any) => (
-              <tr key={s.id}><td>{fmtDateTime(s.created_at)}</td><td>{fmtDateTime(s.last_seen_at)}</td><td className="small">{s.user_agent?.slice(0, 60)}{s.is_current && ' (это устройство)'}</td>
-                <td>{!s.is_current && <Button small onClick={() => revoke.mutate(s.id)}>Завершить</Button>}</td></tr>
-            ))}</tbody></table></div>
+          <DataTable bare rows={sessions.data} rowKey={(s: any) => s.id} columns={[
+            { header: 'Начало', cell: (s: any) => fmtDateTime(s.created_at) },
+            { header: 'Последняя активность', cell: (s: any) => fmtDateTime(s.last_seen_at) },
+            { header: 'Устройство', className: 'small', cell: (s: any) => <>{s.user_agent?.slice(0, 60)}{s.is_current && ' (это устройство)'}</> },
+            { header: '', bare: true, cell: (s: any) => !s.is_current && <Button small onClick={() => revoke.mutate(s.id)}>Завершить</Button> },
+          ]} />
         )}
       </div>
     </div>

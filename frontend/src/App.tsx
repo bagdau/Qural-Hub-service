@@ -1,3 +1,4 @@
+import { Suspense, useEffect, useRef } from 'react'
 import { NavLink, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from './auth/AuthContext'
@@ -5,16 +6,8 @@ import { get } from './api/client'
 import { Button, Skeleton, useOnline } from './components/ui'
 import { Icon } from './components/Icon'
 import { ROLE } from './lib/format'
-import { LoginPage, ChangePasswordPage, ProfilePage } from './pages/Auth'
-import { DashboardPage } from './pages/Dashboard'
-import { EquipmentListPage, EquipmentDetailPage, EquipmentFormPage, QrResolverPage } from './pages/Equipment'
-import { ScanPage } from './pages/Scan'
-import { EquipmentQrPage, GeneratorPage } from './pages/QrPage'
-import { TicketsPage, TicketNewPage, TicketDetailPage } from './pages/Tickets'
-import { MyTasksPage, ReportPage } from './pages/Engineer'
-import { ActPage, NotificationsPage, MaintenancePage } from './pages/Misc'
-import { WorkspacePage } from './pages/Workspace'
-import { UsersPage, OrganizationsPage, SparePartsPage, ChecklistsPage, SlaPage, AuditPage } from './pages/Admin'
+import { LazyRoute as R, preload, titleFor, warmUp } from './routes'
+import { PageLoader } from './components/PageLoader'
 
 type NavItem = { to: string; label: string; icon: string }
 const NAV: Record<string, NavItem[]> = {
@@ -60,6 +53,8 @@ function Shell() {
   const { me, logout } = useAuth()
   const online = useOnline()
   const loc = useLocation()
+  const main = useRef<HTMLElement>(null)
+  useEffect(() => { if (me) warmUp(['/board', '/equipment', '/scan', '/tickets', '/my-tasks']) }, [me])
   if (!me) return null
   const items = NAV[me.role]
   const bottom = BOTTOM[me.role] ?? BOTTOM.default
@@ -68,7 +63,7 @@ function Shell() {
       <aside className="sidebar">
         <a className="brand" href="/"><svg viewBox="0 0 32 32" aria-hidden><rect width="32" height="32" rx="7" fill="#163a68" /><path d="M17 5 9 18h6l-1 9 9-14h-6z" fill="#2DD4BF" /></svg><span className="brand-text">Alageum Service Hub</span></a>
         <nav className="nav" aria-label="Основное меню">
-          {items.map((i) => <NavLink key={i.to} to={i.to} end={i.to === '/'}><Icon name={i.icon} />{i.label}</NavLink>)}
+          {items.map((i) => <NavLink key={i.to} to={i.to} end={i.to === '/'} onMouseEnter={() => preload(i.to)} onFocus={() => preload(i.to)} onTouchStart={() => preload(i.to)}><Icon name={i.icon} />{i.label}</NavLink>)}
         </nav>
         <div className="spacer" />
         <NavLink to="/profile" className="prof" aria-label={`Профиль: ${me.full_name}`} style={{ color: '#cbd5e1', textDecoration: 'none', padding: '8px 12px', display: 'flex', gap: 8, alignItems: 'center' }}><Icon name="user" size={20} /><span className="prof-text">{me.full_name}<br /><span className="small">{ROLE[me.role]}</span></span></NavLink>
@@ -79,10 +74,11 @@ function Shell() {
           <div className="muted small">{me.organization.name}</div>
           <div className="row"><Bell /><Button small onClick={logout}>Выйти</Button></div>
         </header>
-        <main className={`content ${loc.pathname === '/board' ? 'wide' : ''}`} id="main"><Outlet /></main>
+        <RouteEffects main={main} />
+        <main className={`content ${loc.pathname === '/board' ? 'wide' : ''}`} id="main" ref={main} tabIndex={-1}><Suspense fallback={<PageLoader inline />}><Outlet /></Suspense></main>
       </div>
       <nav className="bottomnav" aria-label="Быстрая навигация">
-        {bottom.map((i) => <NavLink key={i.to} to={i.to} end={i.to === '/'}><Icon name={i.icon} size={22} />{i.label}</NavLink>)}
+        {bottom.map((i) => <NavLink key={i.to} to={i.to} end={i.to === '/'} onTouchStart={() => preload(i.to)} onFocus={() => preload(i.to)}><Icon name={i.icon} size={22} />{i.label}</NavLink>)}
       </nav>
     </div>
   )
@@ -109,42 +105,40 @@ function Home() {
   const { me } = useAuth()
   if (me?.role === 'engineer') return <Navigate to="/my-tasks" replace />
   if (me?.role === 'dispatcher') return <Navigate to="/board" replace />
-  return <DashboardPage />
+  return <Page path="/" />
 }
+
+/** Заголовок вкладки, возврат наверх и фокус на содержимое при переходе между страницами */
+function RouteEffects({ main }: { main: React.RefObject<HTMLElement | null> }) {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    document.title = titleFor(pathname)
+    window.scrollTo(0, 0)
+    main.current?.focus({ preventScroll: true })
+  }, [pathname, main])
+  return null
+}
+
+const Page = ({ path }: { path: string }) => { const C = R[path]; return <C /> }
+
+const PROTECTED_PATHS = [
+  '/equipment', '/equipment/new', '/equipment/:id', '/equipment/:id/edit', '/equipment/:id/qr', '/generator', '/e/:code', '/scan', '/board',
+  '/tickets', '/tickets/new', '/tickets/:id', '/tickets/:id/report', '/my-tasks', '/acts/:id', '/notifications', '/maintenance', '/profile',
+  '/admin/users', '/admin/organizations', '/admin/spare-parts', '/admin/checklists', '/admin/sla', '/admin/audit',
+]
 
 export function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/change-password" element={<ChangePasswordPage />} />
-      <Route element={<Protected />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/equipment" element={<EquipmentListPage />} />
-        <Route path="/equipment/new" element={<EquipmentFormPage />} />
-        <Route path="/equipment/:id" element={<EquipmentDetailPage />} />
-        <Route path="/equipment/:id/edit" element={<EquipmentFormPage />} />
-        <Route path="/equipment/:id/qr" element={<EquipmentQrPage />} />
-        <Route path="/generator" element={<GeneratorPage />} />
-        <Route path="/e/:code" element={<QrResolverPage />} />
-        <Route path="/scan" element={<ScanPage />} />
-        <Route path="/board" element={<WorkspacePage />} />
-        <Route path="/tickets" element={<TicketsPage />} />
-        <Route path="/tickets/new" element={<TicketNewPage />} />
-        <Route path="/tickets/:id" element={<TicketDetailPage />} />
-        <Route path="/tickets/:id/report" element={<ReportPage />} />
-        <Route path="/my-tasks" element={<MyTasksPage />} />
-        <Route path="/acts/:id" element={<ActPage />} />
-        <Route path="/notifications" element={<NotificationsPage />} />
-        <Route path="/maintenance" element={<MaintenancePage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/admin/users" element={<UsersPage />} />
-        <Route path="/admin/organizations" element={<OrganizationsPage />} />
-        <Route path="/admin/spare-parts" element={<SparePartsPage />} />
-        <Route path="/admin/checklists" element={<ChecklistsPage />} />
-        <Route path="/admin/sla" element={<SlaPage />} />
-        <Route path="/admin/audit" element={<AuditPage />} />
-        <Route path="*" element={<NotFound />} />
-      </Route>
-    </Routes>
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
+        <Route path="/login" element={<Page path="/login" />} />
+        <Route path="/change-password" element={<Page path="/change-password" />} />
+        <Route element={<Protected />}>
+          <Route path="/" element={<Home />} />
+          {PROTECTED_PATHS.map((path) => <Route key={path} path={path} element={<Page path={path} />} />)}
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
+    </Suspense>
   )
 }

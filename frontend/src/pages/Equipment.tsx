@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useRef, useState } from 'react'
+import { PageHeader } from '../components/PageHeader'
 import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ApiError, api, get, patch, post, uuid } from '../api/client'
@@ -21,13 +22,10 @@ export function EquipmentListPage() {
   useEffect(() => { setSp({ ...(dq ? { q: dq } : {}), ...(type ? { type } : {}) }, { replace: true }) }, [dq, type])
   return (
     <div className="stack">
-      <div className="row between">
-        <div><h1>Оборудование</h1><div className="muted small">Реестр единиц оборудования и цифровые паспорта</div></div>
-        <div className="row">
-          {staff && sel.length > 0 && <Link className="btn" to={`/generator?ids=${sel.join(',')}`}><Icon name="print" size={18} /> Этикетки ({sel.length})</Link>}
-          {staff && <Link className="btn primary" to="/equipment/new">Добавить</Link>}
-        </div>
-      </div>
+      <PageHeader title="Оборудование" subtitle="Реестр единиц оборудования и цифровые паспорта" actions={<>
+        {staff && sel.length > 0 && <Link className="btn" to={`/generator?ids=${sel.join(',')}`}><Icon name="print" size={18} /> Этикетки ({sel.length})</Link>}
+        {staff && <Link className="btn primary" to="/equipment/new">Добавить</Link>}
+      </>} />
       <div className="card row">
         <div style={{ flex: 1, minWidth: 220 }}><Field label="Поиск"><input type="search" placeholder="Название, инв. или серийный номер" value={q} onChange={(e) => setQ(e.target.value)} /></Field></div>
         <div style={{ minWidth: 200 }}><Field label="Тип"><select value={type} onChange={(e) => setType(e.target.value)}><option value="">Все</option>{Object.entries(EQ_TYPE).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></Field></div>

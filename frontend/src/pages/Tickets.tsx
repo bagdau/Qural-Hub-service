@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useRef, useState } from 'react'
+import { PageHeader } from '../components/PageHeader'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ApiError, get, post, uuid } from '../api/client'
@@ -22,8 +23,7 @@ export function TicketsPage() {
   const canCreate = me?.role === 'client' || me?.role === 'dispatcher'
   return (
     <div className="stack">
-      <div className="row between"><div><h1>Заявки</h1><div className="muted small">{data.data ? `Найдено: ${data.data.total}` : ' '}</div></div>
-        {canCreate && <Link className="btn primary" to="/tickets/new">Создать заявку</Link>}</div>
+      <PageHeader title="Заявки" subtitle={data.data ? `Найдено: ${data.data.total}` : ' '} actions={canCreate && <Link className="btn primary" to="/tickets/new">Создать заявку</Link>} />
       <div className="card stack">
         <div className="row">
           <Button small variant={!status && !overdue ? 'primary' : undefined} onClick={() => { setSp({}); setQ('') }}>Все</Button>

@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import { PageHeader } from '../components/PageHeader'
+import { DataTable } from '../components/DataTable'
+import { QueryBoundary } from '../components/QueryBoundary'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { get, post } from '../api/client'
@@ -63,7 +66,7 @@ export function NotificationsPage() {
   }
   return (
     <div className="stack">
-      <div className="row between"><h1>Уведомления</h1><div className="row"><label className="row small"><input type="checkbox" checked={unread} onChange={(e) => { setUnread(e.target.checked); setPage(1) }} /> Только непрочитанные</label><Button small onClick={() => readAll.mutate()}>Прочитать все</Button></div></div>
+      <PageHeader title="Уведомления" actions={<><label className="row small"><input type="checkbox" checked={unread} onChange={(e) => { setUnread(e.target.checked); setPage(1) }} /> Только непрочитанные</label><Button small onClick={() => readAll.mutate()}>Прочитать все</Button></>} />
       {q.isLoading ? <div className="card"><Skeleton lines={4} /></div> : q.error ? <ErrorBox error={q.error} /> : !q.data.items.length ? <div className="card"><Empty icon="bell" title="Уведомлений нет" /></div> : (
         <div className="card" style={{ padding: 0 }}>
           {q.data.items.map((n: any) => (
@@ -81,13 +84,17 @@ export function MaintenancePage() {
   const q = useQuery({ queryKey: ['plans'], queryFn: () => get('/maintenance-plans', { page_size: 100 }) })
   return (
     <div className="stack">
-      <h1>Плановые работы</h1>
-      {q.isLoading ? <div className="card"><Skeleton lines={4} /></div> : q.error ? <ErrorBox error={q.error} /> : !q.data.items.length ? <div className="card"><Empty icon="calendar" title="Планов обслуживания нет" text="Планы добавляются в паспорте оборудования (вкладка «План»)." /></div> : (
-        <div className="card table-wrap"><table><thead><tr><th>Оборудование</th><th>План</th><th>Интервал</th><th>Последнее</th><th>Следующее</th></tr></thead>
-          <tbody>{q.data.items.map((p: any) => {
-            const over = new Date(p.next_due_date) < new Date()
-            return <tr key={p.id}><td><Link to={`/equipment/${p.equipment_id}`}>{p.equipment?.name}</Link></td><td>{p.title}</td><td>{p.interval_days} дн.</td><td>{p.last_done_on ? fmtDate(p.last_done_on) : '—'}</td><td className={over ? 'err' : ''}>{fmtDate(p.next_due_date)}{over && ' · просрочено'}</td></tr>
-          })}</tbody></table></div>)}
+      <PageHeader title="Плановые работы" />
+      <QueryBoundary query={q} isEmpty={(d) => !d.items.length} empty={<Empty icon="calendar" title="Планов обслуживания нет" text="Планы добавляются в паспорте оборудования (вкладка «План»)." />}>
+        {(d) => (
+          <DataTable rows={d.items} rowKey={(p: any) => p.id} columns={[
+            { header: 'Оборудование', cell: (p: any) => <Link to={`/equipment/${p.equipment_id}`}>{p.equipment?.name}</Link> },
+            { header: 'План', cell: (p: any) => p.title },
+            { header: 'Интервал', cell: (p: any) => `${p.interval_days} дн.` },
+            { header: 'Последнее', cell: (p: any) => (p.last_done_on ? fmtDate(p.last_done_on) : '—') },
+            { header: 'Следующее', cell: (p: any) => { const over = new Date(p.next_due_date) < new Date(); return <span className={over ? 'err' : ''}>{fmtDate(p.next_due_date)}{over && ' · просрочено'}</span> } },
+          ]} />)}
+      </QueryBoundary>
     </div>
   )
 }

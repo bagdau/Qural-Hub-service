@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { memo, useMemo, useState } from 'react'
 import { DndContext, DragOverlay, MouseSensor, TouchSensor, useDraggable, useDroppable, useSensor, useSensors, type DragEndEvent, type DragStartEvent } from '@dnd-kit/core'
 import { PRIORITY_COLOR } from '../lib/format'
 import { COLUMNS, avatarColor, columnOf, initials, resolveDrop, slaView, sortForBoard, useNow, PRIORITY_TITLE, type ColumnId, type Drop } from './boardLib'
@@ -15,7 +15,8 @@ export function PriorityPill({ p }: { p: string }) {
   return <span className="prio" style={{ ['--c' as any]: PRIORITY_COLOR[p] }}>{PRIORITY_TITLE[p] ?? p}</span>
 }
 
-export function TicketCard({ t, now, onOpen, overlay, selected }: { t: any; now: number; onOpen?: (id: string) => void; overlay?: boolean; selected?: boolean }) {
+/** Карточка заявки. memo: при перетаскивании и фильтрации перерисовываются только изменившиеся карточки */
+export const TicketCard = memo(function TicketCard({ t, now, onOpen, overlay, selected }: { t: any; now: number; onOpen?: (id: string) => void; overlay?: boolean; selected?: boolean }) {
   const { flashed } = useLive()
   const v = slaView(t, now)
   const cl = t.checklist
@@ -44,9 +45,9 @@ export function TicketCard({ t, now, onOpen, overlay, selected }: { t: any; now:
       </div>
     </div>
   )
-}
+})
 
-function DraggableCard({ t, now, onOpen, selected }: { t: any; now: number; onOpen: (id: string) => void; selected: boolean }) {
+const DraggableCard = memo(function DraggableCard({ t, now, onOpen, selected }: { t: any; now: number; onOpen: (id: string) => void; selected: boolean }) {
   const movable = t.allowed_actions.some((a: string) => ['accept', 'assign', 'reassign', 'start', 'pause', 'resume', 'complete', 'confirm', 'return', 'cancel'].includes(a))
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: t.id, disabled: !movable, data: { t } })
   return (
@@ -55,12 +56,13 @@ function DraggableCard({ t, now, onOpen, selected }: { t: any; now: number; onOp
       <TicketCard t={t} now={now} onOpen={onOpen} selected={selected} />
     </div>
   )
-}
+})
 
-function Column({ col, items, now, onOpen, onAdd, state, selectedId, canAdd }: {
+const Column = memo(function Column({ col, items, now, onOpen, onAdd, state, selectedId, canAddEnabled, canAddHint }: {
   col: (typeof COLUMNS)[number]; items: any[]; now: number; onOpen: (id: string) => void; onAdd: (c: ColumnId) => void
-  state: 'idle' | 'valid' | 'invalid' | 'over'; selectedId: string | null; canAdd: { enabled: boolean; hint: string }
+  state: 'idle' | 'valid' | 'invalid' | 'over'; selectedId: string | null; canAddEnabled: boolean; canAddHint: string
 }) {
+  const canAdd = { enabled: canAddEnabled, hint: canAddHint }
   const { setNodeRef, isOver } = useDroppable({ id: col.id })
   const warnings = items.filter((t) => { const v = slaView(t, now); return v.tone === 'bad' || v.tone === 'warn' }).length
   const st = state === 'valid' && isOver ? 'over' : state
@@ -83,7 +85,7 @@ function Column({ col, items, now, onOpen, onAdd, state, selectedId, canAdd }: {
       </div>
     </section>
   )
-}
+})
 
 export function Kanban({ tickets, onOpen, onDrop, onAdd, selectedId, canAddFor }: {
   tickets: any[]; onOpen: (id: string) => void; onDrop: (t: any, target: ColumnId, d: Drop) => void; onAdd: (c: ColumnId) => void
@@ -125,10 +127,12 @@ export function Kanban({ tickets, onOpen, onDrop, onAdd, selectedId, canAddFor }
           </button>))}
       </div>
       <div className="kanban" role="group" aria-label="Канбан-доска заявок">
-        {COLUMNS.map((c) => (
-          <Column key={c.id} col={c} items={byCol[c.id]} now={now} onOpen={onOpen} onAdd={onAdd} selectedId={selectedId} canAdd={canAddFor(c.id)}
-            state={!targets ? 'idle' : columnOf(active.status) === c.id ? 'idle' : targets[c.id] ? 'valid' : 'invalid'} />
-        ))}
+        {COLUMNS.map((c) => {
+          const add = canAddFor(c.id)
+          return (
+            <Column key={c.id} col={c} items={byCol[c.id]} now={now} onOpen={onOpen} onAdd={onAdd} selectedId={selectedId} canAddEnabled={add.enabled} canAddHint={add.hint}
+              state={!targets ? 'idle' : columnOf(active.status) === c.id ? 'idle' : targets[c.id] ? 'valid' : 'invalid'} />)
+        })}
       </div>
       <DragOverlay dropAnimation={{ duration: 160 }}>{active ? <TicketCard t={active} now={now} overlay /> : null}</DragOverlay>
     </DndContext>

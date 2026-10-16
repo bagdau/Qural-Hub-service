@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { PageHeader } from '../components/PageHeader'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ApiError, del, get, post, put, uuid } from '../api/client'
@@ -14,7 +15,7 @@ export function MyTasksPage() {
   const [open, setOpen] = useState<Record<string, boolean>>({ done: false })
   return (
     <div className="stack">
-      <div className="row between"><h1>Мои задания</h1><Link className="btn" to="/scan"><Icon name="qr" size={16} /> Сканер QR</Link></div>
+      <PageHeader title="Мои задания" actions={<Link className="btn" to="/scan"><Icon name="qr" size={16} /> Сканер QR</Link>} />
       {q.isLoading ? <div className="card"><Skeleton lines={4} /></div> : q.error ? <ErrorBox error={q.error} retry={() => q.refetch()} /> : (
         <>
           {Object.values<any[]>(q.data).every((g) => !g.length) && <div className="card"><Empty icon="tasks" title="У вас пока нет заданий" text="Когда диспетчер назначит заявку, она появится здесь." /></div>}
