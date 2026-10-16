@@ -131,6 +131,8 @@ class Equipment(Base):
     rated_power_kva: Mapped[float | None] = mapped_column(Numeric(10, 2))
     technical_state: Mapped[str] = mapped_column(String(20), default="operational", server_default="operational")
     location_description: Mapped[str | None] = mapped_column(Text)
+    latitude: Mapped[float | None] = mapped_column(Numeric(9, 6))
+    longitude: Mapped[float | None] = mapped_column(Numeric(9, 6))
     passport_data: Mapped[dict] = mapped_column(JSONB, default=dict, server_default="{}")
     qr_code: Mapped[str] = mapped_column(String(12), unique=True)
     qr_rotated_at: Mapped[datetime | None] = mapped_column(TS)

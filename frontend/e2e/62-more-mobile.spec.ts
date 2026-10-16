@@ -24,16 +24,21 @@ test('MORE-01 телефон: «Ещё» открывает меню со все
   await ctx.close()
 })
 
-test('MORE-02 телефон: у инженера в «Ещё» — доска заявок, карта и профиль; выход работает', async ({ browser }) => {
+test('MORE-02 телефон: у инженера в «Ещё» — доска заявок, карта и профиль; выход из аккаунта работает', async ({ browser }) => {
   const { ctx, page } = await as(browser, 'eng1')
   await page.goto('/my-tasks')
   await page.getByRole('navigation', { name: 'Быстрая навигация' }).getByRole('button', { name: 'Ещё' }).click()
   const dlg = page.getByRole('dialog', { name: 'Меню' })
   for (const name of ['Доска заявок', 'Карта', 'Профиль']) await expect(dlg.getByRole('link', { name })).toBeVisible()
   await page.screenshot({ path: 'artifacts/screens/mobile-more-menu.png' })
-  await dlg.getByRole('button', { name: 'Выйти из аккаунта' }).click()
-  await expect(page).toHaveURL(/\/login/)
   await ctx.close()
+  // выход проверяем отдельным пользователем: выход завершает серверную сессию, и другие тесты с тем же входом сломались бы
+  const out = await as(browser, 'cl3')
+  await out.page.goto('/')
+  await out.page.getByRole('navigation', { name: 'Быстрая навигация' }).getByRole('button', { name: 'Ещё' }).click()
+  await out.page.getByRole('dialog', { name: 'Меню' }).getByRole('button', { name: 'Выйти из аккаунта' }).click()
+  await expect(out.page).toHaveURL(/\/login/)
+  await out.ctx.close()
 })
 
 test('EQ-MOBILE карточка оборудования на телефоне: три блока в одну строку, ничего не обрезано', async ({ browser }) => {

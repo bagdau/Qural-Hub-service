@@ -53,6 +53,7 @@ def test_label_and_passport_access(u):
     ("КТП-160", "substation", "КТП-160", "Трансформаторная подстанция КТП-160"),
     ("Трансформатор ТМ-1000/10", "transformer", "ТМ-1000/10", "Силовой трансформатор ТМ-1000/10"),
     ("РУ-6 кВ, 12 ячеек", "switchgear", "РУ-6 кВ", "Распределительное устройство РУ-6 кВ, 12 ячеек"),
+    ("РУ-0,4 кВ щит ввода", "switchgear", "РУ-0,4 кВ щит ввода", "Распределительное устройство РУ-0,4 кВ щит ввода"),
 ])
 def test_label_names(name, kind, short, full):
     from app.generators import documents
@@ -78,6 +79,8 @@ def test_site_coordinates_in_api_and_validation(u):
     assert out_of_range.status_code == 422
     cleared = u.adm.patch(f"/sites/{s['id']}", json={"version": ok.json()["version"], "latitude": None, "longitude": None})
     assert cleared.status_code == 200 and cleared.json()["latitude"] is None
+    back = u.adm.patch(f"/sites/{s['id']}", json={"version": cleared.json()["version"], "latitude": s["latitude"], "longitude": s["longitude"]})
+    assert back.status_code == 200      # тест не оставляет изменённых координат другим тестам
     assert u.dsp.patch(f"/sites/{s['id']}", json={"version": 1, "latitude": 1, "longitude": 1}).status_code == 403
 
 
@@ -96,3 +99,28 @@ def test_public_base_auto_follows_the_opened_address(monkeypatch):
         app_public_url = "https://service.example.kz/"
     monkeypatch.setattr(publicurl, "get_settings", lambda: Fixed)
     assert publicurl.public_base() == "https://service.example.kz"
+
+
+def test_equipment_coordinates_editor_and_map_signals(u):
+    eid = equipment_id(u.dsp, "DM-TR-0001")
+    d = u.dsp.get(f"/equipment/{eid}").json()
+    assert d["geo"]["source"] == "equipment" and 43 < d["latitude"] < 44
+    ok = u.dsp.patch(f"/equipment/{eid}", json={"version": d["version"], "latitude": 43.2611, "longitude": 76.9301})
+    assert ok.status_code == 200 and ok.json()["latitude"] == 43.2611
+    assert u.dsp.patch(f"/equipment/{eid}", json={"version": ok.json()["version"], "latitude": 43.2}).status_code == 422
+    assert u.dsp.patch(f"/equipment/{eid}", json={"version": ok.json()["version"], "latitude": 95, "longitude": 10}).status_code == 422
+    cleared = u.dsp.patch(f"/equipment/{eid}", json={"version": ok.json()["version"], "latitude": None, "longitude": None}).json()
+    assert cleared["latitude"] is None and cleared["geo"]["source"] == "site"      # возврат к координатам площадки
+    assert u.eng1.patch(f"/equipment/{eid}", json={"version": 1, "latitude": 1, "longitude": 1}).status_code == 403
+
+    m = u.dsp.get("/map/objects").json()
+    assert m["total"] == 10 and m["without_geo"] == 0
+    by_name = {i["name"]: i for i in m["items"]}
+    assert by_name["КТП-160"]["alert"] == "accident"                  # критическая заявка SR-2026-0017
+    assert any(t["priority"] == "critical" for t in by_name["КТП-160"]["tickets"])
+    assert {i["alert"] for i in m["items"]} <= {"accident", "call", "plan", "ok"}
+    assert m["counts"]["accident"] >= 1 and sum(m["counts"].values()) == m["total"]
+    assert by_name["КТП-160"]["short_name"] == "КТП-160" and by_name["КТП-160"]["type"] == "substation"
+    # клиент видит только своё оборудование и только свои заявки
+    c = u.cl1.get("/map/objects").json()
+    assert 0 < c["total"] < 10 and all(i["organization"]["name"] == c["items"][0]["organization"]["name"] for i in c["items"])

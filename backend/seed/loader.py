@@ -216,8 +216,11 @@ def load(db, demo_password: str) -> dict:
         db.add(s)
         S[key] = s
     db.flush()
+    per_site: dict[str, int] = {}
     for i, (key, org, site, typ, inv, name, kva, kv, state) in enumerate(EQUIP, 1):
-        e = Equipment(id=uid("equipment", key), organization_id=O[org].id, site_id=S[site].id, type=typ, inventory_number=inv,
+        j = per_site[site] = per_site.get(site, 0) + 1
+        dlat, dlon = [(0.0, 0.0), (0.0007, 0.0009), (-0.0007, 0.0011), (0.0012, -0.0008)][min(j - 1, 3)]   # демо: оборудование на площадке разнесено
+        e = Equipment(latitude=round(SITE_GEO[site][0] + dlat, 6), longitude=round(SITE_GEO[site][1] + dlon, 6), id=uid("equipment", key), organization_id=O[org].id, site_id=S[site].id, type=typ, inventory_number=inv,
                       name=name, manufacturer="Демо-Электро", model=(__import__("re").search(r"[А-ЯA-Z]{1,4}-[\d,/]+", name) or [None])[0],
                       serial_number=f"DEMO-SN-{i:04d}", manufacture_year=2008 + i, voltage_class_kv=kv, rated_power_kva=kva,
                       technical_state=state, qr_code=f"DEMOEQUIP{i:03d}", passport_data={},

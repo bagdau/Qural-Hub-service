@@ -43,10 +43,10 @@ test('MAP-04 геолокация по HTTPS/localhost: «Моё местопо�
     permissions: ['geolocation'], geolocation: { latitude: 43.25, longitude: 76.93 }, viewport: { width: 1280, height: 900 },
   })
   await page.goto('/map')
-  await expect(page.locator('.leaflet-marker-icon')).toHaveCount(5)
+  await expect(page.locator('.leaflet-marker-icon')).toHaveCount(10)
   await page.getByRole('button', { name: 'Моё местоположение' }).click()
   await expect(page.getByRole('status').filter({ hasText: 'местоположение определено' })).toBeVisible()
-  await page.locator('.leaflet-marker-icon').first().click()
+  await page.locator('.leaflet-marker-icon').first().click({ force: true })
   await expect(page.locator('.leaflet-popup')).toContainText('От вас:')
   await expect(page.locator('.leaflet-popup').getByRole('link', { name: 'Маршрут' })).toHaveAttribute('href', /directions\?engine=fossgis_osrm_car&route=43\.25000/)
   await ctx.close()

@@ -25,6 +25,7 @@ export function LiveProvider({ children }: { children: React.ReactNode }) {
       pending.current.clear()
       qc.invalidateQueries({ queryKey: ['board'] })
       qc.invalidateQueries({ queryKey: ['unread'] })
+      qc.invalidateQueries({ queryKey: ['map-objects'] })
       for (const id of ids) for (const k of ['ticket', 'events', 'comments', 'atts', 'acts', 'parts', 'report']) qc.invalidateQueries({ queryKey: [k, id] })
       // подсветка карточек, изменённых другими пользователями
       const now = Date.now()

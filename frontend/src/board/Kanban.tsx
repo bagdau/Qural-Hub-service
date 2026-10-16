@@ -23,7 +23,7 @@ export const TicketCard = memo(function TicketCard({ t, now, onOpen, overlay, se
   return (
     <div className={`kcard ${v.pulse ? 'pulse' : ''} ${flashed.has(t.id) ? 'flash' : ''} ${overlay ? 'overlay' : ''} ${selected ? 'selected' : ''}`} data-testid={`card-${t.number}`} data-status={t.status}>
       <div className="row between" style={{ gap: 6, flexWrap: 'nowrap' }}>
-        <a className="kcard-num" href={`?t=${t.id}`} onClick={(e) => { e.preventDefault(); onOpen?.(t.id) }} onPointerDown={(e) => e.stopPropagation()}>{t.number}</a>
+        <a className="kcard-num" href={`?t=${t.id}`} draggable={false} onClick={(e) => { e.preventDefault(); e.stopPropagation(); onOpen?.(t.id) }}>{t.number}</a>
         <PriorityPill p={t.priority} />
       </div>
       <div className="kcard-title">{t.title}</div>

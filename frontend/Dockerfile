@@ -16,6 +16,10 @@ COPY nginx/nginx.conf /etc/nginx/nginx.conf
 COPY nginx/security-headers.conf /etc/nginx/security-headers.conf
 COPY nginx/app-server.conf /etc/nginx/app-server.conf
 COPY --chmod=755 nginx/10-certs.sh /docker-entrypoint.d/10-certs.sh
+COPY --chmod=755 nginx/11-resolver.sh /docker-entrypoint.d/11-resolver.sh
 COPY --from=cert /certs /opt/default-certs
+USER root
+RUN mkdir -p /var/cache/tiles && chown 101:101 /var/cache/tiles
+USER 101
 COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 8080 8443

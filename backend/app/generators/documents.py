@@ -47,7 +47,7 @@ def names(name: str, eq_type: str) -> tuple[str, str]:
     """(краткое, полное) название. «Трансформатор ТМ-1000/10» → «ТМ-1000/10» / «Силовой трансформатор ТМ-1000/10»;
     «КТП-160» → «КТП-160» / «Трансформаторная подстанция КТП-160»."""
     core = _TYPE_PREFIX.sub("", (name or "").strip())
-    short = core.split(",")[0].strip() or name
+    short = re.split(r",\s+", core, maxsplit=1)[0].strip() or name   # «РУ-6 кВ, 12 ячеек» → «РУ-6 кВ», но «РУ-0,4 кВ» не режется
     kind = TYPE_FULL.get(eq_type, "")
     full = f"{kind} {core}".strip() if kind and kind.lower() not in core.lower() else core
     return short, full

@@ -99,7 +99,6 @@ a, button, label, summary, [role=tab], .kchip { touch-action: manipulation; -web
 #main:focus, #main:focus-visible { outline: none; box-shadow: none; }
 .page-loader { padding: 4px 0; } .page-loader.full { padding: 24px; max-width: 1280px; margin: 0 auto; }
 /* карточки вне экрана не вычисляются браузером — длинные колонки и списки листаются плавно */
-.kwrap { content-visibility: auto; contain-intrinsic-size: auto 150px; }
 .fbtn { display: none; }
 .fgroup { display: contents; }
 
@@ -118,7 +117,7 @@ a, button, label, summary, [role=tab], .kchip { touch-action: manipulation; -web
   .fcount { order: 4; width: 100%; margin-left: 0 !important; }
   .dt { flex: 1 1 130px; } .dash { display: none; }
   /* колонки канбана листаются «шаг за шагом» */
-  .kanban { scroll-snap-type: x mandatory; scroll-padding-left: 2px; }
+  .kanban { scroll-snap-type: x proximity; scroll-padding-left: 2px; }
   .kcol { scroll-snap-align: center; }
   /* нижняя панель не перекрывает последнюю строку; карточка заявки — крупнее для пальца */
   .kcard { padding: 12px; }
@@ -191,3 +190,7 @@ a, button, label, summary, [role=tab], .kchip { touch-action: manipulation; -web
   .scan-card .viewfinder { aspect-ratio: 3 / 4; max-height: 62vh; }
   .rtable td[data-label] { align-items: baseline; }
 }
+
+/* карточки канбана: перетаскивание не должно выделять текст и вызывать системное меню долгого нажатия */
+.kwrap.movable { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.kcard-num { -webkit-user-drag: none; }

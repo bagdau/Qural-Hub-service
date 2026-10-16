@@ -1,8 +1,7 @@
 import { Suspense, lazy } from 'react'
-import type { MapPoint } from './LeafletMap'
 
-export type { MapPoint }
-/** Карта грузится отдельным куском (Leaflet ≈ 45 КБ gzip) — только там, где она нужна. */
+export type { MapPoint } from '../lib/mapMeta'
+/** Карта грузится отдельным куском (Leaflet ≈ 46 КБ gzip) — только там, где она нужна. */
 const Leaflet = lazy(() => import('./LeafletMap'))
 
 export function MapView(props: React.ComponentProps<typeof Leaflet>) {

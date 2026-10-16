@@ -6,7 +6,7 @@ import { Button, ConfirmModal, Empty, ErrorBox, Field, Modal, Pagination, Skelet
 import { DataTable } from '../components/DataTable'
 import { PageHeader } from '../components/PageHeader'
 import { QueryBoundary } from '../components/QueryBoundary'
-import { MapView } from '../components/MapView'
+import { GeoPicker, geoBody } from '../components/GeoPicker'
 import { fmtDateTime, ROLE, EQ_TYPE } from '../lib/format'
 import { Icon } from '../components/Icon'
 
@@ -134,23 +134,6 @@ function OrgForm({ onClose, onSaved }: { onClose: () => void; onSaved: () => voi
     <Field label="Название" error={errs.name}><input value={f.name} onChange={set('name')} required /></Field><Field label="Краткое название" error={errs.short_name}><input value={f.short_name} onChange={set('short_name')} /></Field>
     <Field label="Email" error={errs.contact_email}><input type="email" value={f.contact_email} onChange={set('contact_email')} /></Field><Field label="Телефон" error={errs.contact_phone}><input value={f.contact_phone} onChange={set('contact_phone')} /></Field>
     <div className="row" style={{ justifyContent: 'flex-end' }}><Button type="button" onClick={onClose}>Отмена</Button><Button variant="primary" type="submit" loading={m.isPending}>Создать</Button></div></form></Modal>
-}
-/** Широта/долгота: вручную, щелчком по карте OpenStreetMap или по геолокации устройства */
-const toNum = (v: string) => (v.trim() === '' ? NaN : Number(v.replace(',', '.')))
-const geoBody = (g: { lat: string; lon: string }) => (Number.isFinite(toNum(g.lat)) && Number.isFinite(toNum(g.lon)) ? { latitude: toNum(g.lat), longitude: toNum(g.lon) } : {})
-function GeoPicker({ lat, lon, onChange }: { lat: string; lon: string; onChange: (lat: string, lon: string) => void }) {
-  const a = toNum(lat), b = toNum(lon)
-  const ok = Number.isFinite(a) && Number.isFinite(b) && Math.abs(a) <= 90 && Math.abs(b) <= 180
-  return (
-    <div className="stack">
-      <div className="grid cols-2">
-        <Field label="Широта"><input inputMode="decimal" value={lat} placeholder="43.2605" onChange={(e) => onChange(e.target.value, lon)} /></Field>
-        <Field label="Долгота"><input inputMode="decimal" value={lon} placeholder="76.9283" onChange={(e) => onChange(lat, e.target.value)} /></Field>
-      </div>
-      <MapView points={[]} pick={ok ? { lat: a, lon: b } : null} onPick={(x, y) => onChange(String(x), String(y))} locate height={240} label="Выбор точки площадки на карте" />
-      <div className="small muted">Нажмите на карту, чтобы поставить метку, или «Моё местоположение», находясь на площадке.</div>
-    </div>
-  )
 }
 function SiteGeoForm({ site, onClose, onSaved }: { site: any; onClose: () => void; onSaved: () => void }) {
   const toast = useToast()

@@ -40,15 +40,27 @@ def _uuid(x):
         raise not_found()
 
 
+def _geo(e: Equipment, site: Site | None) -> dict | None:
+    """Положение для карты: собственные координаты оборудования, иначе координаты площадки."""
+    if e.latitude is not None:
+        return {"latitude": float(e.latitude), "longitude": float(e.longitude), "source": "equipment"}
+    if site is not None and site.latitude is not None:
+        return {"latitude": float(site.latitude), "longitude": float(site.longitude), "source": "site"}
+    return None
+
+
 def eq_brief(e: Equipment, site: Site | None = None, extra: dict | None = None) -> dict:
     d = {"id": e.id, "organization_id": e.organization_id, "site_id": e.site_id, "type": e.type,
          "type_label": TYPE_LABELS[e.type], "inventory_number": e.inventory_number, "name": e.name,
          "manufacturer": e.manufacturer, "model": e.model, "serial_number": e.serial_number,
          "technical_state": e.technical_state, "archived_at": e.archived_at, "version": e.version}
+    d["latitude"] = float(e.latitude) if e.latitude is not None else None
+    d["longitude"] = float(e.longitude) if e.longitude is not None else None
     if site:
         d["site"] = {"id": site.id, "name": site.name, "address": site.address,
                      "latitude": float(site.latitude) if site.latitude is not None else None,
                      "longitude": float(site.longitude) if site.longitude is not None else None}
+        d["geo"] = _geo(e, site)
     if extra:
         d.update(extra)
     return d
@@ -138,6 +150,48 @@ def create_equipment(body: EquipmentIn, request: Request, ctx: Ctx = Depends(req
     db.flush()
     audit(db, "equipment_created", user=ctx.user, object_type="equipment", object_id=e.id, request=request)
     return eq_full(db, ctx, e)
+
+
+@router.get("/map/objects")
+def map_objects(ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+    """Оборудование для карты: положение, тип и сигнал состояния.
+    alert: accident — авария (критическая заявка или оборудование выведено из работы), call — вызов (аварийная/корректирующая
+    заявка в работе), plan — плановые работы, ok — всё в порядке. Видимость определяется ролью пользователя."""
+    rows = db.execute(select(Equipment, Site).join(Site, Site.id == Equipment.site_id)
+                      .where(Equipment.archived_at.is_(None), *equipment_conditions(ctx)).order_by(Equipment.name)).all()
+    ids = [e.id for e, _ in rows]
+    by_eq: dict = {}
+    if ids:
+        for t in db.scalars(select(Ticket).where(Ticket.equipment_id.in_(ids), Ticket.status.in_(list(ACTIVE)), *ticket_conditions(ctx))
+                            .order_by(Ticket.created_at.desc())):
+            by_eq.setdefault(t.equipment_id, []).append(t)
+    org_names = {o.id: o.name for o in db.scalars(select(Organization).where(Organization.id.in_({e.organization_id for e, _ in rows})))} if rows else {}
+    items, without_geo = [], 0
+    for e, s in rows:
+        geo = _geo(e, s)
+        if geo is None:
+            without_geo += 1
+            continue
+        ts = by_eq.get(e.id, [])
+        corrective = [t for t in ts if t.kind != "planned"]
+        if e.technical_state == "out_of_service" or any(t.priority == "critical" for t in corrective):
+            alert = "accident"
+        elif corrective:
+            alert = "call"
+        elif ts:
+            alert = "plan"
+        else:
+            alert = "ok"
+        short, full = documents.names(e.name, e.type)
+        items.append({
+            "id": e.id, "type": e.type, "type_label": TYPE_LABELS[e.type], "name": e.name, "short_name": short, "full_name": full,
+            "inventory_number": e.inventory_number, "technical_state": e.technical_state, "geo": geo,
+            "site": {"id": s.id, "name": s.name, "address": s.address}, "organization": {"id": e.organization_id, "name": org_names.get(e.organization_id, "")},
+            "alert": alert, "tickets_count": len(ts),
+            "tickets": [{"id": t.id, "number": t.number, "title": t.title, "priority": t.priority, "status": t.status, "kind": t.kind} for t in ts[:5]],
+        })
+    counts = {k: sum(1 for i in items if i["alert"] == k) for k in ("accident", "call", "plan", "ok")}
+    return {"items": items, "total": len(items), "without_geo": without_geo, "counts": counts}
 
 
 @router.get("/equipment/by-qr/{code}")

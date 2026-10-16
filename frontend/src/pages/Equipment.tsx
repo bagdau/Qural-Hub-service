@@ -7,7 +7,8 @@ import { useAuth } from '../auth/AuthContext'
 import { Button, ConfirmModal, Empty, ErrorBox, Field, Modal, Pagination, Skeleton, StatusBadge, Tabs, errText, useDebounced, useToast } from '../components/ui'
 import { EQ_STATE, EQ_TYPE, UNIT, fmtDate, fmtDateTime, PRIORITY } from '../lib/format'
 import { Icon } from '../components/Icon'
-import { SiteMapCard } from './MapPage'
+import { EquipmentMapCard } from './MapPage'
+import { GeoPicker, geoBody, geoStrings } from '../components/GeoPicker'
 
 export function EquipmentListPage() {
   const { me } = useAuth()
@@ -107,7 +108,7 @@ export function EquipmentDetailPage() {
           </div>
         </div>
       )}
-      {tab === 'map' && <SiteMapCard site={d.site} canEdit={me?.role === 'admin'} />}
+      {tab === 'map' && <EquipmentMapCard eq={d} canEdit={staff} />}
       {tab === 'history' && <History id={d.id} />}
       {tab === 'docs' && <Docs id={d.id} canEdit={staff} />}
       {tab === 'plan' && <Plans id={d.id} canEdit={staff} />}
@@ -205,16 +206,20 @@ export function EquipmentFormPage() {
   const orgs = useQuery({ queryKey: ['orgs-client'], queryFn: () => get('/organizations', { kind: 'client', page_size: 100 }) })
   const existing = useQuery({ queryKey: ['eq', id], enabled: !!id, queryFn: () => get(`/equipment/${id}`) })
   const [f, setF] = useState<any>({ organization_id: '', site_id: '', type: 'transformer', inventory_number: '', name: '', manufacturer: '', model: '', serial_number: '', manufacture_year: '', voltage_class_kv: '', rated_power_kva: '', technical_state: 'operational', location_description: '' })
+  const [geo, setGeo] = useState({ lat: '', lon: '' })
   const [loaded, setLoaded] = useState(false)
   const [errs, setErrs] = useState<Record<string, string>>({})
   const sites = useQuery({ queryKey: ['sites', f.organization_id], enabled: !!f.organization_id, queryFn: () => get('/sites', { organization_id: f.organization_id, page_size: 100 }) })
   useEffect(() => {
-    if (existing.data && !loaded) { const d = existing.data; setF({ ...d, manufacture_year: d.manufacture_year ?? '', voltage_class_kv: d.voltage_class_kv ?? '', rated_power_kva: d.rated_power_kva ?? '', manufacturer: d.manufacturer ?? '', model: d.model ?? '', serial_number: d.serial_number ?? '', location_description: d.location_description ?? '' }); setLoaded(true) }
+    if (existing.data && !loaded) { const d = existing.data; setF({ ...d, manufacture_year: d.manufacture_year ?? '', voltage_class_kv: d.voltage_class_kv ?? '', rated_power_kva: d.rated_power_kva ?? '', manufacturer: d.manufacturer ?? '', model: d.model ?? '', serial_number: d.serial_number ?? '', location_description: d.location_description ?? '' }); setGeo(geoStrings(d.latitude, d.longitude)); setLoaded(true) }
   }, [existing.data, loaded])
   const save = useMutation({
     mutationFn: () => {
       const n = (v: any) => (v === '' || v === null ? null : Number(v))
       const body: any = { site_id: f.site_id, inventory_number: f.inventory_number, name: f.name, manufacturer: f.manufacturer || null, model: f.model || null, serial_number: f.serial_number || null, manufacture_year: n(f.manufacture_year), voltage_class_kv: n(f.voltage_class_kv), rated_power_kva: n(f.rated_power_kva), technical_state: f.technical_state, location_description: f.location_description || null }
+      const g = geoBody(geo)
+      if (!('latitude' in g) && (geo.lat.trim() || geo.lon.trim())) throw new ApiError(422, 'VALIDATION', 'Укажите широту и долготу числами.', { fields: [{ field: 'latitude', message: 'Широта и долгота: числа через точку, обе сразу.' }] })
+      if ('latitude' in g) Object.assign(body, g); else if (id) Object.assign(body, { latitude: null, longitude: null })
       return id ? patch(`/equipment/${id}`, { ...body, version: existing.data.version }) : post('/equipment', { ...body, organization_id: f.organization_id, type: f.type })
     },
     onSuccess: (r) => { qc.invalidateQueries({ queryKey: ['equipment'] }); toast('Сохранено.'); nav(`/equipment/${r.id}`) },
@@ -240,6 +245,11 @@ export function EquipmentFormPage() {
         <Field label="Класс напряжения, кВ" error={errs.voltage_class_kv}><input type="number" step="any" value={f.voltage_class_kv} onChange={set('voltage_class_kv')} /></Field>
       </div>
       <Field label="Место установки"><input value={f.location_description} onChange={set('location_description')} /></Field>
+      <details open={!!(geo.lat || geo.lon)}>
+        <summary style={{ cursor: 'pointer', fontWeight: 700, margin: '4px 0 10px' }}>Положение на карте (широта и долгота)</summary>
+        <GeoPicker lat={geo.lat} lon={geo.lon} onChange={(lat, lon) => setGeo({ lat, lon })} context={sites.data?.items.filter((s: any) => s.id === f.site_id && s.latitude != null).map((s: any) => ({ id: s.id, lat: s.latitude, lon: s.longitude, title: `Площадка: ${s.name}`, subtitle: s.address, kind: 'site' as const }))} />
+        {errs.latitude && <div className="err" role="alert">{errs.latitude}</div>}
+      </details>
       <div className="row" style={{ justifyContent: 'flex-end' }}><Button type="button" onClick={() => nav(-1)}>Отмена</Button><Button variant="primary" type="submit" loading={save.isPending}>Сохранить</Button></div>
     </form>
   )

@@ -1,0 +1,43 @@
+/* ===== Метки карты: тип оборудования + сигнал состояния ===== */
+.mk { position: relative; width: 46px; height: 56px; }
+.mk-body { position: absolute; left: 3px; top: 0; z-index: 2; width: 40px; height: 40px; border-radius: 50%; background: var(--c); border: 3px solid #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35); }
+.mk::after { content: ""; position: absolute; left: 15px; top: 34px; z-index: 1; width: 16px; height: 16px; background: var(--c); transform: rotate(45deg); border-radius: 0 0 4px 0; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.25); }
+.mk-n { position: absolute; right: -3px; top: -5px; z-index: 3; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 11px; background: #101828; color: #fff; font: 700 12px/18px var(--font); text-align: center; border: 2px solid #fff; box-sizing: border-box; }
+/* сигнальное «дыхание»: авария быстрее и ярче, вызов — спокойнее */
+.mk-pulse { position: absolute; left: 3px; top: 0; z-index: 0; width: 40px; height: 40px; border-radius: 50%; background: var(--c); opacity: 0.55; animation: mkpulse 1.4s ease-out infinite; }
+.mk-call .mk-pulse { animation-duration: 2.4s; opacity: 0.45; }
+@keyframes mkpulse { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(2.6); opacity: 0; } }
+.mk-accident .mk-body { animation: mkblink 1.4s ease-in-out infinite; }
+@keyframes mkblink { 0%, 100% { box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35); } 50% { box-shadow: 0 0 0 4px rgba(217, 45, 32, 0.45), 0 3px 8px rgba(0, 0, 0, 0.35); } }
+.mk-pick { width: 34px; height: 34px; border-radius: 50%; border: 3px solid #2563eb; background: rgba(37, 99, 235, 0.18); display: flex; align-items: center; justify-content: center; cursor: grab; }
+.mk-pick i { width: 8px; height: 8px; border-radius: 50%; background: #2563eb; }
+.map-pop-line { border-left: 3px solid var(--border); padding-left: 7px; margin-top: 5px; font-size: 13px; line-height: 1.3; }
+.map-pop b { font-size: 15px; }
+
+/* ===== Страница «Карта объектов» ===== */
+.mapfilters { display: flex; flex-wrap: wrap; gap: 8px; }
+.fchip { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--c); background: #fff; color: var(--text); font-weight: 600; cursor: pointer; }
+.fchip b { background: #eef2f7; color: var(--text); border-radius: 999px; padding: 0 8px; font-size: 12px; }
+.fchip.on { background: var(--c); color: #fff; }
+.fchip.on b { background: rgba(255, 255, 255, 0.25); color: #fff; }
+.fchip .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+.fchip.on .dot { background: #fff; }
+.fchip .dot.pulse { animation: mkblink2 1.2s ease-in-out infinite; }
+@keyframes mkblink2 { 50% { transform: scale(1.6); } }
+.kglyph { display: inline-flex; }
+.kicon { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; flex: none; color: #fff; }
+.alarm { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; animation: alarmflash 2.2s ease-in-out infinite; }
+@keyframes alarmflash { 50% { background: #fde1de; } }
+.linkbtn { background: none; border: 0; padding: 0 2px; min-height: 32px; font: inherit; font-weight: 700; color: inherit; text-decoration: underline; cursor: pointer; }
+.site-list li.sig { border-left-width: 5px; }
+.sig-accident { border-left-color: #d92d20 !important; background: #fff6f5; }
+.sig-call { border-left-color: #f79009 !important; background: #fffaf0; }
+.sig-plan { border-left-color: #2563eb !important; }
+.site-list li { gap: 12px; }
+.sig-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.sig-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+@media (max-width: 640px) {
+  .site-list li { flex-wrap: wrap; }
+  .sig-actions { width: 100%; justify-content: stretch; } .sig-actions .btn { flex: 1; }
+  .fchip { min-height: 44px; }
+}

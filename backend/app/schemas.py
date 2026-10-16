@@ -139,6 +139,14 @@ class EquipmentIn(In):
     location_description: str | None = Field(default=None, max_length=300)
     passport_data: dict = Field(default_factory=dict)
     notes: str | None = Field(default=None, max_length=2000)
+    latitude: float | None = Field(default=None, ge=-90, le=90)
+    longitude: float | None = Field(default=None, ge=-180, le=180)
+
+    @model_validator(mode="after")
+    def _geo_pair(self):
+        if (self.latitude is None) != (self.longitude is None):
+            raise ValueError("Укажите и широту, и долготу (или очистите обе).")
+        return self
 
 
 class EquipmentPatch(In):
@@ -157,6 +165,15 @@ class EquipmentPatch(In):
     location_description: str | None = None
     passport_data: dict | None = None
     notes: str | None = None
+    latitude: float | None = Field(default=None, ge=-90, le=90)
+    longitude: float | None = Field(default=None, ge=-180, le=180)
+
+    @model_validator(mode="after")
+    def _geo_pair(self):
+        sent = self.model_fields_set
+        if ("latitude" in sent) != ("longitude" in sent) or ((self.latitude is None) != (self.longitude is None)):
+            raise ValueError("Укажите и широту, и долготу (или очистите обе).")
+        return self
 
 
 class PlanIn(In):
