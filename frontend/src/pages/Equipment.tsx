@@ -1,12 +1,13 @@
 import { FormEvent, useEffect, useRef, useState } from 'react'
 import { PageHeader } from '../components/PageHeader'
 import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ApiError, api, get, patch, post, uuid } from '../api/client'
 import { useAuth } from '../auth/AuthContext'
 import { Button, ConfirmModal, Empty, ErrorBox, Field, Modal, Pagination, Skeleton, StatusBadge, Tabs, errText, useDebounced, useToast } from '../components/ui'
 import { EQ_STATE, EQ_TYPE, UNIT, fmtDate, fmtDateTime, PRIORITY } from '../lib/format'
 import { Icon } from '../components/Icon'
+import { SiteMapCard } from './MapPage'
 
 export function EquipmentListPage() {
   const { me } = useAuth()
@@ -14,12 +15,13 @@ export function EquipmentListPage() {
   const [q, setQ] = useState(sp.get('q') ?? '')
   const dq = useDebounced(q)
   const [type, setType] = useState(sp.get('type') ?? '')
+  const site = sp.get('site') ?? ''
   const [page, setPage] = useState(1)
   const [sel, setSel] = useState<string[]>([])
   const staff = me?.role === 'admin' || me?.role === 'dispatcher'
-  const data = useQuery({ queryKey: ['equipment', dq, type, page], queryFn: () => get('/equipment', { q: dq, type, page, page_size: 20 }) })
+  const data = useQuery({ queryKey: ['equipment', dq, type, site, page], queryFn: () => get('/equipment', { q: dq, type, site_id: site, page, page_size: 20 }), placeholderData: keepPreviousData })
   useEffect(() => { setPage(1) }, [dq, type])
-  useEffect(() => { setSp({ ...(dq ? { q: dq } : {}), ...(type ? { type } : {}) }, { replace: true }) }, [dq, type])
+  useEffect(() => { setSp({ ...(dq ? { q: dq } : {}), ...(type ? { type } : {}), ...(site ? { site } : {}) }, { replace: true }) }, [dq, type, site])
   return (
     <div className="stack">
       <PageHeader title="Оборудование" subtitle="Реестр единиц оборудования и цифровые паспорта" actions={<>
@@ -30,19 +32,20 @@ export function EquipmentListPage() {
         <div style={{ flex: 1, minWidth: 220 }}><Field label="Поиск"><input type="search" placeholder="Название, инв. или серийный номер" value={q} onChange={(e) => setQ(e.target.value)} /></Field></div>
         <div style={{ minWidth: 200 }}><Field label="Тип"><select value={type} onChange={(e) => setType(e.target.value)}><option value="">Все</option>{Object.entries(EQ_TYPE).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></Field></div>
       </div>
+      {site && <div className="banner info row between"><span>Показано оборудование выбранной площадки.</span><button className="btn sm" onClick={() => { const n = new URLSearchParams(sp); n.delete('site'); setSp(n, { replace: true }) }}>Показать всё</button></div>}
       {data.isLoading ? <div className="card"><Skeleton lines={5} /></div> : data.error ? <ErrorBox error={data.error} retry={() => data.refetch()} /> : !data.data.items.length ? (
         <div className="card"><Empty title="Оборудование не найдено" text="Измените условия поиска или попросите диспетчера добавить оборудование." /></div>
       ) : (
-        <div className="card table-wrap">
-          <table className="rtable">
+        <div className="card table-wrap eq-wrap">
+          <table className="rtable eq-rows">
             <thead><tr>{staff && <th />}<th>Название</th><th>Инв. №</th><th className="hide-sm">Тип</th><th className="hide-sm">Площадка</th><th>Состояние</th><th className="hide-sm">Ближайшее ТО</th><th>Заявки</th><th>QR</th></tr></thead>
             <tbody>{data.data.items.map((e: any) => (
-              <tr key={e.id}>
-                {staff && <td className="nolabel"><label className="chk"><input type="checkbox" aria-label={`Выбрать ${e.name}`} checked={sel.includes(e.id)} onChange={(ev) => setSel(ev.target.checked ? [...sel, e.id] : sel.filter((x) => x !== e.id))} /></label></td>}
-                <td className="nolabel"><Link to={`/equipment/${e.id}`}><strong>{e.name}</strong></Link></td><td className="mono" data-label="Инв. №">{e.inventory_number}</td>
-                <td className="hide-sm">{e.type_label}</td><td className="hide-sm">{e.site?.name}</td><td data-label="Состояние">{EQ_STATE[e.technical_state]}</td>
-                <td className="hide-sm">{e.next_due_date ? fmtDate(e.next_due_date) : '—'}</td><td data-label="Заявки">{e.active_tickets_count || '—'}</td>
-                <td className="nolabel"><Link className="btn sm" to={`/equipment/${e.id}/qr`} aria-label={`QR-код: ${e.name}`}><Icon name="qr" size={16} /> QR</Link></td>
+              <tr key={e.id} className={staff ? 'has-chk' : ''}>
+                {staff && <td className="nolabel c-chk"><label className="chk"><input type="checkbox" aria-label={`Выбрать ${e.name}`} checked={sel.includes(e.id)} onChange={(ev) => setSel(ev.target.checked ? [...sel, e.id] : sel.filter((x) => x !== e.id))} /></label></td>}
+                <td className="nolabel c-name"><Link to={`/equipment/${e.id}`}><strong>{e.name}</strong></Link><div className="small muted only-sm">{e.type_label} · {e.site?.name}</div></td><td className="mono c-inv" data-label="Инв. №">{e.inventory_number}</td>
+                <td className="hide-sm">{e.type_label}</td><td className="hide-sm">{e.site?.name}</td><td className="c-state" data-label="Состояние">{EQ_STATE[e.technical_state]}</td>
+                <td className="hide-sm">{e.next_due_date ? fmtDate(e.next_due_date) : '—'}</td><td className="c-tix" data-label="Заявки">{e.active_tickets_count || '—'}</td>
+                <td className="nolabel c-qr"><Link className="btn sm" to={`/equipment/${e.id}/qr`} aria-label={`QR-код: ${e.name}`}><Icon name="qr" size={16} /> QR</Link></td>
               </tr>))}</tbody>
           </table>
           <Pagination page={data.data.page} totalPages={data.data.total_pages} onPage={setPage} />
@@ -79,7 +82,7 @@ export function EquipmentDetailPage() {
       </div>
       {myTicket && <div className="banner info row between"><span>Ваша заявка <strong>{myTicket.number}</strong>: {myTicket.title}</span><Link className="btn sm primary" to={`/tickets/${myTicket.id}`}>Открыть заявку</Link></div>}
       {d.archived_at && <div className="banner warn">Оборудование в архиве.</div>}
-      <Tabs tabs={[['overview', 'Обзор'], ['history', 'История'], ['docs', 'Документы'], ['plan', 'План']]} active={tab} onChange={setTab} />
+      <Tabs tabs={[['overview', 'Обзор'], ['map', 'Карта'], ['history', 'История'], ['docs', 'Документы'], ['plan', 'План']]} active={tab} onChange={setTab} />
       {tab === 'overview' && (
         <div className="grid cols-2">
           <div className="card">
@@ -104,6 +107,7 @@ export function EquipmentDetailPage() {
           </div>
         </div>
       )}
+      {tab === 'map' && <SiteMapCard site={d.site} canEdit={me?.role === 'admin'} />}
       {tab === 'history' && <History id={d.id} />}
       {tab === 'docs' && <Docs id={d.id} canEdit={staff} />}
       {tab === 'plan' && <Plans id={d.id} canEdit={staff} />}

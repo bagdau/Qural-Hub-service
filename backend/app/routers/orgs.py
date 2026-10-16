@@ -25,6 +25,8 @@ def _o(o: Organization) -> dict:
 def _s(s: Site) -> dict:
     return {"id": s.id, "organization_id": s.organization_id, "name": s.name, "address": s.address,
             "timezone": s.timezone, "contact_person": s.contact_person, "contact_phone": s.contact_phone,
+            "latitude": float(s.latitude) if s.latitude is not None else None,
+            "longitude": float(s.longitude) if s.longitude is not None else None,
             "archived_at": s.archived_at, "version": s.version}
 
 

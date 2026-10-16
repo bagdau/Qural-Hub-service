@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session as DbSession
 from .. import clock, metrics
 from ..generators import documents, qr as qrgen
 from ..config import get_settings
+from ..publicurl import public_base
 from ..db import get_db
 from ..errors import ApiError, conflict, field_error, not_found
 from ..models import (Act, Assignment, Equipment, MaintenancePlan, Organization, PartUsage, Site, SparePart, Ticket,
@@ -45,7 +46,9 @@ def eq_brief(e: Equipment, site: Site | None = None, extra: dict | None = None) 
          "manufacturer": e.manufacturer, "model": e.model, "serial_number": e.serial_number,
          "technical_state": e.technical_state, "archived_at": e.archived_at, "version": e.version}
     if site:
-        d["site"] = {"id": site.id, "name": site.name, "address": site.address}
+        d["site"] = {"id": site.id, "name": site.name, "address": site.address,
+                     "latitude": float(site.latitude) if site.latitude is not None else None,
+                     "longitude": float(site.longitude) if site.longitude is not None else None}
     if extra:
         d.update(extra)
     return d
@@ -60,7 +63,7 @@ def eq_full(db: DbSession, ctx: Ctx, e: Equipment) -> dict:
               "rated_power_kva": float(e.rated_power_kva) if e.rated_power_kva else None,
               "location_description": e.location_description, "passport_data": e.passport_data, "notes": e.notes,
               "qr_code": e.qr_code if ctx.role in ("admin", "dispatcher", "engineer", "manager", "client") else None,
-              "qr_url": f"{get_settings().app_public_url}/e/{e.qr_code}", "created_at": e.created_at,
+              "qr_url": f"{public_base()}/e/{e.qr_code}", "created_at": e.created_at,
               "short_name": documents.names(e.name, e.type)[0], "full_name": documents.names(e.name, e.type)[1]})
     conds = ticket_conditions(ctx)
     d["active_tickets_count"] = db.scalar(select(func.count()).select_from(Ticket).where(
@@ -154,7 +157,7 @@ def by_qr(code: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db
 
 
 def _qr_url(e: Equipment) -> str:
-    return f"{get_settings().app_public_url}/e/{e.qr_code}"
+    return f"{public_base()}/e/{e.qr_code}"
 
 
 def _label_item(db: DbSession, e: Equipment) -> dict:

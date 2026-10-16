@@ -140,3 +140,54 @@ a, button, label, summary, [role=tab], .kchip { touch-action: manipulation; -web
   .page-head-actions { width: 100%; }
   .page-head-actions > .btn, .page-head-actions > button { flex: 1 1 auto; }
 }
+
+/* ===== Карта (OpenStreetMap / Leaflet) ===== */
+.map-wrap { display: flex; flex-direction: column; gap: 8px; }
+.map { position: relative; z-index: 0; isolation: isolate; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); background: #e5e7eb; }
+.map-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.map-pin { background: none; border: 0; }
+.map-pop { min-width: 160px; font: inherit; } .map-pop-links { display: flex; gap: 14px; margin-top: 6px; font-weight: 600; }
+.leaflet-container { font: inherit; }
+.leaflet-touch .leaflet-bar a { width: 40px; height: 40px; line-height: 40px; }
+.site-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.site-list li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; }
+
+/* ===== Меню «Ещё» ===== */
+.bottomnav button.more { flex: 1; background: none; border: 0; color: #cbd5e1; font: inherit; font-size: 12px; min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; }
+.bottomnav button.more.active { color: var(--teal-300); }
+.more-list { display: grid; gap: 6px; margin: 4px 0 12px; }
+.more-list a { display: flex; align-items: center; gap: 14px; min-height: 56px; padding: 8px 14px; border-radius: 12px; background: #f1f5f9; color: var(--text); text-decoration: none; font-weight: 600; font-size: 16px; }
+.more-list a small { display: block; font-weight: 400; color: var(--text-muted); font-size: 12.5px; }
+.more-list a.active { background: var(--teal-100); color: var(--teal-700); }
+.more-logout { width: 100%; color: var(--danger); }
+
+/* ===== Предупреждение: нет HTTPS ===== */
+.secure-banner { display: flex; align-items: center; gap: 4px 12px; flex-wrap: wrap; padding: 6px 12px; font-size: 13px; background: #fff7e0; color: #7a4b00; border-bottom: 1px solid #f5d08a; }
+.secure-banner a { font-weight: 700; color: inherit; }
+.secure-banner button { margin-left: auto; border: 0; background: none; font-size: 22px; line-height: 1; cursor: pointer; color: inherit; min-width: 36px; min-height: 36px; }
+
+/* ===== Оборудование: на телефоне карточка из трёх блоков ===== */
+.only-sm { display: none; }
+@media (max-width: 640px) {
+  .only-sm { display: block; }
+  .eq-wrap { padding: 0; background: transparent; border: 0; box-shadow: none; }
+  .eq-rows tr { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); column-gap: 6px; row-gap: 10px; align-items: center; margin: 0 0 10px; padding: 12px; }
+  .eq-rows td { display: block; border: 0; padding: 0; text-align: left; min-width: 0; }
+  .eq-rows td::before { display: block; margin-bottom: 2px; }
+  .eq-rows .c-chk { grid-column: span 1; order: 1; } .eq-rows .c-name { grid-column: span 4; order: 2; } .eq-rows tr:not(.has-chk) .c-name { grid-column: span 5; } .eq-rows .c-qr { grid-column: span 1; justify-self: end; order: 3; }
+  .eq-rows .c-inv, .eq-rows .c-state, .eq-rows .c-tix { order: 4; grid-column: span 2; padding-top: 10px; border-top: 1px solid var(--border); font-weight: 600; overflow-wrap: anywhere; }
+  .eq-rows .c-inv, .eq-rows .c-state, .eq-rows .c-tix { font-size: 15px; }
+  .eq-rows td[data-label]::before { font-size: 12px; font-weight: 400; color: var(--text-muted); }
+  .eq-rows .c-qr .btn { min-width: 52px; padding: 4px 10px; }
+  .eq-rows .c-name a { font-size: 16.5px; }
+}
+@media (min-width: 641px) and (max-width: 1024px) {
+  .eq-rows td { padding: 14px 12px; }
+}
+
+/* ===== Телефон: сканер и таблицы-карточки ===== */
+@media (max-width: 640px) {
+  .scan-card { padding: 10px; }
+  .scan-card .viewfinder { aspect-ratio: 3 / 4; max-height: 62vh; }
+  .rtable td[data-label] { align-items: baseline; }
+}

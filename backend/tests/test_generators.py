@@ -62,3 +62,37 @@ def test_label_names(name, kind, short, full):
 def test_equipment_card_has_short_and_full_name(u):
     d = u.dsp.get(f"/equipment/{equipment_id(u.dsp, 'DL-KTP-0002')}").json()
     assert d["short_name"] == "КТП-160" and d["full_name"].endswith("КТП-160") and d["full_name"] != d["short_name"]
+
+
+def test_site_coordinates_in_api_and_validation(u):
+    eq = u.dsp.get(f"/equipment/{equipment_id(u.dsp, 'DM-TR-0001')}").json()
+    assert 43 < eq["site"]["latitude"] < 44 and 76 < eq["site"]["longitude"] < 78
+    sites = u.adm.get("/sites", params={"page_size": 100}).json()["items"]
+    assert all(s["latitude"] is not None for s in sites)
+    s = sites[0]
+    ok = u.adm.patch(f"/sites/{s['id']}", json={"version": s["version"], "latitude": 51.1694, "longitude": 71.4491})
+    assert ok.status_code == 200 and ok.json()["latitude"] == 51.1694
+    only_one = u.adm.patch(f"/sites/{s['id']}", json={"version": ok.json()["version"], "latitude": 10})
+    assert only_one.status_code == 422
+    out_of_range = u.adm.patch(f"/sites/{s['id']}", json={"version": ok.json()["version"], "latitude": 123, "longitude": 10})
+    assert out_of_range.status_code == 422
+    cleared = u.adm.patch(f"/sites/{s['id']}", json={"version": ok.json()["version"], "latitude": None, "longitude": None})
+    assert cleared.status_code == 200 and cleared.json()["latitude"] is None
+    assert u.dsp.patch(f"/sites/{s['id']}", json={"version": 1, "latitude": 1, "longitude": 1}).status_code == 403
+
+
+def test_public_base_auto_follows_the_opened_address(monkeypatch):
+    from app import publicurl
+
+    class Cfg:
+        app_public_url = "auto"
+    monkeypatch.setattr(publicurl, "get_settings", lambda: Cfg)
+    publicurl.remember_request("10.205.3.215:8443", "https")
+    assert publicurl.public_base() == "https://10.205.3.215:8443"
+    publicurl.remember_request("bad host<script>", "http")   # недопустимые символы игнорируются
+    assert publicurl.public_base() == "https://10.205.3.215:8443"
+
+    class Fixed:
+        app_public_url = "https://service.example.kz/"
+    monkeypatch.setattr(publicurl, "get_settings", lambda: Fixed)
+    assert publicurl.public_base() == "https://service.example.kz"

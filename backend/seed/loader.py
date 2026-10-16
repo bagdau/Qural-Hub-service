@@ -50,6 +50,8 @@ SITES = [("S1", "ORG-C1", "Площадка «Металл-Север»", "Де�
          ("S3", "ORG-C2", "Ферма «Агро-1»", "Демо-район, участок 3"),
          ("S4", "ORG-C2", "Элеватор «Агро-2»", "Демо-район, участок 7"),
          ("S5", "ORG-C3", "Склад «Логистик-Центр»", "Демо-город, пр. Тестовый, 10")]
+# координаты площадок для карты OpenStreetMap (демо: окрестности Алматы)
+SITE_GEO = {"S1": (43.2605, 76.9283), "S2": (43.2012, 76.8931), "S3": (43.3721, 77.0594), "S4": (43.4310, 76.7842), "S5": (43.2790, 76.9712)}
 # key, org, site, type, inv, name, kva, kv, state
 EQUIP = [("EQ-01", "ORG-C1", "S1", "transformer", "DM-TR-0001", "Трансформатор ТМ-1000/10", 1000, 10, "operational"),
          ("EQ-02", "ORG-C1", "S1", "substation", "DM-KTP-0002", "КТП-2 400 кВА", 400, 10, "degraded"),
@@ -209,7 +211,8 @@ def load(db, demo_password: str) -> dict:
             db.add(u)
         U[key] = u
     for key, org, name, addr in SITES:
-        s = Site(id=uid("site", key), organization_id=O[org].id, name=name, address=addr, created_at=T("01-05 08:00"), updated_at=T("01-05 08:00"))
+        s = Site(id=uid("site", key), organization_id=O[org].id, name=name, address=addr, latitude=SITE_GEO[key][0], longitude=SITE_GEO[key][1],
+                 created_at=T("01-05 08:00"), updated_at=T("01-05 08:00"))
         db.add(s)
         S[key] = s
     db.flush()

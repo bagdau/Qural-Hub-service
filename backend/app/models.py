@@ -58,6 +58,8 @@ class Site(Base):
     timezone: Mapped[str] = mapped_column(Text, default="Asia/Almaty", server_default="Asia/Almaty")
     contact_person: Mapped[str | None] = mapped_column(Text)
     contact_phone: Mapped[str | None] = mapped_column(Text)
+    latitude: Mapped[float | None] = mapped_column(Numeric(9, 6))
+    longitude: Mapped[float | None] = mapped_column(Numeric(9, 6))
     archived_at: Mapped[datetime | None] = mapped_column(TS)
     created_at: Mapped[datetime] = mapped_column(TS, server_default=text("now()"))
     updated_at: Mapped[datetime] = mapped_column(TS, server_default=text("now()"))

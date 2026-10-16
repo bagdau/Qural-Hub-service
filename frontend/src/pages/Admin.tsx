@@ -6,6 +6,7 @@ import { Button, ConfirmModal, Empty, ErrorBox, Field, Modal, Pagination, Skelet
 import { DataTable } from '../components/DataTable'
 import { PageHeader } from '../components/PageHeader'
 import { QueryBoundary } from '../components/QueryBoundary'
+import { MapView } from '../components/MapView'
 import { fmtDateTime, ROLE, EQ_TYPE } from '../lib/format'
 import { Icon } from '../components/Icon'
 
@@ -102,7 +103,7 @@ function UserForm({ user, onClose, onSaved }: { user: any | null; onClose: () =>
 // ---------------- Организации и площадки ----------------
 export function OrganizationsPage() {
   const qc = useQueryClient(); const toast = useToast()
-  const [org, setOrg] = useState(false); const [siteFor, setSiteFor] = useState<any>(null)
+  const [org, setOrg] = useState(false); const [siteFor, setSiteFor] = useState<any>(null); const [geoFor, setGeoFor] = useState<any | null>(null)
   const orgs = useQuery({ queryKey: ['orgs-admin'], queryFn: () => get('/organizations', { page_size: 100 }) })
   const sites = useQuery({ queryKey: ['sites-admin'], queryFn: () => get('/sites', { page_size: 100 }) })
   const archive = useMutation({ mutationFn: (o: any) => post(`/organizations/${o.id}/${o.archived_at ? 'unarchive' : 'archive'}`, { version: o.version }), onSuccess: () => qc.invalidateQueries({ queryKey: ['orgs-admin'] }), onError: (x) => toast(errText(x), true) })
@@ -113,9 +114,14 @@ export function OrganizationsPage() {
         <div key={o.id} className="card stack">
           <div className="row between"><div><h2 style={{ margin: 0 }}>{o.name}</h2><div className="muted small">{o.kind === 'service' ? 'Сервисная организация' : 'Клиент'}{o.archived_at && ' · в архиве'}</div></div>
             {o.kind === 'client' && <div className="row"><Button small onClick={() => setSiteFor(o)}>Добавить площадку</Button><Button small onClick={() => archive.mutate(o)}>{o.archived_at ? 'Вернуть из архива' : 'Архивировать'}</Button></div>}</div>
-          {sites.data?.items.filter((s: any) => s.organization_id === o.id).map((s: any) => <div key={s.id} className="small"><Icon name="pin" size={13} /> <strong>{s.name}</strong> — {s.address}</div>)}
+          {sites.data?.items.filter((s: any) => s.organization_id === o.id).map((s: any) => (
+            <div key={s.id} className="row between small">
+              <span><Icon name="pin" size={13} /> <strong>{s.name}</strong> — {s.address}{s.latitude != null ? <span className="muted"> · {s.latitude.toFixed(5)}, {s.longitude.toFixed(5)}</span> : <span className="err"> · нет координат</span>}</span>
+              <Button small onClick={() => setGeoFor(s)}>Координаты</Button>
+            </div>))}
         </div>))}
       {org && <OrgForm onClose={() => setOrg(false)} onSaved={() => { setOrg(false); qc.invalidateQueries({ queryKey: ['orgs-admin'] }) }} />}
+      {geoFor && <SiteGeoForm site={geoFor} onClose={() => setGeoFor(null)} onSaved={() => { setGeoFor(null); qc.invalidateQueries({ queryKey: ['sites-admin'] }); qc.invalidateQueries({ queryKey: ['sites-map'] }) }} />}
       {siteFor && <SiteForm org={siteFor} onClose={() => setSiteFor(null)} onSaved={() => { setSiteFor(null); qc.invalidateQueries({ queryKey: ['sites-admin'] }) }} />}
     </div>
   )
@@ -129,11 +135,57 @@ function OrgForm({ onClose, onSaved }: { onClose: () => void; onSaved: () => voi
     <Field label="Email" error={errs.contact_email}><input type="email" value={f.contact_email} onChange={set('contact_email')} /></Field><Field label="Телефон" error={errs.contact_phone}><input value={f.contact_phone} onChange={set('contact_phone')} /></Field>
     <div className="row" style={{ justifyContent: 'flex-end' }}><Button type="button" onClick={onClose}>Отмена</Button><Button variant="primary" type="submit" loading={m.isPending}>Создать</Button></div></form></Modal>
 }
+/** Широта/долгота: вручную, щелчком по карте OpenStreetMap или по геолокации устройства */
+const toNum = (v: string) => (v.trim() === '' ? NaN : Number(v.replace(',', '.')))
+const geoBody = (g: { lat: string; lon: string }) => (Number.isFinite(toNum(g.lat)) && Number.isFinite(toNum(g.lon)) ? { latitude: toNum(g.lat), longitude: toNum(g.lon) } : {})
+function GeoPicker({ lat, lon, onChange }: { lat: string; lon: string; onChange: (lat: string, lon: string) => void }) {
+  const a = toNum(lat), b = toNum(lon)
+  const ok = Number.isFinite(a) && Number.isFinite(b) && Math.abs(a) <= 90 && Math.abs(b) <= 180
+  return (
+    <div className="stack">
+      <div className="grid cols-2">
+        <Field label="Широта"><input inputMode="decimal" value={lat} placeholder="43.2605" onChange={(e) => onChange(e.target.value, lon)} /></Field>
+        <Field label="Долгота"><input inputMode="decimal" value={lon} placeholder="76.9283" onChange={(e) => onChange(lat, e.target.value)} /></Field>
+      </div>
+      <MapView points={[]} pick={ok ? { lat: a, lon: b } : null} onPick={(x, y) => onChange(String(x), String(y))} locate height={240} label="Выбор точки площадки на карте" />
+      <div className="small muted">Нажмите на карту, чтобы поставить метку, или «Моё местоположение», находясь на площадке.</div>
+    </div>
+  )
+}
+function SiteGeoForm({ site, onClose, onSaved }: { site: any; onClose: () => void; onSaved: () => void }) {
+  const toast = useToast()
+  const [geo, setGeo] = useState({ lat: site.latitude != null ? String(site.latitude) : '', lon: site.longitude != null ? String(site.longitude) : '' })
+  const [err, setErr] = useState('')
+  const m = useMutation({
+    mutationFn: () => {
+      const g = geoBody(geo)
+      if (!('latitude' in g) && (geo.lat.trim() || geo.lon.trim())) throw new Error('Укажите и широту, и долготу числами.')
+      return patch(`/sites/${site.id}`, { version: site.version, latitude: 'latitude' in g ? g.latitude : null, longitude: 'longitude' in g ? g.longitude : null })
+    },
+    onSuccess: () => { toast('Координаты сохранены.'); onSaved() },
+    onError: (x) => { setErr(x instanceof Error && !(x instanceof ApiError) ? x.message : errText(x)) },
+  })
+  return (
+    <Modal title={`Координаты: ${site.name}`} onClose={onClose} wide>
+      <form className="stack" onSubmit={(e) => { e.preventDefault(); setErr(''); m.mutate() }}>
+        <div className="small muted">{site.address}</div>
+        <GeoPicker lat={geo.lat} lon={geo.lon} onChange={(lat, lon) => setGeo({ lat, lon })} />
+        {err && <div className="banner err" role="alert">{err}</div>}
+        <div className="row" style={{ justifyContent: 'flex-end' }}>
+          {(geo.lat || geo.lon) && <Button type="button" onClick={() => setGeo({ lat: '', lon: '' })}>Очистить</Button>}
+          <Button type="button" onClick={onClose}>Отмена</Button>
+          <Button variant="primary" type="submit" loading={m.isPending}>Сохранить</Button>
+        </div>
+      </form>
+    </Modal>
+  )
+}
 function SiteForm({ org, onClose, onSaved }: { org: any; onClose: () => void; onSaved: () => void }) {
-  const toast = useToast(); const [f, setF] = useState({ name: '', address: '' }); const [errs, setErrs] = useState<Record<string, string>>({})
-  const m = useMutation({ mutationFn: () => post('/sites', { organization_id: org.id, ...f }), onSuccess: onSaved, onError: (x) => { if (x instanceof ApiError) setErrs({ ...x.fieldErrors(), ...(x.code === 'DUPLICATE' ? { name: x.message } : {}) }); toast(errText(x), true) } })
-  return <Modal title={`Новая площадка: ${org.name}`} onClose={onClose}><form className="stack" onSubmit={(e) => { e.preventDefault(); setErrs({}); m.mutate() }}>
+  const toast = useToast(); const [f, setF] = useState({ name: '', address: '' }); const [geo, setGeo] = useState({ lat: '', lon: '' }); const [errs, setErrs] = useState<Record<string, string>>({})
+  const m = useMutation({ mutationFn: () => post('/sites', { organization_id: org.id, ...f, ...geoBody(geo) }), onSuccess: onSaved, onError: (x) => { if (x instanceof ApiError) setErrs({ ...x.fieldErrors(), ...(x.code === 'DUPLICATE' ? { name: x.message } : {}) }); toast(errText(x), true) } })
+  return <Modal title={`Новая площадка: ${org.name}`} onClose={onClose} wide><form className="stack" onSubmit={(e) => { e.preventDefault(); setErrs({}); m.mutate() }}>
     <Field label="Название" error={errs.name}><input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} required /></Field><Field label="Адрес" error={errs.address}><input value={f.address} onChange={(e) => setF({ ...f, address: e.target.value })} required /></Field>
+    <GeoPicker lat={geo.lat} lon={geo.lon} onChange={(lat, lon) => setGeo({ lat, lon })} />
     <div className="row" style={{ justifyContent: 'flex-end' }}><Button type="button" onClick={onClose}>Отмена</Button><Button variant="primary" type="submit" loading={m.isPending}>Создать</Button></div></form></Modal>
 }
 

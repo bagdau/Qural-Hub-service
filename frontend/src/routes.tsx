@@ -28,6 +28,7 @@ export const ROUTES: RouteDef[] = [
   { path: '/equipment/:id/qr', title: 'QR-код оборудования', load: pick(qrpage, 'EquipmentQrPage') },
   { path: '/generator', title: 'Генератор QR и документов', load: pick(qrpage, 'GeneratorPage') },
   { path: '/e/:code', title: 'Оборудование по QR', load: pick(equipment, 'QrResolverPage') },
+  { path: '/map', title: 'Карта объектов', load: pick(() => import('./pages/MapPage'), 'MapPage') },
   { path: '/scan', title: 'Сканер QR', load: pick(() => import('./pages/Scan'), 'ScanPage') },
   { path: '/board', title: 'Заявки', load: pick(() => import('./pages/Workspace'), 'WorkspacePage') },
   { path: '/tickets', title: 'Заявки', load: pick(tickets, 'TicketsPage') },

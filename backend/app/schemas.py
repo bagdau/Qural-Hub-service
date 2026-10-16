@@ -2,7 +2,7 @@ from datetime import date, datetime
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from .security import PHONE_RE
 
@@ -89,6 +89,15 @@ class SiteIn(In):
     timezone: str = "Asia/Almaty"
     contact_person: str | None = Field(default=None, max_length=120)
     contact_phone: str | None = None
+    latitude: float | None = Field(default=None, ge=-90, le=90)
+    longitude: float | None = Field(default=None, ge=-180, le=180)
+
+    @model_validator(mode="after")
+    def _geo_pair(self):
+        if (self.latitude is None) != (self.longitude is None):
+            raise ValueError("Укажите и широту, и долготу.")
+        return self
+
     @field_validator("contact_phone")
     @classmethod
     def _chk_phone(cls, v):
@@ -102,6 +111,15 @@ class SitePatch(In):
     timezone: str | None = None
     contact_person: str | None = None
     contact_phone: str | None = None
+    latitude: float | None = Field(default=None, ge=-90, le=90)
+    longitude: float | None = Field(default=None, ge=-180, le=180)
+
+    @model_validator(mode="after")
+    def _geo_pair(self):
+        sent = self.model_fields_set
+        if ("latitude" in sent) != ("longitude" in sent) or ((self.latitude is None) != (self.longitude is None)):
+            raise ValueError("Укажите и широту, и долготу (или очистите обе).")
+        return self
 
 
 class EquipmentIn(In):

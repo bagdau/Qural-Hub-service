@@ -11,6 +11,7 @@ from sqlalchemy import text
 from . import clock, errors, realtime, storage
 from .config import get_settings
 from .db import SessionLocal, engine
+from .publicurl import remember_request
 from .routers import auth, equipment, events, execution, files, misc, orgs, tickets, users
 
 log = logging.getLogger("app")
@@ -79,6 +80,7 @@ def create_app() -> FastAPI:
         except ValueError:
             rid = str(uuid.uuid4())
         request.state.request_id = uuid.UUID(rid)
+        remember_request(request.headers.get("x-forwarded-host") or request.headers.get("host"), request.headers.get("x-forwarded-proto") or request.url.scheme)
         t0 = time.time()
         resp = await call_next(request)
         resp.headers["X-Request-Id"] = rid
