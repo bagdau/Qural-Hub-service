@@ -110,9 +110,20 @@ def cmd_seed_demo(a):
         if get_meta(db, "demo_seed_version") == SEED_VERSION and not a.force:
             print(f"demo уже загружено (версия {SEED_VERSION}), ничего не изменено.")
             return
+        kept: list[dict] = []
         if get_meta(db, "demo_seed_version") and a.force:
+            from .models import Session as AuthSession
+            kept = [{c.key: getattr(r, c.key) for c in AuthSession.__table__.columns}
+                    for r in db.scalars(select(AuthSession).where(AuthSession.revoked_at.is_(None)))]
             reset_all(db)
         counts = load(db, pw)
+        if kept:
+            from .models import Session as AuthSession, User as AuthUser
+            ids = {u for (u,) in db.execute(select(AuthUser.id))}
+            for row in kept:
+                if row["user_id"] in ids:
+                    db.add(AuthSession(**row))        # пользователи демо имеют постоянные id — вход в браузере сохраняется
+            counts["sessions_kept"] = sum(1 for r in kept if r["user_id"] in ids)
         set_meta(db, "demo_seed_version", SEED_VERSION)
         if not get_meta(db, "deployment_mode"):
             set_meta(db, "deployment_mode", "demo")

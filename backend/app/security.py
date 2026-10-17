@@ -124,7 +124,7 @@ def get_ctx(request: Request, db: DbSession = Depends(get_db, scope="function"))
     token = request.cookies.get(COOKIE)
     if not token:
         raise ApiError(401, "UNAUTHENTICATED", "Требуется вход в систему.")
-    now = clock.now()
+    now = clock.real_now()
     sess = db.scalar(select(Session).where(Session.token_hash == token_hash(token)))
     if not sess or sess.revoked_at or sess.expires_at <= now or sess.idle_expires_at <= now:
         raise ApiError(401, "UNAUTHENTICATED", "Сессия завершена. Войдите снова.")
@@ -141,9 +141,9 @@ def get_ctx(request: Request, db: DbSession = Depends(get_db, scope="function"))
     if user.must_change_password and request.url.path not in PW_EXEMPT:
         raise ApiError(403, "PASSWORD_CHANGE_REQUIRED", "Необходимо сменить временный пароль.")
     s = get_settings()
-    if (now - sess.last_seen_at).total_seconds() > 60:
+    if (now - sess.last_seen_at).total_seconds() > 15:       # любое обращение продлевает сеанс (не чаще раза в 15 с)
         sess.last_seen_at = now
-        sess.idle_expires_at = min(now + timedelta(hours=s.session_idle_ttl_hours), sess.expires_at)
+        sess.idle_expires_at = min(now + timedelta(minutes=s.session_idle_ttl_minutes), sess.expires_at)
     return Ctx(user, sess, getattr(request.state, "request_id", uuid.uuid4()))
 
 
@@ -158,12 +158,12 @@ def require(*roles: str):
 
 def create_session(db: DbSession, user: User, request: Request) -> str:
     s = get_settings()
-    now = clock.now()
+    now = clock.real_now()
     token = secrets.token_urlsafe(32)
     db.add(Session(
         user_id=user.id, token_hash=token_hash(token), created_at=now, last_seen_at=now,
-        idle_expires_at=now + timedelta(hours=s.session_idle_ttl_hours),
-        expires_at=now + timedelta(hours=s.session_abs_ttl_hours),
+        idle_expires_at=now + timedelta(minutes=s.session_idle_ttl_minutes),
+        expires_at=now + timedelta(minutes=s.session_abs_ttl_minutes),
         ip=client_ip(request),
         user_agent=request.headers.get("user-agent", "")[:300],
     ))

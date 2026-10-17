@@ -23,6 +23,11 @@ def now() -> datetime:
     return datetime.now(timezone.utc)
 
 
+def real_now() -> datetime:
+    """Настоящее время (UTC) — для сеансов входа: в demo-режиме часы приложения заморожены, а сеанс должен истекать по-настоящему."""
+    return datetime.now(timezone.utc)
+
+
 def set_override(dt: datetime | None) -> None:
     global _override
     _override = dt

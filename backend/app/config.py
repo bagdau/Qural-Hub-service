@@ -34,8 +34,9 @@ class Settings(BaseSettings):
     secret_key_file: str | None = None
     cookie_secure: bool = False
 
-    session_abs_ttl_hours: int = 168
-    session_idle_ttl_hours: int = 24
+    # сеанс: выход после 10 минут без действий (продлевается любой активностью); абсолютный предел — 8 часов
+    session_idle_ttl_minutes: int = 10
+    session_abs_ttl_minutes: int = 480
     login_max_failures: int = 5
     login_lock_minutes: int = 15
     temp_password_ttl_hours: int = 72

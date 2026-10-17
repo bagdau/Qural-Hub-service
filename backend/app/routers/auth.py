@@ -69,9 +69,10 @@ def login(body: LoginIn, request: Request):
         token = create_session(db, user, request)
         audit(db, "login_success", user=user, request=request)
         db.commit()
-        out = {"user": user_out(db, user), "csrf_token": csrf_for(token), "must_change_password": user.must_change_password}
+        out = {"user": user_out(db, user), "csrf_token": csrf_for(token), "must_change_password": user.must_change_password,
+               "session": {"idle_ttl_seconds": s.session_idle_ttl_minutes * 60}}
         resp = JSONResponse(_enc(out))
-        resp.set_cookie(COOKIE, token, max_age=s.session_abs_ttl_hours * 3600, httponly=True, secure=s.cookie_secure,
+        resp.set_cookie(COOKIE, token, max_age=s.session_abs_ttl_minutes * 60, httponly=True, secure=s.cookie_secure,
                         samesite="lax", path="/")
         return resp
     finally:
@@ -96,7 +97,8 @@ def logout(request: Request, ctx: Ctx = Depends(get_ctx), db: DbSession = Depend
 def me(request: Request, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     token = request.cookies.get(COOKIE)
     return {"user": user_out(db, ctx.user), "csrf_token": csrf_for(token),
-            "permissions": PERMISSIONS[ctx.role], "must_change_password": ctx.user.must_change_password}
+            "permissions": PERMISSIONS[ctx.role], "must_change_password": ctx.user.must_change_password,
+            "session": {"idle_ttl_seconds": get_settings().session_idle_ttl_minutes * 60}}
 
 
 @router.post("/change-password", status_code=204)
@@ -119,7 +121,7 @@ def change_password(body: ChangePasswordIn, request: Request, ctx: Ctx = Depends
 @router.get("/sessions")
 def sessions(ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     rows = db.scalars(select(Session).where(Session.user_id == ctx.user.id, Session.revoked_at.is_(None),
-                                            Session.expires_at > clock.now()).order_by(Session.created_at.desc())).all()
+                                            Session.expires_at > clock.real_now()).order_by(Session.created_at.desc())).all()
     return [{"id": r.id, "created_at": r.created_at, "last_seen_at": r.last_seen_at, "ip": str(r.ip) if r.ip else None,
              "user_agent": r.user_agent, "is_current": r.id == ctx.session.id} for r in rows]
 

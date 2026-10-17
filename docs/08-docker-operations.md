@@ -47,7 +47,7 @@
 | `DATABASE_URL` | собирается приложением из `POSTGRES_*` | | нет |
 | `SECRET_KEY_FILE` | `/run/secrets/secret_key` | Перец для хэшей токенов сессий; смена = выход всех | **да** |
 | `COOKIE_SECURE` | `true` (кроме dev) | | нет |
-| `SESSION_ABS_TTL_HOURS`, `SESSION_IDLE_TTL_HOURS` | `168`, `24` | | нет |
+| `SESSION_IDLE_TTL_MINUTES`, `SESSION_ABS_TTL_MINUTES` | `10`, `480` | Выход после N минут без действий (любая активность продлевает сеанс) и абсолютный предел сеанса | нет |
 | `LOGIN_MAX_FAILURES`, `LOGIN_LOCK_MINUTES` | `5`, `15` | | нет |
 | `TEMP_PASSWORD_TTL_HOURS` | `72` | | нет |
 | `FILES_DIR` | `/var/lib/alageum/files` | | нет |

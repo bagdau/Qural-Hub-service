@@ -40,14 +40,15 @@ test('SCAN-08 телефон: камера на весь экран с рамк�
 
 test('MAP-04 геолокация по HTTPS/localhost: «Моё местоположение» ставит точку и считает расстояние', async ({ browser }) => {
   const { ctx, page } = await as(browser, 'admin', {
-    permissions: ['geolocation'], geolocation: { latitude: 43.25, longitude: 76.93 }, viewport: { width: 1280, height: 900 },
+    permissions: ['geolocation'], geolocation: { latitude: 42.34, longitude: 69.59 }, viewport: { width: 1280, height: 900 },
   })
   await page.goto('/map')
   await expect(page.locator('.leaflet-marker-icon')).toHaveCount(10)
   await page.getByRole('button', { name: 'Моё местоположение' }).click()
   await expect(page.getByRole('status').filter({ hasText: 'местоположение определено' })).toBeVisible()
+  await page.waitForTimeout(1200)                                   // карта закончила подгонку масштаба под точку и метки
   await page.locator('.leaflet-marker-icon').first().click({ force: true })
   await expect(page.locator('.leaflet-popup')).toContainText('От вас:')
-  await expect(page.locator('.leaflet-popup').getByRole('link', { name: 'Маршрут' })).toHaveAttribute('href', /directions\?engine=fossgis_osrm_car&route=43\.25000/)
+  await expect(page.locator('.leaflet-popup').getByRole('link', { name: 'Маршрут' })).toHaveAttribute('href', /directions\?engine=fossgis_osrm_car&route=42\.34000/)
   await ctx.close()
 })

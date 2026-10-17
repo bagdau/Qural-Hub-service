@@ -18,6 +18,8 @@ export function LoginPage() {
   const [err, setErr] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [show, setShow] = useState(false)
+  // сеанс закончился из-за бездействия — объясняем причину (один раз)
+  const [expiredMin] = useState(() => { try { const v = sessionStorage.getItem('alageum.expired'); sessionStorage.removeItem('alageum.expired'); return v } catch { return null } })
   const [more, setMore] = useState(false)
   const [forgot, setForgot] = useState(false)
   const [remember, setRemember] = useState(() => { try { return !!localStorage.getItem('alageum.remember-email') } catch { return false } })
@@ -55,6 +57,7 @@ export function LoginPage() {
           </div>
         </aside>
         <form className="login-form" onSubmit={submit} aria-labelledby="t">
+          {expiredMin && !err && <div className="banner info" role="status">Сеанс завершён: вы были неактивны {expiredMin} мин. Войдите снова — работа продолжится.</div>}
           {err && <div className="banner err" role="alert">{err}</div>}
           <div className="ifield2">
             <label><span className="ico"><Icon name="user" size={20} /></span>
