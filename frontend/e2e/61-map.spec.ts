@@ -28,7 +28,7 @@ test('MAP-02 «Карта объектов»: значки типов, сигн�
   await a.page.goto('/map')
   await expect(a.page.getByRole('heading', { name: 'Карта объектов' })).toBeVisible()
   await expect(a.page.locator('.leaflet-marker-icon')).toHaveCount(10)
-  // три разных значка: трансформатор, подстанция, будка
+  // три разных значка: трансформатор, подстанция, РУ
   const glyphs = await a.page.locator('.leaflet-marker-icon .mk-body svg').evaluateAll((els) => new Set(els.map((e) => e.innerHTML)).size)
   expect(glyphs).toBeGreaterThanOrEqual(3)
   // сигналы: авария (критическая заявка КТП-160) мигает, вызовы оранжевые
@@ -45,10 +45,10 @@ test('MAP-02 «Карта объектов»: значки типов, сигн�
   const only = await a.page.locator('.leaflet-marker-icon').count()
   expect(only).toBeGreaterThan(0); expect(only).toBeLessThan(total)
   await expect(a.page.locator('.mk-call, .mk-ok, .mk-plan')).toHaveCount(0)
-  // фильтр типов: убираем «Будка (РУ)»
+  // фильтр типов: убираем «РУ»
   await a.page.getByRole('button', { name: /^Аварии|^Авария/ }).click()      // вернуть все сигналы
   await a.page.getByRole('button', { name: /^Вызов/ }).click(); await a.page.getByRole('button', { name: /^Плановые работы/ }).click(); await a.page.getByRole('button', { name: /^В норме/ }).click()
-  await a.page.getByRole('button', { name: /^Будка \(РУ\)/ }).click()
+  await a.page.getByRole('button', { name: /^РУ \(распределительная/ }).click()
   expect(await a.page.locator('.leaflet-marker-icon').count()).toBeLessThan(total)
   await a.ctx.close()
   const c = await as(browser, 'cl1', { viewport: { width: 1280, height: 900 } })

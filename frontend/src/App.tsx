@@ -7,6 +7,7 @@ import { Button, Modal, Skeleton, useOnline } from './components/ui'
 import { Icon } from './components/Icon'
 import { Avatar } from './components/Avatar'
 import { Logo } from './components/Logo'
+import { BackdropButton, SIDE_PHOTOS, SideBackdrop, useSideBackdrop } from './components/SideBackdrop'
 import { useMedia } from './lib/useMedia'
 import { ROLE } from './lib/format'
 import { LazyRoute as R, preload, titleFor, warmUp } from './routes'
@@ -111,6 +112,7 @@ function Shell() {
   const [more, setMore] = useState(false)
   const compact = useMedia('(max-width: 1024px)')
   const [rail, setRail] = useState(() => { try { return localStorage.getItem('alageum.side') === 'rail' } catch { return false } })
+  const bg = useSideBackdrop()
   const [expanded, setExpanded] = useState(false)   // планшет: панель из значков временно раскрывается поверх страницы
   useEffect(() => { try { localStorage.setItem('alageum.side', rail ? 'rail' : 'open') } catch { /* без хранилища */ } }, [rail])
   useEffect(() => { setExpanded(false) }, [loc.pathname])
@@ -149,11 +151,12 @@ function Shell() {
         </div>
       </header>
       <aside className="sidebar" id="side-nav">
+        <SideBackdrop index={bg.index} />
         <nav className="nav" aria-label="Основное меню">
           {items.map((i) => <NavLink key={i.to} to={i.to} end={i.to === '/'} title={rail || (compact && !expanded) ? i.label : undefined} onMouseEnter={() => preload(i.to)} onFocus={() => preload(i.to)} onTouchStart={() => preload(i.to)}><Icon name={i.icon} /><span className="nav-label">{i.label}</span></NavLink>)}
         </nav>
         <div className="spacer" />
-        <div className="side-foot"><i className={`dot ${online ? 'on' : ''}`} aria-hidden /><span className="side-foot-text">{online ? 'Система на связи' : 'Нет связи'}</span></div>
+        <div className="side-foot"><i className={`dot ${online ? 'on' : ''}`} aria-hidden /><span className="side-foot-text">{online ? 'Система на связи' : 'Нет связи'}</span><BackdropButton onClick={bg.next} name={SIDE_PHOTOS[bg.index].name} /></div>
       </aside>
       {expanded && <div className="scrim" onClick={() => setExpanded(false)} aria-hidden />}
       <div className="main">

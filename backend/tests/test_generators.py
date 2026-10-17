@@ -52,8 +52,8 @@ def test_label_and_passport_access(u):
 @pytest.mark.parametrize("name,kind,short,full", [
     ("КТП-160", "substation", "КТП-160", "Трансформаторная подстанция КТП-160"),
     ("Трансформатор ТМ-1000/10", "transformer", "ТМ-1000/10", "Силовой трансформатор ТМ-1000/10"),
-    ("РУ-6 кВ, 12 ячеек", "switchgear", "РУ-6 кВ", "Распределительное устройство РУ-6 кВ, 12 ячеек"),
-    ("РУ-0,4 кВ щит ввода", "switchgear", "РУ-0,4 кВ щит ввода", "Распределительное устройство РУ-0,4 кВ щит ввода"),
+    ("РУ-6 кВ, 12 ячеек", "switchgear", "РУ-6 кВ", "Распределительная подстанция РУ-6 кВ, 12 ячеек"),
+    ("РУ-0,4 кВ щит ввода", "switchgear", "РУ-0,4 кВ щит ввода", "Распределительная подстанция РУ-0,4 кВ щит ввода"),
 ])
 def test_label_names(name, kind, short, full):
     from app.generators import documents
@@ -67,7 +67,7 @@ def test_equipment_card_has_short_and_full_name(u):
 
 def test_site_coordinates_in_api_and_validation(u):
     eq = u.dsp.get(f"/equipment/{equipment_id(u.dsp, 'DM-TR-0001')}").json()
-    assert 43 < eq["site"]["latitude"] < 44 and 76 < eq["site"]["longitude"] < 78
+    assert 42 < eq["site"]["latitude"] < 43 and 69 < eq["site"]["longitude"] < 70
     sites = u.adm.get("/sites", params={"page_size": 100}).json()["items"]
     assert all(s["latitude"] is not None for s in sites)
     s = sites[0]
@@ -104,7 +104,7 @@ def test_public_base_auto_follows_the_opened_address(monkeypatch):
 def test_equipment_coordinates_editor_and_map_signals(u):
     eid = equipment_id(u.dsp, "DM-TR-0001")
     d = u.dsp.get(f"/equipment/{eid}").json()
-    assert d["geo"]["source"] == "equipment" and 43 < d["latitude"] < 44
+    assert d["geo"]["source"] == "equipment" and 42 < d["latitude"] < 43
     ok = u.dsp.patch(f"/equipment/{eid}", json={"version": d["version"], "latitude": 43.2611, "longitude": 76.9301})
     assert ok.status_code == 200 and ok.json()["latitude"] == 43.2611
     assert u.dsp.patch(f"/equipment/{eid}", json={"version": ok.json()["version"], "latitude": 43.2}).status_code == 422

@@ -12,7 +12,7 @@ from .execution import checklist_rows
 from .models import (Act, Attachment, ChecklistTemplate, Equipment, Organization, PartUsage, Site, SparePart, Ticket,
                      User, WorkReport)
 
-TYPE_LABEL = {"transformer": "трансформатор", "substation": "подстанция (КТП)", "switchgear": "распределительное устройство"}
+TYPE_LABEL = {"transformer": "трансформатор", "substation": "подстанция (КТП)", "switchgear": "распределительная подстанция (РУ)"}
 PRIO_LABEL = {"low": "низкий", "normal": "обычный", "high": "высокий", "critical": "критический"}
 STAGE_LABEL = {"before": "до", "during": "в ходе работ", "after": "после", "other": "прочее"}
 RESULT_LABEL = {"resolved": "Неисправность устранена", "resolved_with_remarks": "Устранено с замечаниями"}

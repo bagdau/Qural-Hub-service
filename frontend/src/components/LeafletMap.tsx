@@ -69,10 +69,15 @@ export default function LeafletMap({ points, height = 320, selectedId, pick, onP
   const [busy, setBusy] = useState(false)
   const onPickRef = useRef(onPick); onPickRef.current = onPick
   const onNavRef = useRef(onNavigate); onNavRef.current = onNavigate
+  // управление тачпадом ноутбука: два пальца — перемещение карты, щипок (или Ctrl+колесо) — масштаб
+  const [touchpad, setTouchpad] = useState(() => { try { return localStorage.getItem('alageum.map-touchpad') === '1' } catch { return false } })
+  const tpRef = useRef(touchpad); tpRef.current = touchpad
+  useEffect(() => { try { localStorage.setItem('alageum.map-touchpad', touchpad ? '1' : '0') } catch { /* без хранилища */ } }, [touchpad])
 
   useEffect(() => {
     if (!box.current || map.current) return
-    const m = L.map(box.current, { zoomControl: true, attributionControl: true, scrollWheelZoom: false }).setView([43.25, 76.93], 11)
+    // Шымкент; дробный масштаб (zoomSnap) нужен для плавного «щипка» на тачпаде
+    const m = L.map(box.current, { zoomControl: true, attributionControl: true, scrollWheelZoom: false, zoomSnap: 0.25, zoomDelta: 0.5 }).setView([42.3417, 69.5901], 11)
     // плитки идут через наш сервер (/tiles → кэш nginx → OpenStreetMap): без блокировок по Referer и с офлайн-кэшем
     const tiles = L.tileLayer('/tiles/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>' }).addTo(m)
     tiles.on('tileerror', () => setTilesFailed(true))
@@ -81,9 +86,24 @@ export default function LeafletMap({ points, height = 320, selectedId, pick, onP
     me.current = L.layerGroup().addTo(m)
     m.on('click', (e: L.LeafletMouseEvent) => onPickRef.current?.(Number(e.latlng.lat.toFixed(6)), Number(e.latlng.lng.toFixed(6))))
     map.current = m
+    const el = box.current
+    const onWheel = (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        // щипок на тачпаде браузер передаёт как wheel с ctrlKey: масштабируем карту вокруг указателя, а не страницу
+        e.preventDefault()
+        const k = e.deltaMode === 1 ? 0.06 : 0.012
+        const z = Math.max(m.getMinZoom(), Math.min(m.getMaxZoom(), m.getZoom() - e.deltaY * k))
+        m.setZoomAround(m.mouseEventToContainerPoint(e), z, { animate: false })
+      } else if (tpRef.current) {
+        e.preventDefault()
+        const px = e.deltaMode === 1 ? 32 : 1
+        m.panBy([(e.shiftKey && !e.deltaX ? e.deltaY : e.deltaX) * px, (e.shiftKey && !e.deltaX ? 0 : e.deltaY) * px], { animate: false })
+      }
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
     const ro = new ResizeObserver(() => m.invalidateSize())
-    ro.observe(box.current)
-    return () => { ro.disconnect(); m.remove(); map.current = null; markers.current.clear() }
+    ro.observe(el)
+    return () => { el.removeEventListener('wheel', onWheel); ro.disconnect(); m.remove(); map.current = null; markers.current.clear() }
   }, [])
 
   // метки оборудования
@@ -167,10 +187,12 @@ export default function LeafletMap({ points, height = 320, selectedId, pick, onP
     <div className="map-wrap">
       <div className="map" ref={box} style={{ height }} role="application" aria-label={label} />
       {tilesFailed && <div className="banner warn small" role="status">Подложка карты недоступна (серверу нужен выход в интернет). Метки оборудования остаются на месте.</div>}
-      {(locate || msg) && (
+      {(true) && (
         <div className="map-bar">
+          <button type="button" className={`btn sm ${touchpad ? 'active' : ''}`} aria-pressed={touchpad} onClick={() => setTouchpad(!touchpad)} title="Два пальца — перемещение карты, щипок или Ctrl+колесо — масштаб"><Icon name="touchpad" size={16} /> Тачпад{touchpad ? ': вкл' : ''}</button>
           {locate && <button type="button" className="btn sm" onClick={findMe} disabled={busy}><Icon name="pin" size={16} /> {busy ? 'Определяем…' : 'Моё местоположение'}</button>}
           {msg && <span className={`small ${msg.kind === 'warn' ? 'err' : 'muted'}`} role="status">{msg.text}</span>}
+          {touchpad && !msg && <span className="small muted">Тачпад: два пальца — перемещение, щипок — масштаб.</span>}
         </div>)}
     </div>
   )

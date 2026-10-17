@@ -49,6 +49,7 @@ const P: Record<string, ReactNode> = {
   key: <><circle cx="8" cy="15" r="4" /><path d="m10.8 12.2 9.2-9.2M16 7l3 3M14 9l2 2" /></>,
   "panel-close": <><rect x="3" y="4" width="18" height="16" rx="2.5" /><path d="M9 4v16M15.5 9.5 13 12l2.5 2.5" /></>,
   "panel-open": <><rect x="3" y="4" width="18" height="16" rx="2.5" /><path d="M9 4v16M13 9.5l2.5 2.5-2.5 2.5" /></>,
+  touchpad: <><rect x="3" y="5" width="18" height="14" rx="3" /><path d="M8 19v-3M3 15h18M12 8v3M10.5 9.5 12 8l1.5 1.5" /></>,
   close: <path d="M18 6 6 18M6 6l12 12" />,
   bolt: <path d="M13 2 4 14h7l-1 8 9-12h-7z" />,
   sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></>,

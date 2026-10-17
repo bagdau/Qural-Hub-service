@@ -39,8 +39,8 @@ def layout(layout_id: str) -> Layout:
 
 
 TYPE_FULL = {"transformer": "Силовой трансформатор", "substation": "Трансформаторная подстанция",
-             "switchgear": "Распределительное устройство"}
-_TYPE_PREFIX = re.compile(r"^(трансформатор|подстанция|распределительное устройство)\s+", re.I)
+             "switchgear": "Распределительная подстанция"}
+_TYPE_PREFIX = re.compile(r"^(трансформатор|подстанция|распределительная подстанция|распределительное устройство)\s+", re.I)
 
 
 def names(name: str, eq_type: str) -> tuple[str, str]:

@@ -23,7 +23,7 @@ from .common import Page, apply_sort, paginate, strict_params, version_check
 
 router = APIRouter(tags=["equipment"])
 QR_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
-TYPE_LABELS = {"transformer": "Трансформатор", "substation": "Подстанция (КТП)", "switchgear": "Распределительное устройство"}
+TYPE_LABELS = {"transformer": "Трансформатор", "substation": "Подстанция (КТП)", "switchgear": "РУ (распределительная подстанция)"}
 
 
 def new_qr(db: DbSession) -> str:

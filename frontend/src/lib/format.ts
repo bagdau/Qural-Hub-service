@@ -12,7 +12,7 @@ export const STATUS: Record<string, { label: string; icon: string; bg: string; f
 export const PRIORITY: Record<string, string> = { low: 'Низкий', normal: 'Обычный', high: 'Высокий', critical: 'Критический' }
 export const PRIORITY_COLOR: Record<string, string> = { low: '#475467', normal: '#1e3a8a', high: '#b45309', critical: '#c9300a' }
 export const KIND: Record<string, string> = { corrective: 'Корректирующая', planned: 'Плановая' }
-export const EQ_TYPE: Record<string, string> = { transformer: 'Трансформатор', substation: 'Подстанция (КТП)', switchgear: 'Распределительное устройство' }
+export const EQ_TYPE: Record<string, string> = { transformer: 'Трансформатор', substation: 'Подстанция (КТП)', switchgear: 'РУ (распределительная подстанция)' }
 export const EQ_STATE: Record<string, string> = { operational: 'Исправно', degraded: 'Ограниченно', out_of_service: 'Выведено из работы' }
 export const ROLE: Record<string, string> = { admin: 'Администратор', dispatcher: 'Диспетчер', engineer: 'Инженер', manager: 'Руководитель', client: 'Клиент' }
 export const STAGE: Record<string, string> = { before: 'До', during: 'В ходе', after: 'После', other: 'Прочее' }

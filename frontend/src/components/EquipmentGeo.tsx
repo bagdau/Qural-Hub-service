@@ -34,7 +34,7 @@ export function EquipmentGeoModal({ eq, onClose, onSaved }: { eq: any; onClose: 
       <form className="stack" onSubmit={(e) => { e.preventDefault(); setErr(''); m.mutate() }}>
         <div className="small muted">{site?.name}{site?.address ? ` — ${site.address}` : ''}. {eq.latitude == null ? 'Сейчас показывается положение площадки.' : 'Задано собственное положение оборудования.'}</div>
         <GeoPicker lat={geo.lat} lon={geo.lon} onChange={(lat, lon) => setGeo({ lat, lon })} context={context} height={280} />
-        <div className="small muted">Тип на карте: {TYPE_TO_KIND[eq.type] === 'switchgear' ? 'будка (РУ)' : TYPE_TO_KIND[eq.type] === 'substation' ? 'подстанция (КТП)' : 'трансформатор'}.</div>
+        <div className="small muted">Тип на карте: {TYPE_TO_KIND[eq.type] === 'switchgear' ? 'РУ (распределительная подстанция)' : TYPE_TO_KIND[eq.type] === 'substation' ? 'подстанция (КТП)' : 'трансформатор'}.</div>
         {err && <div className="banner err" role="alert">{err}</div>}
         <div className="row" style={{ justifyContent: 'flex-end' }}>
           {(geo.lat || geo.lon) && <Button type="button" onClick={() => setGeo({ lat: '', lon: '' })}>Очистить (по площадке)</Button>}

@@ -258,3 +258,22 @@ th { padding: 12px 14px; }
 /* логотип */
 .brand svg { border-radius: 11px; box-shadow: 0 4px 12px rgba(20, 8, 80, 0.45); }
 .art-logo-img { flex: none; border-radius: 11px; box-shadow: 0 4px 14px rgba(0, 20, 90, 0.4); }
+
+/* ===== фотографии за боковой панелью ===== */
+.sidebar { isolation: isolate; }
+.sidebar > .nav, .sidebar > .spacer, .sidebar > .side-foot { position: relative; z-index: 1; }
+.side-bg { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.side-bg i { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transform: scale(1.06); transition: opacity 1.6s ease, transform 12s ease-out; }
+.side-bg i.on { opacity: 1; transform: scale(1); }
+.side-scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(36, 25, 112, 0.84) 0%, rgba(32, 22, 100, 0.74) 42%, rgba(26, 17, 84, 0.9) 100%); }
+.side-foot { justify-content: space-between; backdrop-filter: blur(6px); }
+.side-foot .side-foot-text { margin-right: auto; }
+.bg-next { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 36px; height: 36px; border: 0; border-radius: 10px; background: rgba(255, 255, 255, 0.16); color: #fff; cursor: pointer; transition: background var(--t), transform var(--t); }
+.bg-next:hover { background: rgba(255, 255, 255, 0.28); transform: rotate(-8deg); }
+.shell.rail .side-foot, .sidebar .side-foot { gap: 8px; }
+@media (min-width: 641px) and (max-width: 1024px) {
+  .shell:not(.expanded) .side-foot { flex-direction: column; padding: 8px 0; }
+  .shell:not(.expanded) .bg-next { width: 40px; height: 40px; }
+}
+@media (min-width: 1025px) { .shell.rail .side-foot { flex-direction: column; padding: 8px 0; } }
+@media (prefers-reduced-motion: reduce) { .side-bg i { transition: none; transform: none; } }
