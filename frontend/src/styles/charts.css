@@ -1,0 +1,56 @@
+/* ===== Дашборд: показатели и объёмные диаграммы ===== */
+.dash-head { align-items: flex-end; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.kpi2 { position: relative; display: flex; flex-direction: column; gap: 2px; padding: 16px 18px; text-align: left; overflow: hidden; border: 1px solid var(--border); transition: transform .18s ease, box-shadow .18s ease; animation: kpiin .55s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--i, 0) * 55ms); }
+button.kpi2 { cursor: pointer; font: inherit; color: inherit; }
+button.kpi2:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(16, 24, 40, 0.12); }
+button.kpi2:active { transform: translateY(-1px); }
+.kpi2::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--acc, var(--teal-600)); }
+.kpi2 .kpi-top { display: flex; align-items: center; justify-content: space-between; min-height: 46px; }
+.kpi-ico { width: 42px; height: 42px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; color: var(--acc, var(--teal-700)); background: color-mix(in srgb, var(--acc, #0d7a5f) 13%, #fff); }
+.kpi2 .v { font-size: 32px; line-height: 1.1; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -.5px; margin-top: 6px; }
+.kpi2 .l { color: var(--text-muted); font-size: 14px; font-weight: 600; }
+.kpi2.bad .v { color: var(--danger); }
+.kpi2 .gauge { margin: -6px -4px -8px 0; }
+.kpi-stack { display: flex; width: 110px; height: 12px; border-radius: 6px; overflow: hidden; background: #e8ecf2; }
+.kpi-stack i { display: block; height: 100%; transition: flex-grow .9s cubic-bezier(.2, .8, .2, 1); }
+@keyframes kpiin { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
+.chartcard { animation: kpiin .6s cubic-bezier(.2, .8, .2, 1) both; animation-delay: .25s; }
+.chartcard h2 { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.chartcard h2 small { font-size: 13px; font-weight: 500; color: var(--text-muted); }
+
+.pie3d { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 14px; align-items: center; }
+.pie3d svg { width: 100%; height: auto; overflow: visible; }
+.pslice { transition: transform .22s ease, opacity .2s ease; cursor: pointer; }
+.legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.legend button { width: 100%; display: grid; grid-template-columns: 14px 1fr auto 44px; align-items: center; gap: 8px; min-height: 34px; padding: 3px 8px; border: 0; border-radius: 8px; background: transparent; font: inherit; color: inherit; text-align: left; cursor: pointer; transition: background .15s ease; }
+.legend button i { width: 12px; height: 12px; border-radius: 4px; }
+.legend button.on, .legend button:hover { background: #f1f5f9; }
+.legend .pct { color: var(--text-muted); text-align: right; font-size: 13px; }
+.legend-total { display: flex; justify-content: space-between; padding: 6px 8px 0; margin-top: 4px; border-top: 1px solid var(--border); color: var(--text-muted); font-weight: 600; }
+.legend-total b { color: var(--text); }
+
+.cols3d svg { width: 100%; height: auto; overflow: visible; }
+.col3 { transition: transform .2s ease, opacity .2s ease; }
+.cols3d-note { margin-top: 6px; }
+
+.signal-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.chip-s { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; color: #fff; }
+
+@media (max-width: 1024px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 900px) { .pie3d { grid-template-columns: 1fr; } }
+@media (max-width: 640px) {
+  .kpis { gap: 10px; }
+  .kpi2 { padding: 12px 12px 12px 14px; }
+  .kpi2 .v { font-size: 24px; }
+  .kpi2 .l { font-size: 13px; }
+  .kpi-ico { width: 36px; height: 36px; }
+  .kpi-stack { width: 70px; }
+  .kpi2 .gauge { width: 84px; height: auto; }
+}
+
+/* крупные области нажатия на планшете и телефоне */
+@media (max-width: 1024px) {
+  .legend button { min-height: 44px; }
+  .secure-banner button { min-width: 44px; min-height: 44px; }
+}

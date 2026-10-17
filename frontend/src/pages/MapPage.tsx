@@ -11,7 +11,7 @@ import { QueryBoundary } from '../components/QueryBoundary'
 import { EquipmentGeoModal } from '../components/EquipmentGeo'
 import { LiveIndicator, LiveProvider } from '../board/live'
 import { routeUrl } from '../lib/geo'
-import { ALERT_COLOR, ALERT_ORDER, ALERT_TITLE, KIND_TITLE, TYPE_TO_KIND, glyphSvg, type MapAlert, type MapKind } from '../lib/mapMeta'
+import { ALERT_BG, ALERT_COLOR, ALERT_ORDER, ALERT_TITLE, KIND_TITLE, TYPE_TO_KIND, glyphSvg, type MapAlert, type MapKind } from '../lib/mapMeta'
 import { PRIORITY } from '../lib/format'
 
 const KINDS: MapKind[] = ['transformer', 'substation', 'switchgear']
@@ -89,7 +89,7 @@ function ObjectsMap({ data, staff, onNavigate }: { data: any; staff: boolean; on
       <div className="card stack" style={{ padding: 10 }}>
         <div className="mapfilters" role="group" aria-label="Сигналы">
           {ALERT_ORDER.map((a) => (
-            <button key={a} className={`fchip ${alerts.includes(a) ? 'on' : ''}`} aria-pressed={alerts.includes(a)} onClick={() => toggle(alerts, setAlerts, a)} style={{ ['--c' as any]: ALERT_COLOR[a] }}>
+            <button key={a} className={`fchip ${alerts.includes(a) ? 'on' : ''}`} aria-pressed={alerts.includes(a)} onClick={() => toggle(alerts, setAlerts, a)} style={{ ['--c' as any]: ALERT_BG[a] }}>
               <i className={`dot ${a === 'accident' && c.accident ? 'pulse' : ''}`} />{ALERT_TITLE[a]} <b>{c[a]}</b>
             </button>))}
         </div>
@@ -112,7 +112,7 @@ function ObjectsMap({ data, staff, onNavigate }: { data: any; staff: boolean; on
             <li key={i.id} className={`sig sig-${i.alert}`}>
               <KindIcon kind={TYPE_TO_KIND[i.type] ?? 'site'} alert={i.alert} />
               <div className="sig-main">
-                <div><strong>{i.short_name}</strong> <span className="badge" style={{ background: ALERT_COLOR[i.alert as MapAlert], color: '#fff' }}>{ALERT_TITLE[i.alert as MapAlert]}</span></div>
+                <div><strong>{i.short_name}</strong> <span className="badge" style={{ background: ALERT_BG[i.alert as MapAlert], color: '#fff' }}>{ALERT_TITLE[i.alert as MapAlert]}</span></div>
                 <div className="small muted">{i.full_name} · {i.site.name}</div>
                 {i.tickets.slice(0, 2).map((t: any) => <a key={t.id} className="small" href={`/tickets/${t.id}`} onClick={(e) => { e.preventDefault(); onNavigate(`/tickets/${t.id}`) }}>{t.number}: {t.title}</a>)}
               </div>
@@ -170,7 +170,7 @@ export function EquipmentMapCard({ eq, canEdit }: { eq: any; canEdit: boolean })
           {canEdit && <Button small variant="primary" onClick={() => setEdit(true)}>Изменить положение</Button>}
         </div>
       </div>
-      {info && info.alert !== 'ok' && <div className="banner small" style={{ background: ALERT_COLOR[info.alert as MapAlert], color: '#fff', borderColor: 'transparent' }}><b>{ALERT_TITLE[info.alert as MapAlert]}</b>: активных заявок {info.tickets_count}</div>}
+      {info && info.alert !== 'ok' && <div className="banner small" style={{ background: ALERT_BG[info.alert as MapAlert], color: '#fff', borderColor: 'transparent' }}><b>{ALERT_TITLE[info.alert as MapAlert]}</b>: активных заявок {info.tickets_count}</div>}
       {geo
         ? <MapView points={points} selectedId={eq.id} height={340} locate label={`Карта: ${eq.name}`} />
         : <Empty icon="pin" title="Положение не задано" text={canEdit ? 'Укажите широту и долготу оборудования или задайте координаты площадки.' : 'Обратитесь к диспетчеру или администратору.'} />}

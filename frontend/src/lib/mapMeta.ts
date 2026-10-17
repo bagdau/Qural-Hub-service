@@ -10,6 +10,8 @@ export interface MapPoint {
 }
 
 export const ALERT_COLOR: Record<MapAlert, string> = { accident: '#d92d20', call: '#f79009', plan: '#2563eb', ok: '#0d7a5f' }
+/** Фоны плашек и кнопок с белым текстом (контраст ≥ 4.5:1); яркие ALERT_COLOR — для меток и графики */
+export const ALERT_BG: Record<MapAlert, string> = { accident: '#b42318', call: '#b54708', plan: '#1d4ed8', ok: '#0d7a5f' }
 export const ALERT_TITLE: Record<MapAlert, string> = { accident: 'Авария', call: 'Вызов', plan: 'Плановые работы', ok: 'В норме' }
 export const ALERT_ORDER: MapAlert[] = ['accident', 'call', 'plan', 'ok']
 export const KIND_TITLE: Record<MapKind, string> = { transformer: 'Трансформатор', substation: 'Подстанция (КТП)', switchgear: 'Будка (РУ)', site: 'Площадка' }
