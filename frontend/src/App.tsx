@@ -6,6 +6,7 @@ import { get } from './api/client'
 import { Button, Modal, Skeleton, useOnline } from './components/ui'
 import { Icon } from './components/Icon'
 import { Avatar } from './components/Avatar'
+import { Logo } from './components/Logo'
 import { useMedia } from './lib/useMedia'
 import { ROLE } from './lib/format'
 import { LazyRoute as R, preload, titleFor, warmUp } from './routes'
@@ -133,7 +134,7 @@ function Shell() {
         <button type="button" className="side-toggle" aria-label={(compact ? expanded : !rail) ? 'Свернуть меню' : 'Развернуть меню'} aria-expanded={compact ? expanded : !rail} aria-controls="side-nav"
           onClick={() => (compact ? setExpanded(!expanded) : setRail(!rail))}><Icon name={(compact ? expanded : !rail) ? 'panel-close' : 'panel-open'} size={22} /></button>
         <a className="brand" href="/" aria-label="Alageum Service Hub — на главную">
-          <svg viewBox="0 0 32 32" aria-hidden><rect width="32" height="32" rx="9" fill="url(#brandg)" /><defs><linearGradient id="brandg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#a78bfa" /><stop offset="1" stopColor="#6d4df0" /></linearGradient></defs><path d="M17.5 5 9 18h6l-1 9 9-14h-6z" fill="#fff" /></svg>
+          <Logo size={40} />
           <span className="brand-text">Alageum Service Hub</span>
         </a>
         <GlobalSearch />

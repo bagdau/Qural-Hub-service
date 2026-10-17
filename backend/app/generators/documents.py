@@ -86,6 +86,42 @@ FOOT_TEXT = "При неисправностях отсканируйте QR-к�
 NAVY, TEAL, GREY = colors.HexColor("#0f172a"), colors.HexColor("#0d7a5f"), colors.HexColor("#475467")
 
 
+RED = colors.HexColor("#D91C2B")
+
+
+def draw_logo(c: canvas.Canvas, x: float, y: float, size: float) -> None:
+    """Логотип Alageum Service Hub (красное поле, белое кольцо, ветроустановка) — векторно, левый нижний угол (x, y)."""
+    def X(u: float) -> float:
+        return x + u * size / 100
+
+    def Y(v: float) -> float:
+        return y + (100 - v) * size / 100
+
+    c.saveState()
+    c.setFillColor(RED)
+    c.roundRect(x, y, size, size, size * 0.22, stroke=0, fill=1)
+    c.setStrokeColor(colors.white)
+    c.setLineWidth(size * 0.036)
+    c.circle(X(50), Y(50), size * 0.422, stroke=1, fill=0)
+    c.setFillColor(colors.white)
+    blades = c.beginPath()
+    blades.moveTo(X(23.4), Y(22.7))
+    blades.curveTo(X(33), Y(29.2), X(42), Y(33.8), X(50), Y(34.6))
+    blades.curveTo(X(58), Y(33.8), X(67), Y(29.2), X(76.6), Y(22.7))
+    blades.curveTo(X(66), Y(27.6), X(58), Y(32.2), X(50), Y(38.2))
+    blades.curveTo(X(42), Y(32.2), X(34), Y(27.6), X(23.4), Y(22.7))
+    blades.close()
+    c.drawPath(blades, stroke=0, fill=1)
+    tower = c.beginPath()
+    tower.moveTo(X(49.2), Y(37))
+    tower.lineTo(X(50.8), Y(37))
+    tower.lineTo(X(53.6), Y(89.5))
+    tower.lineTo(X(46.4), Y(89.5))
+    tower.close()
+    c.drawPath(tower, stroke=0, fill=1)
+    c.restoreState()
+
+
 def _draw_compact(c: canvas.Canvas, x: float, y: float, w: float, h: float, item: dict, lay: Layout) -> None:
     pad = 2 * mm
     q = lay.qr_mm * mm
@@ -115,8 +151,11 @@ def _draw_label(c: canvas.Canvas, x: float, y: float, w: float, h: float, item: 
     c.setFillColor(NAVY)
     c.rect(x, y + h - head, w, head, stroke=0, fill=1)
     c.setFillColor(colors.white)
+    logo = 6.2 * mm
+    draw_logo(c, x + 2.5 * mm, y + h - head + (head - logo) / 2, logo)
+    c.setFillColor(colors.white)
     c.setFont(pdf.FONT_B, 10)
-    c.drawString(x + 4 * mm, y + h - head + 2.6 * mm, "ОБОРУДОВАНИЕ")
+    c.drawString(x + 2.5 * mm + logo + 2.5 * mm, y + h - head + 2.6 * mm, "ОБОРУДОВАНИЕ")
     c.setFont(pdf.FONT, 7)
     c.drawRightString(x + w - 4 * mm, y + h - head + 2.8 * mm, "Alageum Service Hub")
     c.setFillColor(TEAL)
@@ -196,10 +235,12 @@ def equipment_passport(d: dict, history: list[dict], url: str) -> bytes:
     y = H - m
     c.setFillColor(colors.HexColor("#0f172a"))
     c.setFont(pdf.FONT_B, 16)
-    c.drawString(m, y, "Цифровой паспорт оборудования")
+    draw_logo(c, m, y - 3 * mm, 11 * mm)
+    c.setFillColor(colors.HexColor("#0f172a"))
+    c.drawString(m + 14 * mm, y, "Цифровой паспорт оборудования")
     c.setFont(pdf.FONT, 9)
     c.setFillColor(colors.HexColor("#475467"))
-    c.drawString(m, y - 6 * mm, f"{d['organization']['name']} · {d['site']['name']}, {d['site']['address']}")
+    c.drawString(m + 14 * mm, y - 6 * mm, f"{d['organization']['name']} · {d['site']['name']}, {d['site']['address']}")
     q = 42 * mm
     c.drawImage(ImageReader(io.BytesIO(qr.png(url, scale=12, border=4, ec="q"))), W - m - q, y - q + 4 * mm, q, q)
     c.setFont(pdf.FONT, 7)

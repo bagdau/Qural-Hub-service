@@ -7,6 +7,7 @@ import { ApiError, del, get, post } from '../api/client'
 import { Button, Empty, Field, Skeleton, errText, useToast } from '../components/ui'
 import { fmtDateTime, ROLE } from '../lib/format'
 import { Icon } from '../components/Icon'
+import { Logo } from '../components/Logo'
 
 export function LoginPage() {
   const { me, login, loading } = useAuth()
@@ -40,7 +41,7 @@ export function LoginPage() {
       <div className="login-shell">
         <aside className="login-art">
           <span className="streaks" aria-hidden />
-          <div className="art-brand"><span className="art-logo" aria-hidden><Icon name="equipment" size={22} /></span><b>Alageum Service Hub</b></div>
+          <div className="art-brand"><Logo size={40} className="art-logo-img" /><b>Alageum Service Hub</b></div>
           <div className="art-copy">
             <h1 id="t">Добро<br /><b>пожаловать!</b></h1>
             <p>Учёт оборудования и сервисное обслуживание: заявки, QR-паспорта, карта аварий и вызовов — в одном окне.</p>
