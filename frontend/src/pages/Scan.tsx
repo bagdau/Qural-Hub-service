@@ -6,6 +6,7 @@ import { PageHeader } from '../components/PageHeader'
 import { decodeFile, extractCode } from '../lib/qr/decoder'
 import { useQrScanner } from '../lib/qr/useQrScanner'
 import { ManualSearch } from './Equipment'
+import { useMedia } from '../lib/useMedia'
 
 const CONSENT_KEY = 'alageum.camera-consent'
 const readConsent = () => { try { return sessionStorage.getItem(CONSENT_KEY) === '1' } catch { return false } }
@@ -14,18 +15,6 @@ const saveConsent = () => { try { sessionStorage.setItem(CONSENT_KEY, '1') } cat
 const httpsUrl = () => `https://${window.location.hostname}:8443/scan`
 
 type Result = { kind: 'ok' | 'warn' | 'err'; text: string } | null
-
-/** true, пока ширина экрана не больше max (телефон/планшет) */
-function useMedia(query: string) {
-  const [on, setOn] = useState(() => window.matchMedia(query).matches)
-  useEffect(() => {
-    const m = window.matchMedia(query)
-    const h = () => setOn(m.matches)
-    m.addEventListener('change', h)
-    return () => m.removeEventListener('change', h)
-  }, [query])
-  return on
-}
 
 export function ScanPage() {
   const nav = useNavigate()

@@ -6,6 +6,7 @@ import { get } from './api/client'
 import { Button, Modal, Skeleton, useOnline } from './components/ui'
 import { Icon } from './components/Icon'
 import { Avatar } from './components/Avatar'
+import { useMedia } from './lib/useMedia'
 import { ROLE } from './lib/format'
 import { LazyRoute as R, preload, titleFor, warmUp } from './routes'
 import { PageLoader } from './components/PageLoader'
@@ -41,14 +42,22 @@ const BOTTOM: Record<string, NavItem[]> = {
   default: [{ to: '/', label: 'Главная', icon: 'dashboard' }, { to: '/board', label: 'Заявки', icon: 'board' }, { to: '/scan', label: 'Сканер QR', icon: 'qr' }, { to: '/equipment', label: 'Оборудование', icon: 'equipment' }, { to: MORE, label: 'Ещё', icon: 'menu' }],
 }
 
-/** Меню «Ещё»: все остальные разделы роли, профиль и выход — крупными строками для пальца */
+/** Меню «Ещё»: поиск, остальные разделы, уведомления, профиль и выход — крупными строками для пальца (на телефоне шапки нет, всё внизу) */
 function MoreSheet({ items, onClose }: { items: NavItem[]; onClose: () => void }) {
   const { me, logout } = useAuth()
+  const nav = useNavigate()
+  const [q, setQ] = useState('')
+  const unread = useQuery({ queryKey: ['unread'], queryFn: () => get('/notifications/unread-count'), refetchInterval: () => (document.hidden ? false : 30_000) }).data?.count ?? 0
   return (
     <Modal title="Меню" onClose={onClose}>
+      <form className="more-search" role="search" onSubmit={(e) => { e.preventDefault(); const v = q.trim(); if (v) { onClose(); nav(`/tickets?q=${encodeURIComponent(v)}`) } }}>
+        <Icon name="search" size={18} />
+        <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Поиск: номер заявки, оборудование…" aria-label="Поиск по заявкам" />
+      </form>
       <nav className="more-list" aria-label="Все разделы" onClick={(e) => { if ((e.target as HTMLElement).closest('a')) onClose() }}>
         {items.map((i) => <NavLink key={i.to} to={i.to} end={i.to === '/'} onTouchStart={() => preload(i.to)}><Icon name={i.icon} size={22} /><span>{i.label}</span></NavLink>)}
-        <NavLink to="/profile"><Icon name="user" size={22} /><span>Профиль<small>{me?.full_name} · {me ? ROLE[me.role] : ''}</small></span></NavLink>
+        <NavLink to="/notifications"><Icon name="bell" size={22} /><span>Уведомления{unread > 0 && <b className="more-count">{unread > 99 ? '99+' : unread}</b>}</span></NavLink>
+        <NavLink to="/profile"><Avatar name={me?.full_name ?? '?'} size={26} /><span>Профиль<small>{me?.full_name} · {me ? ROLE[me.role] : ''}</small></span></NavLink>
       </nav>
       <button className="btn more-logout" onClick={() => { onClose(); logout() }}>Выйти из аккаунта</button>
     </Modal>
@@ -99,6 +108,18 @@ function Shell() {
   const loc = useLocation()
   const main = useRef<HTMLElement>(null)
   const [more, setMore] = useState(false)
+  const compact = useMedia('(max-width: 1024px)')
+  const [rail, setRail] = useState(() => { try { return localStorage.getItem('alageum.side') === 'rail' } catch { return false } })
+  const [expanded, setExpanded] = useState(false)   // планшет: панель из значков временно раскрывается поверх страницы
+  useEffect(() => { try { localStorage.setItem('alageum.side', rail ? 'rail' : 'open') } catch { /* без хранилища */ } }, [rail])
+  useEffect(() => { setExpanded(false) }, [loc.pathname])
+  useEffect(() => {
+    if (!expanded) return
+    const k = (e: KeyboardEvent) => e.key === 'Escape' && setExpanded(false)
+    document.addEventListener('keydown', k)
+    return () => document.removeEventListener('keydown', k)
+  }, [expanded])
+  const unreadN = useQuery({ queryKey: ['unread'], queryFn: () => get('/notifications/unread-count'), refetchInterval: () => (document.hidden ? false : 30_000) }).data?.count ?? 0
   useEffect(() => { if (me) warmUp(['/board', '/equipment', '/scan', '/tickets', '/my-tasks']) }, [me])
   if (!me) return null
   const items = NAV[me.role]
@@ -107,8 +128,10 @@ function Shell() {
   const moreItems = items.filter((i) => !inBottom.has(i.to))
   const moreActive = more || !bottom.some((b) => b.to !== MORE && (b.to === '/' ? loc.pathname === '/' : loc.pathname.startsWith(b.to)))
   return (
-    <div className="shell">
+    <div className={`shell ${rail ? 'rail' : ''} ${expanded ? 'expanded' : ''}`}>
       <header className="topbar">
+        <button type="button" className="side-toggle" aria-label={(compact ? expanded : !rail) ? 'Свернуть меню' : 'Развернуть меню'} aria-expanded={compact ? expanded : !rail} aria-controls="side-nav"
+          onClick={() => (compact ? setExpanded(!expanded) : setRail(!rail))}><Icon name={(compact ? expanded : !rail) ? 'panel-close' : 'panel-open'} size={22} /></button>
         <a className="brand" href="/" aria-label="Alageum Service Hub — на главную">
           <svg viewBox="0 0 32 32" aria-hidden><rect width="32" height="32" rx="9" fill="url(#brandg)" /><defs><linearGradient id="brandg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#a78bfa" /><stop offset="1" stopColor="#6d4df0" /></linearGradient></defs><path d="M17.5 5 9 18h6l-1 9 9-14h-6z" fill="#fff" /></svg>
           <span className="brand-text">Alageum Service Hub</span>
@@ -124,13 +147,14 @@ function Shell() {
           <button className="btn logout" onClick={logout} aria-label="Выйти"><Icon name="logout" size={18} /><span className="logout-text">Выйти</span></button>
         </div>
       </header>
-      <aside className="sidebar">
+      <aside className="sidebar" id="side-nav">
         <nav className="nav" aria-label="Основное меню">
-          {items.map((i) => <NavLink key={i.to} to={i.to} end={i.to === '/'} onMouseEnter={() => preload(i.to)} onFocus={() => preload(i.to)} onTouchStart={() => preload(i.to)}><Icon name={i.icon} />{i.label}</NavLink>)}
+          {items.map((i) => <NavLink key={i.to} to={i.to} end={i.to === '/'} title={rail || (compact && !expanded) ? i.label : undefined} onMouseEnter={() => preload(i.to)} onFocus={() => preload(i.to)} onTouchStart={() => preload(i.to)}><Icon name={i.icon} /><span className="nav-label">{i.label}</span></NavLink>)}
         </nav>
         <div className="spacer" />
         <div className="side-foot"><i className={`dot ${online ? 'on' : ''}`} aria-hidden /><span className="side-foot-text">{online ? 'Система на связи' : 'Нет связи'}</span></div>
       </aside>
+      {expanded && <div className="scrim" onClick={() => setExpanded(false)} aria-hidden />}
       <div className="main">
         <SecureBanner />
         {!online && <div className="offline" role="alert">Нет соединения. Показаны сохранённые данные; действия временно недоступны.</div>}
@@ -139,7 +163,7 @@ function Shell() {
       </div>
       <nav className="bottomnav" aria-label="Быстрая навигация">
         {bottom.map((i) => i.to === MORE
-          ? <button key={i.to} type="button" className={`more ${moreActive ? 'active' : ''}`} aria-haspopup="dialog" aria-expanded={more} onClick={() => setMore(true)}><Icon name={i.icon} size={22} />{i.label}</button>
+          ? <button key={i.to} type="button" className={`more ${moreActive ? 'active' : ''}`} aria-haspopup="dialog" aria-expanded={more} onClick={() => setMore(true)}><span className="more-ico"><Icon name={i.icon} size={22} />{unreadN > 0 && <i className="more-dot" aria-label={`Непрочитанных уведомлений: ${unreadN}`} />}</span>{i.label}</button>
           : <NavLink key={i.to} to={i.to} end={i.to === '/'} onTouchStart={() => preload(i.to)} onFocus={() => preload(i.to)}><Icon name={i.icon} size={22} />{i.label}</NavLink>)}
       </nav>
       {more && <MoreSheet items={moreItems} onClose={() => setMore(false)} />}

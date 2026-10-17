@@ -12,11 +12,14 @@ export function LoginPage() {
   const { me, login, loading } = useAuth()
   const [sp] = useSearchParams()
   const nav = useNavigate()
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(() => { try { return localStorage.getItem('alageum.remember-email') ?? '' } catch { return '' } })
   const [password, setPassword] = useState('')
   const [err, setErr] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [show, setShow] = useState(false)
+  const [more, setMore] = useState(false)
+  const [forgot, setForgot] = useState(false)
+  const [remember, setRemember] = useState(() => { try { return !!localStorage.getItem('alageum.remember-email') } catch { return false } })
   if (!loading && me && !me.must_change_password) return <Navigate to={safeNext(sp.get('next'))} replace />
 
   const submit = async (e: FormEvent) => {
@@ -24,6 +27,7 @@ export function LoginPage() {
     setBusy(true); setErr(null)
     try {
       const u = await login(email.trim(), password)
+      try { if (remember) localStorage.setItem('alageum.remember-email', email.trim()); else localStorage.removeItem('alageum.remember-email') } catch { /* без хранилища */ }
       nav(u.must_change_password ? '/change-password' : safeNext(sp.get('next')), { replace: true })
     } catch (ex) {
       if (ex instanceof ApiError && ex.code === 'ACCOUNT_LOCKED') {
@@ -33,35 +37,44 @@ export function LoginPage() {
   }
   return (
     <div className="login-wrap">
-      <i className="lg-blob lb1" aria-hidden /><i className="lg-blob lb2" aria-hidden /><i className="lg-blob lb3" aria-hidden />
       <div className="login-shell">
         <aside className="login-art">
-          <div className="art-shapes" aria-hidden><i className="shape s1" /><i className="shape s2" /><i className="shape s3" /><i className="shape s4" /></div>
+          <span className="streaks" aria-hidden />
+          <div className="art-brand"><span className="art-logo" aria-hidden><Icon name="equipment" size={22} /></span><b>Alageum Service Hub</b></div>
           <div className="art-copy">
-            <span className="art-logo" aria-hidden><Icon name="equipment" size={26} /></span>
-            <h1 id="t">Alageum Service Hub</h1>
-            <p>Учёт оборудования и сервисное обслуживание</p>
-            <ul className="art-points">
-              <li><Icon name="board" size={18} /> Заявки и канбан в реальном времени</li>
-              <li><Icon name="qr" size={18} /> QR-паспорт у каждого оборудования</li>
-              <li><Icon name="pin" size={18} /> Карта аварий и вызовов</li>
-            </ul>
+            <h1 id="t">Добро<br /><b>пожаловать!</b></h1>
+            <p>Учёт оборудования и сервисное обслуживание: заявки, QR-паспорта, карта аварий и вызовов — в одном окне.</p>
+            <button type="button" className="art-more" aria-expanded={more} onClick={() => setMore(!more)}>{more ? 'Скрыть' : 'Подробнее'}</button>
+            {more && (
+              <ul className="art-points">
+                <li><Icon name="board" size={18} /> Заявки и канбан в реальном времени</li>
+                <li><Icon name="qr" size={18} /> QR-паспорт у каждого оборудования</li>
+                <li><Icon name="pin" size={18} /> Карта аварий и вызовов</li>
+              </ul>)}
           </div>
         </aside>
         <form className="login-form" onSubmit={submit} aria-labelledby="t">
-          <div><h2>Вход в систему</h2><p className="muted" style={{ margin: '4px 0 0' }}>Используйте учётную запись, выданную администратором</p></div>
           {err && <div className="banner err" role="alert">{err}</div>}
-          <label className="ifield"><span>Email</span>
-            <span className="ifield-box"><Icon name="user" size={20} /><input type="email" autoComplete="username" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@company.kz" /></span>
-          </label>
-          <label className="ifield"><span>Пароль</span>
-            <span className="ifield-box"><Icon name="lock" size={20} />
-              <input type={show ? 'text' : 'password'} autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
-              <button type="button" className="eye" onClick={() => setShow(!show)} aria-label={show ? 'Скрыть символы' : 'Показать символы'} aria-pressed={show}><Icon name={show ? 'eye-off' : 'eye'} size={20} /></button>
-            </span>
-          </label>
+          <div className="ifield2">
+            <label><span className="ico"><Icon name="user" size={20} /></span>
+              <span className="body"><span className="lbl">Email</span>
+                <input type="email" autoComplete="username" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@company.kz" /></span>
+            </label>
+          </div>
+          <div className="ifield2">
+            <label><span className="ico"><Icon name="lock" size={20} /></span>
+              <span className="body"><span className="lbl">Пароль</span>
+                <input type={show ? 'text' : 'password'} autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" /></span>
+            </label>
+            <button type="button" className="eye" onClick={() => setShow(!show)} aria-label={show ? 'Скрыть символы' : 'Показать символы'} aria-pressed={show}><Icon name={show ? 'eye-off' : 'eye'} size={20} /></button>
+          </div>
+          <div className="login-row">
+            <label className="remember"><input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} /> Запомнить меня</label>
+            <button type="button" className="linkish" onClick={() => setForgot(!forgot)} aria-expanded={forgot}>Забыли пароль?</button>
+          </div>
+          {forgot && <div className="banner info small" role="status">Сброс пароля выполняет администратор: обратитесь к нему, и вы получите временный пароль.</div>}
           <Button variant="primary" type="submit" loading={busy} className="login-btn">Войти</Button>
-          <p className="hint">Регистрация недоступна. Учётную запись выдаёт администратор.</p>
+          <p className="login-foot">Регистрация недоступна. Учётную запись выдаёт администратор.</p>
         </form>
       </div>
     </div>

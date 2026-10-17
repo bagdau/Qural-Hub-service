@@ -47,6 +47,8 @@ const P: Record<string, ReactNode> = {
   "eye-off": <><path d="M3 3l18 18M10.6 5.1A10.4 10.4 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4M6.7 6.7C3.9 8.5 2 12 2 12s3.6 7 10 7c1.5 0 2.9-.4 4.1-1M9.9 9.9a3 3 0 0 0 4.2 4.2" /></>,
   edit: <><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" /></>,
   key: <><circle cx="8" cy="15" r="4" /><path d="m10.8 12.2 9.2-9.2M16 7l3 3M14 9l2 2" /></>,
+  "panel-close": <><rect x="3" y="4" width="18" height="16" rx="2.5" /><path d="M9 4v16M15.5 9.5 13 12l2.5 2.5" /></>,
+  "panel-open": <><rect x="3" y="4" width="18" height="16" rx="2.5" /><path d="M9 4v16M13 9.5l2.5 2.5-2.5 2.5" /></>,
   close: <path d="M18 6 6 18M6 6l12 12" />,
   bolt: <path d="M13 2 4 14h7l-1 8 9-12h-7z" />,
   sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></>,
