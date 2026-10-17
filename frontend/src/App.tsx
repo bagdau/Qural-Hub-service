@@ -5,6 +5,7 @@ import { useAuth } from './auth/AuthContext'
 import { get } from './api/client'
 import { Button, Modal, Skeleton, useOnline } from './components/ui'
 import { Icon } from './components/Icon'
+import { Avatar } from './components/Avatar'
 import { ROLE } from './lib/format'
 import { LazyRoute as R, preload, titleFor, warmUp } from './routes'
 import { PageLoader } from './components/PageLoader'
@@ -69,6 +70,18 @@ function SecureBanner() {
   )
 }
 
+/** Поиск в шапке: Enter открывает список заявок с этим запросом (номер, оборудование, клиент) */
+function GlobalSearch() {
+  const nav = useNavigate()
+  const [q, setQ] = useState('')
+  return (
+    <form className="gsearch" role="search" onSubmit={(e) => { e.preventDefault(); const v = q.trim(); if (v) { nav(`/tickets?q=${encodeURIComponent(v)}`); setQ('') } }}>
+      <Icon name="search" size={18} />
+      <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Поиск: номер заявки, оборудование…" aria-label="Поиск по заявкам" />
+    </form>
+  )
+}
+
 function Bell() {
   const nav = useNavigate()
   const q = useQuery({ queryKey: ['unread'], queryFn: () => get('/notifications/unread-count'), refetchInterval: () => (document.hidden ? false : 30_000) })
@@ -95,21 +108,32 @@ function Shell() {
   const moreActive = more || !bottom.some((b) => b.to !== MORE && (b.to === '/' ? loc.pathname === '/' : loc.pathname.startsWith(b.to)))
   return (
     <div className="shell">
+      <header className="topbar">
+        <a className="brand" href="/" aria-label="Alageum Service Hub — на главную">
+          <svg viewBox="0 0 32 32" aria-hidden><rect width="32" height="32" rx="9" fill="url(#brandg)" /><defs><linearGradient id="brandg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#a78bfa" /><stop offset="1" stopColor="#6d4df0" /></linearGradient></defs><path d="M17.5 5 9 18h6l-1 9 9-14h-6z" fill="#fff" /></svg>
+          <span className="brand-text">Alageum Service Hub</span>
+        </a>
+        <GlobalSearch />
+        <div className="top-actions">
+          <span className="org-name" title="Организация">{me.organization.name}</span>
+          <Bell />
+          <NavLink to="/profile" className="userchip" aria-label={`Профиль: ${me.full_name}`}>
+            <Avatar name={me.full_name} size={38} />
+            <span className="who"><b>{me.full_name}</b><small>{ROLE[me.role]}</small></span>
+          </NavLink>
+          <button className="btn logout" onClick={logout} aria-label="Выйти"><Icon name="logout" size={18} /><span className="logout-text">Выйти</span></button>
+        </div>
+      </header>
       <aside className="sidebar">
-        <a className="brand" href="/"><svg viewBox="0 0 32 32" aria-hidden><rect width="32" height="32" rx="7" fill="#163a68" /><path d="M17 5 9 18h6l-1 9 9-14h-6z" fill="#2DD4BF" /></svg><span className="brand-text">Alageum Service Hub</span></a>
         <nav className="nav" aria-label="Основное меню">
           {items.map((i) => <NavLink key={i.to} to={i.to} end={i.to === '/'} onMouseEnter={() => preload(i.to)} onFocus={() => preload(i.to)} onTouchStart={() => preload(i.to)}><Icon name={i.icon} />{i.label}</NavLink>)}
         </nav>
         <div className="spacer" />
-        <NavLink to="/profile" className="prof" aria-label={`Профиль: ${me.full_name}`} style={{ color: '#cbd5e1', textDecoration: 'none', padding: '8px 12px', display: 'flex', gap: 8, alignItems: 'center' }}><Icon name="user" size={20} /><span className="prof-text">{me.full_name}<br /><span className="small">{ROLE[me.role]}</span></span></NavLink>
+        <div className="side-foot"><i className={`dot ${online ? 'on' : ''}`} aria-hidden /><span className="side-foot-text">{online ? 'Система на связи' : 'Нет связи'}</span></div>
       </aside>
       <div className="main">
         <SecureBanner />
         {!online && <div className="offline" role="alert">Нет соединения. Показаны сохранённые данные; действия временно недоступны.</div>}
-        <header className="topbar">
-          <div className="muted small">{me.organization.name}</div>
-          <div className="row"><Bell /><Button small onClick={logout}>Выйти</Button></div>
-        </header>
         <RouteEffects main={main} />
         <main className={`content ${loc.pathname === '/board' ? 'wide' : ''}`} id="main" ref={main} tabIndex={-1}><Suspense fallback={<PageLoader inline />}><Outlet /></Suspense></main>
       </div>

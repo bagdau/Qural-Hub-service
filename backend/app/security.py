@@ -120,7 +120,7 @@ def audit_isolated(action: str, **kw) -> None:
         s.close()
 
 
-def get_ctx(request: Request, db: DbSession = Depends(get_db)) -> Ctx:
+def get_ctx(request: Request, db: DbSession = Depends(get_db, scope="function")) -> Ctx:
     token = request.cookies.get(COOKIE)
     if not token:
         raise ApiError(401, "UNAUTHENTICATED", "Требуется вход в систему.")

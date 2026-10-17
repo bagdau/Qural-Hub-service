@@ -84,7 +84,7 @@ def _enc(x):
 
 
 @router.post("/logout", status_code=204)
-def logout(request: Request, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def logout(request: Request, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     ctx.session.revoked_at, ctx.session.revoke_reason = clock.now(), "logout"
     audit(db, "logout", user=ctx.user, request=request)
     resp = Response(status_code=204)
@@ -93,7 +93,7 @@ def logout(request: Request, ctx: Ctx = Depends(get_ctx), db: DbSession = Depend
 
 
 @router.get("/me")
-def me(request: Request, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def me(request: Request, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     token = request.cookies.get(COOKIE)
     return {"user": user_out(db, ctx.user), "csrf_token": csrf_for(token),
             "permissions": PERMISSIONS[ctx.role], "must_change_password": ctx.user.must_change_password}
@@ -101,7 +101,7 @@ def me(request: Request, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(ge
 
 @router.post("/change-password", status_code=204)
 def change_password(body: ChangePasswordIn, request: Request, ctx: Ctx = Depends(get_ctx),
-                    db: DbSession = Depends(get_db)):
+                    db: DbSession = Depends(get_db, scope="function")):
     u = ctx.user
     if not verify_password(u.password_hash, body.current_password):
         raise ApiError(401, "INVALID_CREDENTIALS", "Текущий пароль указан неверно.")
@@ -117,7 +117,7 @@ def change_password(body: ChangePasswordIn, request: Request, ctx: Ctx = Depends
 
 
 @router.get("/sessions")
-def sessions(ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def sessions(ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     rows = db.scalars(select(Session).where(Session.user_id == ctx.user.id, Session.revoked_at.is_(None),
                                             Session.expires_at > clock.now()).order_by(Session.created_at.desc())).all()
     return [{"id": r.id, "created_at": r.created_at, "last_seen_at": r.last_seen_at, "ip": str(r.ip) if r.ip else None,
@@ -125,7 +125,7 @@ def sessions(ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
 
 
 @router.delete("/sessions/{session_id}", status_code=204)
-def revoke_session(session_id: str, request: Request, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def revoke_session(session_id: str, request: Request, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     import uuid
     try:
         sid = uuid.UUID(session_id)

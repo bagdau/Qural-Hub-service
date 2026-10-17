@@ -124,3 +124,17 @@ def test_equipment_coordinates_editor_and_map_signals(u):
     # клиент видит только своё оборудование и только свои заявки
     c = u.cl1.get("/map/objects").json()
     assert 0 < c["total"] < 10 and all(i["organization"]["name"] == c["items"][0]["organization"]["name"] for i in c["items"])
+
+
+def test_write_is_visible_to_the_very_next_request(u):
+    """Транзакция фиксируется до отправки ответа: следующий запрос сразу видит изменение (раньше commit шёл после ответа)."""
+    import time
+    eid = equipment_id(u.dsp, "DM-TR-0001")
+    d = u.dsp.get(f"/equipment/{eid}").json()
+    for i in range(15):
+        lat = round(43.2 + i / 1000, 3)
+        r = u.dsp.patch(f"/equipment/{eid}", json={"version": d["version"], "latitude": lat, "longitude": 76.9})
+        assert r.status_code == 200
+        d = u.dsp.get(f"/equipment/{eid}").json()      # немедленно, без пауз
+        assert d["latitude"] == lat and d["version"] == r.json()["version"], f"запись не видна на шаге {i}"
+    u.dsp.patch(f"/equipment/{eid}", json={"version": d["version"], "latitude": None, "longitude": None})

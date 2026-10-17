@@ -66,7 +66,7 @@ def _report_for_view(db, ctx, t, revision=None):
 
 
 @router.get("/tickets/{ticket_id}/report")
-def get_report(ticket_id: str, revision: int | None = None, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def get_report(ticket_id: str, revision: int | None = None, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     if ctx.role == "client":
         raise ApiError(403, "FORBIDDEN", "Отчёт доступен клиенту в составе акта.")
     t = get_ticket(db, ctx, _uuid(ticket_id))
@@ -84,7 +84,7 @@ def _own_draft(db, ctx, ticket_id, lock=True):
 
 
 @router.put("/tickets/{ticket_id}/report")
-def put_report(ticket_id: str, body: ReportPut, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def put_report(ticket_id: str, body: ReportPut, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     t, r = _own_draft(db, ctx, ticket_id)
     if t.status not in ("in_progress", "paused", "assigned"):
         raise conflict("REPORT_LOCKED", "Отчёт нельзя редактировать в текущем статусе заявки.")
@@ -105,7 +105,7 @@ def put_report(ticket_id: str, body: ReportPut, ctx: Ctx = Depends(get_ctx), db:
 
 
 @router.get("/tickets/{ticket_id}/report/completion-check")
-def check(ticket_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def check(ticket_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     t = get_ticket(db, ctx, _uuid(ticket_id))
     if ctx.role == "client":
         raise ApiError(403, "FORBIDDEN", "Недостаточно прав.")
@@ -116,7 +116,7 @@ def check(ticket_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(g
 
 @router.post("/tickets/{ticket_id}/photo-exception")
 def photo_exception(ticket_id: str, body: PhotoExceptionIn, request: Request, ctx: Ctx = Depends(get_ctx),
-                    db: DbSession = Depends(get_db)):
+                    db: DbSession = Depends(get_db, scope="function")):
     tid = ticket_id
 
     def go():
@@ -138,7 +138,7 @@ def photo_exception(ticket_id: str, body: PhotoExceptionIn, request: Request, ct
 
 @router.post("/tickets/{ticket_id}/photo-exception/decision")
 def photo_exception_decision(ticket_id: str, body: PhotoExceptionDecision, ctx: Ctx = Depends(require("dispatcher")),
-                             db: DbSession = Depends(get_db)):
+                             db: DbSession = Depends(get_db, scope="function")):
     t = get_ticket(db, ctx, _uuid(ticket_id), for_update=True)
     r = draft_report(db, t.id, for_update=True)
     if not r or r.photo_exception_status != "requested":
@@ -157,7 +157,7 @@ def photo_exception_decision(ticket_id: str, body: PhotoExceptionDecision, ctx: 
 
 # ---------------- запчасти в отчёте ----------------
 @router.get("/tickets/{ticket_id}/parts")
-def ticket_parts(ticket_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def ticket_parts(ticket_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     t = get_ticket(db, ctx, _uuid(ticket_id))
     r = current_report(db, t.id)
     if not r:
@@ -168,7 +168,7 @@ def ticket_parts(ticket_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = De
 
 
 @router.post("/tickets/{ticket_id}/parts", status_code=201)
-def add_part(ticket_id: str, body: PartIn, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def add_part(ticket_id: str, body: PartIn, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     t, r = _own_draft(db, ctx, ticket_id)
     sp = db.get(SparePart, body.spare_part_id)
     if not sp or not sp.is_active:
@@ -194,7 +194,7 @@ def _usage(db, ctx, ticket_id, usage_id):
 
 
 @router.patch("/tickets/{ticket_id}/parts/{usage_id}")
-def patch_part(ticket_id: str, usage_id: str, body: PartPatch, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def patch_part(ticket_id: str, usage_id: str, body: PartPatch, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     t, r, u = _usage(db, ctx, ticket_id, usage_id)
     for k, v in body.model_dump(exclude_unset=True).items():
         setattr(u, k, v)
@@ -203,7 +203,7 @@ def patch_part(ticket_id: str, usage_id: str, body: PartPatch, ctx: Ctx = Depend
 
 
 @router.delete("/tickets/{ticket_id}/parts/{usage_id}", status_code=204)
-def del_part(ticket_id: str, usage_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def del_part(ticket_id: str, usage_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     from fastapi import Response
     t, r, u = _usage(db, ctx, ticket_id, usage_id)
     db.delete(u)
@@ -219,7 +219,7 @@ def part_out(p: SparePart) -> dict:
 @router.get("/spare-parts")
 def list_parts(request: Request, q: str | None = None, category: str | None = None, is_active: bool | None = None,
                pg: Page = Depends(), ctx: Ctx = Depends(require("admin", "dispatcher", "manager", "engineer")),
-               db: DbSession = Depends(get_db)):
+               db: DbSession = Depends(get_db, scope="function")):
     strict_params(request, {"q", "category", "is_active"})
     qy = select(SparePart)
     if q:
@@ -236,7 +236,7 @@ def list_parts(request: Request, q: str | None = None, category: str | None = No
 
 
 @router.post("/spare-parts", status_code=201)
-def create_part(body: SparePartIn, ctx: Ctx = Depends(require("admin", "dispatcher")), db: DbSession = Depends(get_db)):
+def create_part(body: SparePartIn, ctx: Ctx = Depends(require("admin", "dispatcher")), db: DbSession = Depends(get_db, scope="function")):
     from sqlalchemy import func
     if db.scalar(select(SparePart.id).where(func.lower(SparePart.sku) == body.sku.lower())):
         raise conflict("DUPLICATE", "Позиция с таким артикулом уже существует.")
@@ -248,7 +248,7 @@ def create_part(body: SparePartIn, ctx: Ctx = Depends(require("admin", "dispatch
 
 
 @router.patch("/spare-parts/{part_id}")
-def patch_spare(part_id: str, body: SparePartPatch, ctx: Ctx = Depends(require("admin", "dispatcher")), db: DbSession = Depends(get_db)):
+def patch_spare(part_id: str, body: SparePartPatch, ctx: Ctx = Depends(require("admin", "dispatcher")), db: DbSession = Depends(get_db, scope="function")):
     p = db.scalar(select(SparePart).where(SparePart.id == _uuid(part_id)).with_for_update())
     if not p:
         raise not_found()
@@ -278,7 +278,7 @@ def _validate_schema(schema: dict):
 
 @router.get("/checklist-templates")
 def list_templates(equipment_type: str | None = None, status: str | None = None, code: str | None = None,
-                   ctx: Ctx = Depends(require("admin", "dispatcher", "manager", "engineer")), db: DbSession = Depends(get_db)):
+                   ctx: Ctx = Depends(require("admin", "dispatcher", "manager", "engineer")), db: DbSession = Depends(get_db, scope="function")):
     qy = select(ChecklistTemplate)
     if equipment_type:
         qy = qy.where(ChecklistTemplate.equipment_type == equipment_type)
@@ -290,7 +290,7 @@ def list_templates(equipment_type: str | None = None, status: str | None = None,
 
 
 @router.get("/checklist-templates/{tpl_id}")
-def get_template(tpl_id: str, ctx: Ctx = Depends(require("admin", "dispatcher", "manager", "engineer")), db: DbSession = Depends(get_db)):
+def get_template(tpl_id: str, ctx: Ctx = Depends(require("admin", "dispatcher", "manager", "engineer")), db: DbSession = Depends(get_db, scope="function")):
     t = db.get(ChecklistTemplate, _uuid(tpl_id))
     if not t:
         raise not_found()
@@ -298,7 +298,7 @@ def get_template(tpl_id: str, ctx: Ctx = Depends(require("admin", "dispatcher", 
 
 
 @router.post("/checklist-templates", status_code=201)
-def create_template(body: TemplateIn, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db)):
+def create_template(body: TemplateIn, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db, scope="function")):
     _validate_schema(body.schema_)
     last = db.scalar(select(ChecklistTemplate.version).where(ChecklistTemplate.code == body.code).order_by(ChecklistTemplate.version.desc()).limit(1))
     t = ChecklistTemplate(code=body.code, version=(last or 0) + 1, equipment_type=body.equipment_type, title=body.title,
@@ -309,7 +309,7 @@ def create_template(body: TemplateIn, ctx: Ctx = Depends(require("admin")), db: 
 
 
 @router.patch("/checklist-templates/{tpl_id}")
-def patch_template(tpl_id: str, body: TemplatePatch, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db)):
+def patch_template(tpl_id: str, body: TemplatePatch, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db, scope="function")):
     t = db.scalar(select(ChecklistTemplate).where(ChecklistTemplate.id == _uuid(tpl_id)).with_for_update())
     if not t:
         raise not_found()
@@ -324,7 +324,7 @@ def patch_template(tpl_id: str, body: TemplatePatch, ctx: Ctx = Depends(require(
 
 
 @router.post("/checklist-templates/{tpl_id}/publish")
-def publish_template(tpl_id: str, request: Request, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db)):
+def publish_template(tpl_id: str, request: Request, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db, scope="function")):
     t = db.scalar(select(ChecklistTemplate).where(ChecklistTemplate.id == _uuid(tpl_id)).with_for_update())
     if not t:
         raise not_found()
@@ -344,7 +344,7 @@ def publish_template(tpl_id: str, request: Request, ctx: Ctx = Depends(require("
 
 
 @router.post("/checklist-templates/{tpl_id}/new-version", status_code=201)
-def new_version(tpl_id: str, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db)):
+def new_version(tpl_id: str, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db, scope="function")):
     src = db.get(ChecklistTemplate, _uuid(tpl_id))
     if not src:
         raise not_found()

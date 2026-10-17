@@ -40,7 +40,7 @@ def _uuid(x):
 
 @router.get("/organizations")
 def list_orgs(request: Request, kind: str | None = None, q: str | None = None, archived: bool = False,
-              sort: str | None = None, pg: Page = Depends(), ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+              sort: str | None = None, pg: Page = Depends(), ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     strict_params(request, {"kind", "q", "archived"})
     qy = select(Organization).where(*org_conditions(ctx))
     if kind:
@@ -54,7 +54,7 @@ def list_orgs(request: Request, kind: str | None = None, q: str | None = None, a
 
 
 @router.post("/organizations", status_code=201)
-def create_org(body: OrgIn, request: Request, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db)):
+def create_org(body: OrgIn, request: Request, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db, scope="function")):
     if db.scalar(select(Organization.id).where(func.lower(Organization.name) == body.name.lower())):
         raise conflict("DUPLICATE", "Организация с таким названием уже существует.")
     if body.bin_iin and db.scalar(select(Organization.id).where(Organization.bin_iin == body.bin_iin)):
@@ -68,7 +68,7 @@ def create_org(body: OrgIn, request: Request, ctx: Ctx = Depends(require("admin"
 
 
 @router.get("/organizations/{org_id}")
-def get_org(org_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def get_org(org_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     o = db.scalar(select(Organization).where(Organization.id == _uuid(org_id), *org_conditions(ctx)))
     if not o:
         raise not_found()
@@ -76,7 +76,7 @@ def get_org(org_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(ge
 
 
 @router.patch("/organizations/{org_id}")
-def patch_org(org_id: str, body: OrgPatch, request: Request, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db)):
+def patch_org(org_id: str, body: OrgPatch, request: Request, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db, scope="function")):
     o = db.scalar(select(Organization).where(Organization.id == _uuid(org_id)).with_for_update())
     if not o:
         raise not_found()
@@ -89,7 +89,7 @@ def patch_org(org_id: str, body: OrgPatch, request: Request, ctx: Ctx = Depends(
 
 
 @router.post("/organizations/{org_id}/archive")
-def archive_org(org_id: str, body: VersionIn, request: Request, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db)):
+def archive_org(org_id: str, body: VersionIn, request: Request, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db, scope="function")):
     o = db.scalar(select(Organization).where(Organization.id == _uuid(org_id)).with_for_update())
     if not o:
         raise not_found()
@@ -104,7 +104,7 @@ def archive_org(org_id: str, body: VersionIn, request: Request, ctx: Ctx = Depen
 
 
 @router.post("/organizations/{org_id}/unarchive")
-def unarchive_org(org_id: str, body: VersionIn, request: Request, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db)):
+def unarchive_org(org_id: str, body: VersionIn, request: Request, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db, scope="function")):
     o = db.scalar(select(Organization).where(Organization.id == _uuid(org_id)).with_for_update())
     if not o:
         raise not_found()
@@ -116,7 +116,7 @@ def unarchive_org(org_id: str, body: VersionIn, request: Request, ctx: Ctx = Dep
 
 @router.get("/sites")
 def list_sites(request: Request, organization_id: str | None = None, q: str | None = None, archived: bool = False,
-               sort: str | None = None, pg: Page = Depends(), ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+               sort: str | None = None, pg: Page = Depends(), ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     strict_params(request, {"organization_id", "q", "archived"})
     qy = select(Site).where(*site_conditions(ctx))
     if organization_id:
@@ -130,7 +130,7 @@ def list_sites(request: Request, organization_id: str | None = None, q: str | No
 
 
 @router.post("/sites", status_code=201)
-def create_site(body: SiteIn, request: Request, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db)):
+def create_site(body: SiteIn, request: Request, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db, scope="function")):
     org = db.get(Organization, body.organization_id)
     if not org or org.kind != "client":
         raise field_error("organization_id", "invalid", "Выберите клиентскую организацию.")
@@ -144,7 +144,7 @@ def create_site(body: SiteIn, request: Request, ctx: Ctx = Depends(require("admi
 
 
 @router.get("/sites/{site_id}")
-def get_site(site_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def get_site(site_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     s = db.scalar(select(Site).where(Site.id == _uuid(site_id), *site_conditions(ctx)))
     if not s:
         raise not_found()
@@ -152,7 +152,7 @@ def get_site(site_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(
 
 
 @router.patch("/sites/{site_id}")
-def patch_site(site_id: str, body: SitePatch, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db)):
+def patch_site(site_id: str, body: SitePatch, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db, scope="function")):
     s = db.scalar(select(Site).where(Site.id == _uuid(site_id)).with_for_update())
     if not s:
         raise not_found()
@@ -165,7 +165,7 @@ def patch_site(site_id: str, body: SitePatch, ctx: Ctx = Depends(require("admin"
 
 
 @router.post("/sites/{site_id}/archive")
-def archive_site(site_id: str, body: VersionIn, request: Request, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db)):
+def archive_site(site_id: str, body: VersionIn, request: Request, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db, scope="function")):
     s = db.scalar(select(Site).where(Site.id == _uuid(site_id)).with_for_update())
     if not s:
         raise not_found()
@@ -178,7 +178,7 @@ def archive_site(site_id: str, body: VersionIn, request: Request, ctx: Ctx = Dep
 
 
 @router.post("/sites/{site_id}/unarchive")
-def unarchive_site(site_id: str, body: VersionIn, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db)):
+def unarchive_site(site_id: str, body: VersionIn, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db, scope="function")):
     s = db.scalar(select(Site).where(Site.id == _uuid(site_id)).with_for_update())
     if not s:
         raise not_found()

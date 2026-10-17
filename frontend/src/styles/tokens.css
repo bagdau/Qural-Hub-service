@@ -1,29 +1,42 @@
+/* ===== Дизайн-токены: вся палитра, радиусы, тени и скорости анимаций задаются здесь ===== */
 :root {
-  --navy-900: #0f172a;
-  --navy-800: #1e293b;
-  --navy-700: #1e3a5f;
-  --navy-100: #e8eef6;
-  --teal-700: #0d7a5f;
-  --teal-600: #0f9170;
-  --teal-300: #6ee7b7;
-  --teal-100: #d1fae5;
-  --bg: #f4f5f7;
+  /* фирменная фиолетовая гамма (имена navy-/teal- сохранены для совместимости со старыми стилями) */
+  --navy-950: #150f45;
+  --navy-900: #1f1757;
+  --navy-800: #2d2282;
+  --navy-700: #4535b5;
+  --navy-100: #eeebff;
+  --teal-700: #5b46d6;   /* основной акцент: кнопки, ссылки, активные элементы */
+  --teal-600: #6d57e8;
+  --teal-300: #c4b5fd;   /* акцент на тёмном фоне */
+  --teal-100: #ece8ff;
+  --brand-grad: linear-gradient(135deg, #7b5cf5 0%, #5b46d6 55%, #4535b5 100%);
+  --brand-grad-warm: linear-gradient(120deg, #ff9f1a 0%, #ff4d6d 50%, #a21caf 100%);
+  --header-grad: linear-gradient(100deg, #2a1d78 0%, #3f2fa5 60%, #5240c4 100%);
+  --side-grad: linear-gradient(180deg, #4a3bb0 0%, #382a94 100%);
+
+  --bg: #f3f1fb;
   --surface: #ffffff;
-  --text: #0b1220;
-  --text-muted: #475467;
-  --border: #d0d5dd;
-  --danger: #de350b;
-  --danger-bg: #ffebe6;
-  --warn: #92400e;
-  --warn-bg: #fef3c7;
-  --ok: #166534;
-  --ok-bg: #dcfce7;
-  --radius: 8px;
-  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --focus: 0 0 0 3px rgba(13, 122, 95, 0.45);
-  --t: 160ms;
-  --info: #0284c7;
-  --progress: #10b981;
-  --amber: #f59e0b;
+  --text: #17132f;
+  --text-muted: #5d5983;
+  --border: #e3dff4;
+  --danger: #d92d20;
+  --danger-bg: #ffe9e6;
+  --warn: #93370d;
+  --warn-bg: #fef0c7;
+  --ok: #067647;
+  --ok-bg: #d9f5e5;
+  --info: #0b6bcb;
+  --progress: #12b76a;
+  --amber: #f79009;
+
+  --radius: 16px;
+  --radius-sm: 12px;
+  --shadow: 0 6px 24px rgba(63, 46, 160, 0.08);
+  --shadow-lg: 0 18px 48px rgba(43, 30, 130, 0.18);
+  --focus: 0 0 0 3px rgba(91, 70, 214, 0.38);
+  --t: 180ms;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --topbar-h: 68px;
   --font: "Inter Variable", Inter, "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
 }

@@ -96,7 +96,7 @@ def eq_full(db: DbSession, ctx: Ctx, e: Equipment) -> dict:
 def list_equipment(request: Request, organization_id: str | None = None, site_id: str | None = None,
                    type: str | None = None, technical_state: str | None = None, has_active_tickets: bool | None = None,
                    q: str | None = None, archived: bool = False, sort: str | None = None, pg: Page = Depends(),
-                   ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+                   ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     strict_params(request, {"organization_id", "site_id", "type", "technical_state", "has_active_tickets", "q", "archived"})
     qy = select(Equipment).where(*equipment_conditions(ctx))
     if organization_id:
@@ -132,7 +132,7 @@ def list_equipment(request: Request, organization_id: str | None = None, site_id
 
 @router.post("/equipment", status_code=201)
 def create_equipment(body: EquipmentIn, request: Request, ctx: Ctx = Depends(require("admin", "dispatcher")),
-                     db: DbSession = Depends(get_db)):
+                     db: DbSession = Depends(get_db, scope="function")):
     org = db.get(Organization, body.organization_id)
     if not org or org.kind != "client" or org.archived_at:
         raise field_error("organization_id", "invalid", "Выберите действующую клиентскую организацию.")
@@ -153,7 +153,7 @@ def create_equipment(body: EquipmentIn, request: Request, ctx: Ctx = Depends(req
 
 
 @router.get("/map/objects")
-def map_objects(ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def map_objects(ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     """Оборудование для карты: положение, тип и сигнал состояния.
     alert: accident — авария (критическая заявка или оборудование выведено из работы), call — вызов (аварийная/корректирующая
     заявка в работе), plan — плановые работы, ok — всё в порядке. Видимость определяется ролью пользователя."""
@@ -195,7 +195,7 @@ def map_objects(ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
 
 
 @router.get("/equipment/by-qr/{code}")
-def by_qr(code: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def by_qr(code: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     e = db.scalar(select(Equipment).where(Equipment.qr_code == code.upper(), *equipment_conditions(ctx)))
     if not e:
         from ..security import audit_isolated
@@ -236,7 +236,7 @@ def qr_layouts(ctx: Ctx = Depends(get_ctx)):
 
 @router.get("/equipment/qr-labels.pdf")
 def qr_labels(ids: str = Query(...), layout: str = "sheet8", download: int = 0,
-              ctx: Ctx = Depends(require("admin", "dispatcher")), db: DbSession = Depends(get_db)):
+              ctx: Ctx = Depends(require("admin", "dispatcher")), db: DbSession = Depends(get_db, scope="function")):
     id_list = [_uuid(i) for i in ids.split(",") if i][:48]
     if not id_list:
         raise field_error("ids", "required", "Выберите оборудование.")
@@ -248,13 +248,13 @@ def qr_labels(ids: str = Query(...), layout: str = "sheet8", download: int = 0,
 
 
 @router.get("/equipment/{equipment_id}")
-def get_eq(equipment_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def get_eq(equipment_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     return eq_full(db, ctx, get_equipment(db, ctx, _uuid(equipment_id)))
 
 
 @router.patch("/equipment/{equipment_id}")
 def patch_eq(equipment_id: str, body: EquipmentPatch, ctx: Ctx = Depends(require("admin", "dispatcher")),
-             db: DbSession = Depends(get_db)):
+             db: DbSession = Depends(get_db, scope="function")):
     e = get_equipment(db, ctx, _uuid(equipment_id), for_update=True)
     version_check(e, body.version, "Оборудование")
     if e.archived_at:
@@ -278,7 +278,7 @@ def patch_eq(equipment_id: str, body: EquipmentPatch, ctx: Ctx = Depends(require
 
 @router.post("/equipment/{equipment_id}/archive")
 def archive_eq(equipment_id: str, body: VersionIn, request: Request, ctx: Ctx = Depends(require("admin")),
-               db: DbSession = Depends(get_db)):
+               db: DbSession = Depends(get_db, scope="function")):
     e = get_equipment(db, ctx, _uuid(equipment_id), for_update=True)
     version_check(e, body.version, "Оборудование")
     if db.scalar(select(func.count()).select_from(Ticket).where(Ticket.equipment_id == e.id, Ticket.status.in_(list(ACTIVE)))):
@@ -290,7 +290,7 @@ def archive_eq(equipment_id: str, body: VersionIn, request: Request, ctx: Ctx = 
 
 @router.post("/equipment/{equipment_id}/unarchive")
 def unarchive_eq(equipment_id: str, body: VersionIn, request: Request, ctx: Ctx = Depends(require("admin")),
-                 db: DbSession = Depends(get_db)):
+                 db: DbSession = Depends(get_db, scope="function")):
     e = get_equipment(db, ctx, _uuid(equipment_id), for_update=True)
     version_check(e, body.version, "Оборудование")
     e.archived_at, e.version = None, e.version + 1
@@ -300,7 +300,7 @@ def unarchive_eq(equipment_id: str, body: VersionIn, request: Request, ctx: Ctx 
 
 @router.get("/equipment/{equipment_id}/history")
 def history(equipment_id: str, request: Request, kind: str | None = None, status: str | None = None,
-            pg: Page = Depends(), ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+            pg: Page = Depends(), ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     strict_params(request, {"kind", "status"})
     e = get_equipment(db, ctx, _uuid(equipment_id))
     qy = select(Ticket).where(Ticket.equipment_id == e.id, *ticket_conditions(ctx))
@@ -334,7 +334,7 @@ def history(equipment_id: str, request: Request, kind: str | None = None, status
 
 @router.get("/equipment/{equipment_id}/qr")
 def qr_image(equipment_id: str, format: str = "svg", size: int = Query(10, ge=2, le=40), ec: str = "q",
-             border: int = Query(4, ge=4, le=10), download: int = 0, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+             border: int = Query(4, ge=4, le=10), download: int = 0, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     e = get_equipment(db, ctx, _uuid(equipment_id))
     url = _qr_url(e)
     if format == "png":
@@ -351,14 +351,14 @@ def qr_image(equipment_id: str, format: str = "svg", size: int = Query(10, ge=2,
 
 @router.get("/equipment/{equipment_id}/qr-label.pdf")
 def qr_label_pdf(equipment_id: str, layout: str = "label100x70", download: int = 0, ctx: Ctx = Depends(get_ctx),
-                 db: DbSession = Depends(get_db)):
+                 db: DbSession = Depends(get_db, scope="function")):
     e = get_equipment(db, ctx, _uuid(equipment_id))
     documents.layout(layout)
     return _pdf(documents.qr_labels([_label_item(db, e)], layout), f"qr-{e.inventory_number}.pdf", download)
 
 
 @router.get("/equipment/{equipment_id}/passport.pdf")
-def passport_pdf(equipment_id: str, download: int = 0, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def passport_pdf(equipment_id: str, download: int = 0, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     e = get_equipment(db, ctx, _uuid(equipment_id))
     d = eq_full(db, ctx, e)
     d["state_label"] = {"operational": "Исправно", "degraded": "Ограниченно", "out_of_service": "Выведено из работы"}[e.technical_state]
@@ -377,7 +377,7 @@ def passport_pdf(equipment_id: str, download: int = 0, ctx: Ctx = Depends(get_ct
 
 @router.post("/equipment/{equipment_id}/qr/rotate")
 def rotate_qr(equipment_id: str, body: VersionIn, request: Request, ctx: Ctx = Depends(require("admin", "dispatcher")),
-              db: DbSession = Depends(get_db)):
+              db: DbSession = Depends(get_db, scope="function")):
     e = get_equipment(db, ctx, _uuid(equipment_id), for_update=True)
     version_check(e, body.version, "Оборудование")
     e.qr_code, e.qr_rotated_at, e.version = new_qr(db), clock.now(), e.version + 1
@@ -398,7 +398,7 @@ def plan_out(p: MaintenancePlan, e: Equipment | None = None) -> dict:
 @router.get("/maintenance-plans")
 def list_plans(request: Request, equipment_id: str | None = None, is_active: bool | None = None,
                due_before: str | None = None, pg: Page = Depends(), ctx: Ctx = Depends(get_ctx),
-               db: DbSession = Depends(get_db)):
+               db: DbSession = Depends(get_db, scope="function")):
     strict_params(request, {"equipment_id", "is_active", "due_before"})
     qy = select(MaintenancePlan, Equipment).join(Equipment, Equipment.id == MaintenancePlan.equipment_id).where(*equipment_conditions(ctx))
     if equipment_id:
@@ -415,7 +415,7 @@ def list_plans(request: Request, equipment_id: str | None = None, is_active: boo
 
 
 @router.post("/maintenance-plans", status_code=201)
-def create_plan(body: PlanIn, ctx: Ctx = Depends(require("admin", "dispatcher")), db: DbSession = Depends(get_db)):
+def create_plan(body: PlanIn, ctx: Ctx = Depends(require("admin", "dispatcher")), db: DbSession = Depends(get_db, scope="function")):
     e = get_equipment(db, ctx, body.equipment_id)
     if body.next_due_date < clock.now().date():
         raise field_error("next_due_date", "in_past", "Первая плановая дата не может быть в прошлом.")
@@ -427,7 +427,7 @@ def create_plan(body: PlanIn, ctx: Ctx = Depends(require("admin", "dispatcher"))
 
 
 @router.get("/maintenance-plans/{plan_id}")
-def get_plan(plan_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def get_plan(plan_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     p = db.get(MaintenancePlan, _uuid(plan_id))
     if not p:
         raise not_found()
@@ -436,7 +436,7 @@ def get_plan(plan_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(
 
 
 @router.patch("/maintenance-plans/{plan_id}")
-def patch_plan(plan_id: str, body: PlanPatch, ctx: Ctx = Depends(require("admin", "dispatcher")), db: DbSession = Depends(get_db)):
+def patch_plan(plan_id: str, body: PlanPatch, ctx: Ctx = Depends(require("admin", "dispatcher")), db: DbSession = Depends(get_db, scope="function")):
     p = db.scalar(select(MaintenancePlan).where(MaintenancePlan.id == _uuid(plan_id)).with_for_update())
     if not p:
         raise not_found()
@@ -450,7 +450,7 @@ def patch_plan(plan_id: str, body: PlanPatch, ctx: Ctx = Depends(require("admin"
 
 @router.post("/maintenance-plans/{plan_id}/{action}")
 def toggle_plan(plan_id: str, action: str, body: VersionIn, ctx: Ctx = Depends(require("admin", "dispatcher")),
-                db: DbSession = Depends(get_db)):
+                db: DbSession = Depends(get_db, scope="function")):
     if action not in ("activate", "deactivate"):
         raise not_found()
     p = db.scalar(select(MaintenancePlan).where(MaintenancePlan.id == _uuid(plan_id)).with_for_update())
@@ -462,7 +462,7 @@ def toggle_plan(plan_id: str, action: str, body: VersionIn, ctx: Ctx = Depends(r
 
 
 @router.get("/maintenance/upcoming")
-def upcoming(days: int = Query(14, ge=1, le=90), ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def upcoming(days: int = Query(14, ge=1, le=90), ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     today = clock.now().date()
     rows = db.execute(select(MaintenancePlan, Equipment).join(Equipment, Equipment.id == MaintenancePlan.equipment_id)
                       .where(MaintenancePlan.is_active.is_(True), MaintenancePlan.next_due_date <= today + timedelta(days=days),

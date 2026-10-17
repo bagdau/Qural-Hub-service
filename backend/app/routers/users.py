@@ -32,7 +32,7 @@ def _check_role_org(db: DbSession, role: str, org_id):
 def list_users(request: Request, role: str | None = None, organization_id: str | None = None,
                is_active: bool | None = None, q: str | None = None, sort: str | None = None,
                pg: Page = Depends(), ctx: Ctx = Depends(require("admin", "manager", "dispatcher")),
-               db: DbSession = Depends(get_db)):
+               db: DbSession = Depends(get_db, scope="function")):
     strict_params(request, {"role", "organization_id", "is_active", "q"})
     qy = select(User)
     if ctx.role == "dispatcher":
@@ -54,7 +54,7 @@ def list_users(request: Request, role: str | None = None, organization_id: str |
 
 @router.post("/users", status_code=201)
 def create_user(body: UserCreate, request: Request, ctx: Ctx = Depends(require("admin")),
-                db: DbSession = Depends(get_db)):
+                db: DbSession = Depends(get_db, scope="function")):
     def go():
         if not EMAIL_RE.match(body.email):
             raise field_error("email", "invalid", "Некорректный email.")
@@ -76,7 +76,7 @@ def create_user(body: UserCreate, request: Request, ctx: Ctx = Depends(require("
 
 
 @router.get("/users/{user_id}")
-def get_user(user_id: str, ctx: Ctx = Depends(require("admin", "manager", "dispatcher")), db: DbSession = Depends(get_db)):
+def get_user(user_id: str, ctx: Ctx = Depends(require("admin", "manager", "dispatcher")), db: DbSession = Depends(get_db, scope="function")):
     u = _get(db, user_id)
     if ctx.role == "dispatcher" and u.role not in ("engineer", "client"):
         raise not_found()
@@ -98,7 +98,7 @@ def _get(db, user_id, lock=False) -> User:
 
 @router.patch("/users/{user_id}")
 def patch_user(user_id: str, body: UserPatch, request: Request, ctx: Ctx = Depends(require("admin")),
-               db: DbSession = Depends(get_db)):
+               db: DbSession = Depends(get_db, scope="function")):
     u = _get(db, user_id, True)
     version_check(u, body.version, "Пользователь")
     data = body.model_dump(exclude_unset=True, exclude={"version"})
@@ -117,7 +117,7 @@ def patch_user(user_id: str, body: UserPatch, request: Request, ctx: Ctx = Depen
 
 @router.post("/users/{user_id}/reset-password")
 def reset_password(user_id: str, body: VersionIn, request: Request, ctx: Ctx = Depends(require("admin")),
-                   db: DbSession = Depends(get_db)):
+                   db: DbSession = Depends(get_db, scope="function")):
     def go():
         u = _get(db, user_id, True)
         version_check(u, body.version, "Пользователь")
@@ -134,7 +134,7 @@ def reset_password(user_id: str, body: VersionIn, request: Request, ctx: Ctx = D
 
 @router.post("/users/{user_id}/deactivate")
 def deactivate(user_id: str, body: VersionIn, request: Request, ctx: Ctx = Depends(require("admin")),
-               db: DbSession = Depends(get_db)):
+               db: DbSession = Depends(get_db, scope="function")):
     u = _get(db, user_id, True)
     version_check(u, body.version, "Пользователь")
     if u.id == ctx.user.id:
@@ -158,7 +158,7 @@ def deactivate(user_id: str, body: VersionIn, request: Request, ctx: Ctx = Depen
 
 @router.post("/users/{user_id}/activate")
 def activate(user_id: str, body: VersionIn, request: Request, ctx: Ctx = Depends(require("admin")),
-             db: DbSession = Depends(get_db)):
+             db: DbSession = Depends(get_db, scope="function")):
     u = _get(db, user_id, True)
     version_check(u, body.version, "Пользователь")
     temp = generate_temp_password()
@@ -172,7 +172,7 @@ def activate(user_id: str, body: VersionIn, request: Request, ctx: Ctx = Depends
 
 
 @router.post("/users/{user_id}/revoke-sessions", status_code=204)
-def revoke(user_id: str, request: Request, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db)):
+def revoke(user_id: str, request: Request, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db, scope="function")):
     u = _get(db, user_id)
     n = revoke_user_sessions(db, u.id, "admin")
     audit(db, "sessions_revoked", user=ctx.user, object_type="user", object_id=u.id, request=request, details={"count": n})
@@ -181,7 +181,7 @@ def revoke(user_id: str, request: Request, ctx: Ctx = Depends(require("admin")),
 
 @router.get("/engineers")
 def engineers(available: bool = False, ctx: Ctx = Depends(require("admin", "dispatcher", "manager")),
-              db: DbSession = Depends(get_db)):
+              db: DbSession = Depends(get_db, scope="function")):
     from ..workflow import engineer_load
     out = []
     for e in db.scalars(select(User).where(User.role == "engineer", User.is_active.is_(True)).order_by(User.full_name)):

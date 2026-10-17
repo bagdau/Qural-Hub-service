@@ -102,7 +102,7 @@ def store(db: DbSession, ctx: Ctx, data: bytes, filename: str, kind: str, stage,
 @router.post("/tickets/{ticket_id}/attachments", status_code=201)
 async def upload(ticket_id: str, request: Request, file: UploadFile = File(...), kind: str = Form("photo"),
                  stage: str | None = Form(None), visibility: str = Form("public"),
-                 ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+                 ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     s = get_settings()
     data = await file.read(max(s.max_photo_mb, s.max_doc_mb) * 1024 * 1024 + 1)
     tid = _uuid(ticket_id)
@@ -150,7 +150,7 @@ async def upload(ticket_id: str, request: Request, file: UploadFile = File(...),
 
 @router.get("/tickets/{ticket_id}/attachments")
 def list_attachments(ticket_id: str, kind: str | None = None, stage: str | None = None, ctx: Ctx = Depends(get_ctx),
-                     db: DbSession = Depends(get_db)):
+                     db: DbSession = Depends(get_db, scope="function")):
     t = get_ticket(db, ctx, _uuid(ticket_id))
     q = select(Attachment).where(Attachment.ticket_id == t.id, Attachment.deleted_at.is_(None))
     if ctx.role == "client":
@@ -180,7 +180,7 @@ def _visible_attachment(db: DbSession, ctx: Ctx, att_id) -> Attachment:
 
 
 @router.get("/attachments/{att_id}/download")
-def download(att_id: str, inline: int = 0, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def download(att_id: str, inline: int = 0, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     a = _visible_attachment(db, ctx, att_id)
     if not storage.exists(a.storage_key):
         raise ApiError(500, "FILE_MISSING", "Файл не найден в хранилище.")
@@ -193,7 +193,7 @@ def download(att_id: str, inline: int = 0, ctx: Ctx = Depends(get_ctx), db: DbSe
 
 
 @router.get("/attachments/{att_id}/thumbnail")
-def thumbnail(att_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def thumbnail(att_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     a = _visible_attachment(db, ctx, att_id)
     if not a.thumb_storage_key or not storage.exists(a.thumb_storage_key):
         raise not_found()
@@ -202,7 +202,7 @@ def thumbnail(att_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(
 
 
 @router.delete("/attachments/{att_id}", status_code=204)
-def delete(att_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def delete(att_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     a = _visible_attachment(db, ctx, att_id)
     if a.ticket_id:
         t = get_ticket(db, ctx, a.ticket_id, for_update=True)
@@ -222,7 +222,7 @@ def delete(att_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get
 
 # --- документы паспорта оборудования ---
 @router.get("/equipment/{equipment_id}/documents")
-def eq_docs(equipment_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def eq_docs(equipment_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     e = get_equipment(db, ctx, _uuid(equipment_id))
     return [att_out(a) for a in db.scalars(select(Attachment).where(
         Attachment.equipment_id == e.id, Attachment.deleted_at.is_(None)).order_by(Attachment.uploaded_at))]
@@ -230,7 +230,7 @@ def eq_docs(equipment_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depe
 
 @router.post("/equipment/{equipment_id}/documents", status_code=201)
 async def upload_eq_doc(equipment_id: str, request: Request, file: UploadFile = File(...),
-                        ctx: Ctx = Depends(require("admin", "dispatcher")), db: DbSession = Depends(get_db)):
+                        ctx: Ctx = Depends(require("admin", "dispatcher")), db: DbSession = Depends(get_db, scope="function")):
     s = get_settings()
     data = await file.read(s.max_doc_mb * 1024 * 1024 + 1)
     e = get_equipment(db, ctx, _uuid(equipment_id))

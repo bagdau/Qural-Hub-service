@@ -4,6 +4,8 @@ import { ApiError, get, patch, post, put, uuid } from '../api/client'
 import { useAuth } from '../auth/AuthContext'
 import { Button, ConfirmModal, Empty, ErrorBox, Field, Modal, Pagination, Skeleton, Tabs, errText, useDebounced, useToast } from '../components/ui'
 import { DataTable } from '../components/DataTable'
+import { Avatar } from '../components/Avatar'
+import { IconButton } from '../components/IconButton'
 import { PageHeader } from '../components/PageHeader'
 import { QueryBoundary } from '../components/QueryBoundary'
 import { GeoPicker, geoBody } from '../components/GeoPicker'
@@ -42,15 +44,17 @@ export function UsersPage() {
         {(d) => (
           <DataTable rows={d.items} rowKey={(u: any) => u.id} footer={<Pagination page={d.page} totalPages={d.total_pages} onPage={setPage} />}
             columns={[
-              { header: 'ФИО', cell: (u: any) => <strong>{u.full_name}</strong> },
+              { header: 'ФИО', cell: (u: any) => <span className="who-cell"><Avatar name={u.full_name} size={38} /><strong>{u.full_name}</strong></span> },
               { header: 'Email', cell: (u: any) => u.email },
               { header: 'Роль', cell: (u: any) => ROLE[u.role] },
               { header: 'Организация', hideSm: true, cell: (u: any) => u.organization.name },
-              { header: 'Статус', cell: (u: any) => (u.is_active ? (u.must_change_password ? 'Ждёт смены пароля' : 'Активен') : 'Деактивирован') },
-              ...(isAdmin ? [{ header: '', bare: true, cell: (u: any) => (
-                <div className="row">
-                  <Button small onClick={() => setEdit(u)}>Изменить</Button>
-                  {u.is_active ? <><Button small onClick={() => setConfirm({ u, kind: 'reset' })}>Сбросить пароль</Button><Button small onClick={() => setConfirm({ u, kind: 'deactivate' })}>Деактивировать</Button></> : <Button small onClick={() => setConfirm({ u, kind: 'activate' })}>Активировать</Button>}
+              { header: 'Статус', cell: (u: any) => (u.is_active ? (u.must_change_password ? <span className="pill warn">Ждёт смены пароля</span> : <span className="pill ok">Активен</span>) : <span className="pill bad">Деактивирован</span>) },
+              ...(isAdmin ? [{ header: 'Действия', bare: true, cell: (u: any) => (
+                <div className="ibtns">
+                  <IconButton icon="edit" label={`Изменить: ${u.full_name}`} onClick={() => setEdit(u)} />
+                  {u.is_active
+                    ? <><IconButton icon="key" label={`Сбросить пароль: ${u.full_name}`} onClick={() => setConfirm({ u, kind: 'reset' })} /><IconButton icon="ban" tone="danger" label={`Деактивировать: ${u.full_name}`} onClick={() => setConfirm({ u, kind: 'deactivate' })} /></>
+                    : <IconButton icon="check" label={`Активировать: ${u.full_name}`} onClick={() => setConfirm({ u, kind: 'activate' })} />}
                 </div>) }] : []),
             ]} />)}
       </QueryBoundary>

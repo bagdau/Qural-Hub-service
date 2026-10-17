@@ -32,7 +32,7 @@ def list_tickets(request: Request, status: list[str] = Query(default=[]), priori
                  equipment_id: str | None = None, assigned_engineer_id: str | None = None, overdue: bool | None = None,
                  created_from: datetime | None = None, created_to: datetime | None = None, q: str | None = None,
                  archived: bool = False, sort: str | None = None, pg: Page = Depends(),
-                 ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+                 ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     strict_params(request, {"status", "priority", "kind", "organization_id", "site_id", "equipment_id",
                             "assigned_engineer_id", "overdue", "created_from", "created_to", "q", "archived"})
     qy = tickets_select(ctx)
@@ -71,7 +71,7 @@ def list_tickets(request: Request, status: list[str] = Query(default=[]), priori
 
 
 @router.post("/tickets", status_code=201)
-def create(body: TicketCreate, request: Request, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def create(body: TicketCreate, request: Request, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     def go():
         t, warnings = workflow.create_ticket(db, ctx, body)
         out = ticket_outs(db, ctx, [t])[0]
@@ -81,13 +81,13 @@ def create(body: TicketCreate, request: Request, ctx: Ctx = Depends(get_ctx), db
 
 
 @router.get("/tickets/{ticket_id}")
-def get(ticket_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def get(ticket_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     t = get_ticket(db, ctx, _uuid(ticket_id))
     return ticket_outs(db, ctx, [t])[0]
 
 
 @router.patch("/tickets/{ticket_id}")
-def patch(ticket_id: str, body: TicketPatch, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def patch(ticket_id: str, body: TicketPatch, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     t = get_ticket(db, ctx, _uuid(ticket_id), for_update=True)
     version_check(t, body.version, "Заявка")
     if "edit" not in allowed_actions(t, ctx):
@@ -113,7 +113,7 @@ def patch(ticket_id: str, body: TicketPatch, ctx: Ctx = Depends(get_ctx), db: Db
 
 
 @router.get("/tickets/{ticket_id}/events")
-def events(ticket_id: str, pg: Page = Depends(), ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def events(ticket_id: str, pg: Page = Depends(), ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     t = get_ticket(db, ctx, _uuid(ticket_id))
     items, total = events_for(db, ctx, t.id, pg.page, pg.page_size)
     return page_of(items, total, pg.page, pg.page_size)
@@ -122,7 +122,7 @@ def events(ticket_id: str, pg: Page = Depends(), ctx: Ctx = Depends(get_ctx), db
 # ---------------- переходы ----------------
 def _action(name: str, model):
     def endpoint(ticket_id: str, body: model, request: Request, ctx: Ctx = Depends(get_ctx),
-                 db: DbSession = Depends(get_db)):
+                 db: DbSession = Depends(get_db, scope="function")):
         tid = _uuid(ticket_id)
 
         def go():
@@ -143,7 +143,7 @@ for _n, _m in [("accept", AcceptIn), ("reject", RejectIn), ("assign", AssignIn),
 
 
 def _archive_route(action: str):
-    def endpoint(ticket_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+    def endpoint(ticket_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
         if ctx.role != "admin":
             raise ApiError(403, "FORBIDDEN", "Недостаточно прав.")
         t = get_ticket(db, ctx, _uuid(ticket_id), for_update=True)
@@ -166,7 +166,7 @@ _archive_route("unarchive")
 
 # ---------------- назначения, комментарии, задания ----------------
 @router.get("/tickets/{ticket_id}/assignments")
-def assignments(ticket_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def assignments(ticket_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     t = get_ticket(db, ctx, _uuid(ticket_id))
     rows = db.scalars(select(Assignment).where(Assignment.ticket_id == t.id).order_by(Assignment.assigned_at)).all()
     users = {u.id: u for u in db.scalars(select(User).where(User.id.in_({r.engineer_id for r in rows} | {r.assigned_by for r in rows})))}
@@ -180,7 +180,7 @@ def assignments(ticket_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Dep
 
 
 @router.get("/engineers/{engineer_id}/workload")
-def workload(engineer_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def workload(engineer_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     if ctx.role not in ("admin", "dispatcher", "manager", "engineer") or (ctx.role == "engineer" and str(ctx.user.id) != engineer_id):
         raise ApiError(403, "FORBIDDEN", "Недостаточно прав.")
     e = db.get(User, _uuid(engineer_id))
@@ -200,7 +200,7 @@ def comment_out(c: Comment, users: dict) -> dict:
 
 
 @router.get("/tickets/{ticket_id}/comments")
-def list_comments(ticket_id: str, pg: Page = Depends(), ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def list_comments(ticket_id: str, pg: Page = Depends(), ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     t = get_ticket(db, ctx, _uuid(ticket_id))
     qy = select(Comment).where(Comment.ticket_id == t.id)
     if ctx.role == "client":
@@ -212,7 +212,7 @@ def list_comments(ticket_id: str, pg: Page = Depends(), ctx: Ctx = Depends(get_c
 
 
 @router.post("/tickets/{ticket_id}/comments", status_code=201)
-def add_comment(ticket_id: str, body: CommentIn, request: Request, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def add_comment(ticket_id: str, body: CommentIn, request: Request, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     tid = _uuid(ticket_id)
 
     def go():
@@ -231,7 +231,7 @@ def add_comment(ticket_id: str, body: CommentIn, request: Request, ctx: Ctx = De
 
 
 @router.get("/me/tasks")
-def my_tasks(group: str | None = None, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def my_tasks(group: str | None = None, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     if ctx.role != "engineer":
         raise ApiError(403, "FORBIDDEN", "Раздел доступен инженерам.")
     now = clock.now()
@@ -256,7 +256,7 @@ def my_tasks(group: str | None = None, ctx: Ctx = Depends(get_ctx), db: DbSessio
 
 @router.get("/search")
 def search(q: str = Query(..., min_length=2, max_length=100), limit: int = Query(10, ge=1, le=20),
-           ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+           ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     like = f"%{q.strip()}%"
     eqs = db.scalars(select(Equipment).where(
         or_(Equipment.name.ilike(like), Equipment.inventory_number.ilike(like), Equipment.serial_number.ilike(like),

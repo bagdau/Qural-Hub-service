@@ -6,6 +6,7 @@ import { useAuth } from '../auth/AuthContext'
 import { ApiError, del, get, post } from '../api/client'
 import { Button, Empty, Field, Skeleton, errText, useToast } from '../components/ui'
 import { fmtDateTime, ROLE } from '../lib/format'
+import { Icon } from '../components/Icon'
 
 export function LoginPage() {
   const { me, login, loading } = useAuth()
@@ -15,6 +16,7 @@ export function LoginPage() {
   const [password, setPassword] = useState('')
   const [err, setErr] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [show, setShow] = useState(false)
   if (!loading && me && !me.must_change_password) return <Navigate to={safeNext(sp.get('next'))} replace />
 
   const submit = async (e: FormEvent) => {
@@ -31,14 +33,37 @@ export function LoginPage() {
   }
   return (
     <div className="login-wrap">
-      <form className="card login-card stack" onSubmit={submit} aria-labelledby="t">
-        <div><h1 id="t">Alageum Service Hub</h1><p className="muted" style={{ margin: 0 }}>Учёт оборудования и сервисное обслуживание</p></div>
-        {err && <div className="banner err" role="alert">{err}</div>}
-        <Field label="Email"><input type="email" autoComplete="username" required value={email} onChange={(e) => setEmail(e.target.value)} /></Field>
-        <Field label="Пароль"><input type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} /></Field>
-        <Button variant="primary" type="submit" loading={busy} style={{ width: '100%' }}>Войти</Button>
-        <p className="hint">Регистрация недоступна. Учётную запись выдаёт администратор.</p>
-      </form>
+      <i className="lg-blob lb1" aria-hidden /><i className="lg-blob lb2" aria-hidden /><i className="lg-blob lb3" aria-hidden />
+      <div className="login-shell">
+        <aside className="login-art">
+          <div className="art-shapes" aria-hidden><i className="shape s1" /><i className="shape s2" /><i className="shape s3" /><i className="shape s4" /></div>
+          <div className="art-copy">
+            <span className="art-logo" aria-hidden><Icon name="equipment" size={26} /></span>
+            <h1 id="t">Alageum Service Hub</h1>
+            <p>Учёт оборудования и сервисное обслуживание</p>
+            <ul className="art-points">
+              <li><Icon name="board" size={18} /> Заявки и канбан в реальном времени</li>
+              <li><Icon name="qr" size={18} /> QR-паспорт у каждого оборудования</li>
+              <li><Icon name="pin" size={18} /> Карта аварий и вызовов</li>
+            </ul>
+          </div>
+        </aside>
+        <form className="login-form" onSubmit={submit} aria-labelledby="t">
+          <div><h2>Вход в систему</h2><p className="muted" style={{ margin: '4px 0 0' }}>Используйте учётную запись, выданную администратором</p></div>
+          {err && <div className="banner err" role="alert">{err}</div>}
+          <label className="ifield"><span>Email</span>
+            <span className="ifield-box"><Icon name="user" size={20} /><input type="email" autoComplete="username" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@company.kz" /></span>
+          </label>
+          <label className="ifield"><span>Пароль</span>
+            <span className="ifield-box"><Icon name="lock" size={20} />
+              <input type={show ? 'text' : 'password'} autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+              <button type="button" className="eye" onClick={() => setShow(!show)} aria-label={show ? 'Скрыть символы' : 'Показать символы'} aria-pressed={show}><Icon name={show ? 'eye-off' : 'eye'} size={20} /></button>
+            </span>
+          </label>
+          <Button variant="primary" type="submit" loading={busy} className="login-btn">Войти</Button>
+          <p className="hint">Регистрация недоступна. Учётную запись выдаёт администратор.</p>
+        </form>
+      </div>
     </div>
   )
 }

@@ -50,18 +50,18 @@ def _act(db: DbSession, ctx: Ctx, act_id) -> Act:
 
 
 @router.get("/tickets/{ticket_id}/acts")
-def ticket_acts(ticket_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def ticket_acts(ticket_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     t = get_ticket(db, ctx, _uuid(ticket_id))
     return [act_out(a) for a in db.scalars(select(Act).where(Act.ticket_id == t.id).order_by(Act.version))]
 
 
 @router.get("/acts/{act_id}")
-def get_act(act_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def get_act(act_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     return act_out(_act(db, ctx, act_id))
 
 
 @router.get("/acts/{act_id}/pdf")
-def act_pdf(act_id: str, download: int = 0, request: Request = None, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def act_pdf(act_id: str, download: int = 0, request: Request = None, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     a = _act(db, ctx, act_id)
     if not storage.exists(a.storage_key):
         raise ApiError(500, "FILE_MISSING", "Файл акта не найден в хранилище.")
@@ -72,7 +72,7 @@ def act_pdf(act_id: str, download: int = 0, request: Request = None, ctx: Ctx = 
 
 
 @router.get("/acts/{act_id}/confirmation.pdf")
-def confirmation_pdf(act_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def confirmation_pdf(act_id: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     a = _act(db, ctx, act_id)
     if a.decision != "confirmed":
         raise not_found("Акт не подтверждён.")
@@ -92,7 +92,7 @@ def notif_out(n: Notification) -> dict:
 
 
 @router.get("/notifications")
-def notifications(unread: bool = False, pg: Page = Depends(), ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def notifications(unread: bool = False, pg: Page = Depends(), ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     q = select(Notification).where(Notification.user_id == ctx.user.id)
     if unread:
         q = q.where(Notification.read_at.is_(None))
@@ -102,13 +102,13 @@ def notifications(unread: bool = False, pg: Page = Depends(), ctx: Ctx = Depends
 
 
 @router.get("/notifications/unread-count")
-def unread_count(ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def unread_count(ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     return {"count": db.scalar(select(func.count()).select_from(Notification).where(
         Notification.user_id == ctx.user.id, Notification.read_at.is_(None)))}
 
 
 @router.post("/notifications/read-all", status_code=204)
-def read_all(ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def read_all(ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     now = clock.now()
     for n in db.scalars(select(Notification).where(Notification.user_id == ctx.user.id, Notification.read_at.is_(None))):
         n.read_at = now
@@ -116,7 +116,7 @@ def read_all(ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
 
 
 @router.post("/notifications/{nid}/read", status_code=204)
-def read_one(nid: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+def read_one(nid: str, ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     n = db.scalar(select(Notification).where(Notification.id == _uuid(nid), Notification.user_id == ctx.user.id))
     if not n:
         raise not_found()
@@ -138,7 +138,7 @@ def _flt(ctx: Ctx, organization_id, site_id, equipment_type):
 @router.get("/analytics/summary")
 def analytics_summary(frm: datetime | None = Query(None, alias="from"), to: datetime | None = None,
                       organization_id: str | None = None, site_id: str | None = None, equipment_type: str | None = None,
-                      ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+                      ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     f, t, now = _range(frm, to)
     return metrics.summary(db, ctx, now, f, t, **_flt(ctx, organization_id, site_id, equipment_type))
 
@@ -146,7 +146,7 @@ def analytics_summary(frm: datetime | None = Query(None, alias="from"), to: date
 @router.get("/analytics/metric-tickets")
 def metric_tickets(metric: str, frm: datetime | None = Query(None, alias="from"), to: datetime | None = None,
                    organization_id: str | None = None, site_id: str | None = None, equipment_type: str | None = None,
-                   pg: Page = Depends(), ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db)):
+                   pg: Page = Depends(), ctx: Ctx = Depends(get_ctx), db: DbSession = Depends(get_db, scope="function")):
     names = {"active": "active", "overdue": "overdue", "reaction": "reaction", "completion": "completion",
              "on_time": "on_time", "repeat": "repeat", "awaiting_reaction": "awaiting_reaction", "period": "period"}
     if metric not in names:
@@ -163,7 +163,7 @@ def metric_tickets(metric: str, frm: datetime | None = Query(None, alias="from")
 
 
 @router.get("/analytics/engineer-load")
-def engineer_load(ctx: Ctx = Depends(require("admin", "dispatcher", "manager", "engineer")), db: DbSession = Depends(get_db)):
+def engineer_load(ctx: Ctx = Depends(require("admin", "dispatcher", "manager", "engineer")), db: DbSession = Depends(get_db, scope="function")):
     return metrics.engineer_loads(db, ctx)
 
 
@@ -176,12 +176,12 @@ def _pol(db):
 
 
 @router.get("/settings/sla")
-def get_sla(ctx: Ctx = Depends(require("admin", "dispatcher", "manager")), db: DbSession = Depends(get_db)):
+def get_sla(ctx: Ctx = Depends(require("admin", "dispatcher", "manager")), db: DbSession = Depends(get_db, scope="function")):
     return _pol(db)
 
 
 @router.put("/settings/sla")
-def put_sla(body: SlaPut, request: Request, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db)):
+def put_sla(body: SlaPut, request: Request, ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db, scope="function")):
     now = clock.now()
     for it in body.items:
         if it.reaction_minutes >= it.resolution_minutes:
@@ -201,7 +201,7 @@ def put_sla(body: SlaPut, request: Request, ctx: Ctx = Depends(require("admin"))
 
 @router.get("/audit-log")
 def audit_log(request: Request, action: str | None = None, actor_user_id: str | None = None,
-              pg: Page = Depends(), ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db)):
+              pg: Page = Depends(), ctx: Ctx = Depends(require("admin")), db: DbSession = Depends(get_db, scope="function")):
     strict_params(request, {"action", "actor_user_id"})
     q = select(AuditLog)
     if action:
@@ -222,7 +222,7 @@ def live():
 
 
 @router.get("/health/ready")
-def ready(db: DbSession = Depends(get_db)):
+def ready(db: DbSession = Depends(get_db, scope="function")):
     checks = {}
     try:
         db.execute(text("SELECT 1"))

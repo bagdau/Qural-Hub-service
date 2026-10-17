@@ -101,7 +101,7 @@ export function DashboardPage() {
       {s && (
         <>
           <div className="kpis">
-            <Kpi i={0} icon="board" accent="#0d7a5f" label="Активные заявки" value={<CountUp value={s.active.count} />} sub="на текущий момент" visual={<PriorityStack by={s.active.by_priority} />}
+            <Kpi i={0} icon="board" accent="#5b46d6" label="Активные заявки" value={<CountUp value={s.active.count} />} sub="на текущий момент" visual={<PriorityStack by={s.active.by_priority} />}
               onClick={() => setDrill({ metric: 'active', title: 'Активные заявки' })} />
             <Kpi i={1} icon="alert" accent="#d92d20" label="Просроченные" value={<CountUp value={s.overdue.count} />} bad={s.overdue.count > 0} sub={`выполнение: ${s.overdue.resolution} · реакция: ${s.overdue.reaction}`}
               visual={<Gauge value={s.active.count ? (100 * s.overdue.count) / s.active.count : 0} color="#d92d20" label={`Доля просроченных среди активных: ${s.active.count ? Math.round((100 * s.overdue.count) / s.active.count) : 0}%`} />}
@@ -116,7 +116,7 @@ export function DashboardPage() {
             <Kpi i={5} icon="audit" accent={bad(s.repeat_failures.pct)} label="Повторные неисправности" value={<CountUp value={s.repeat_failures.pct} format={(v) => `${num(v)}%`} />} sub={`${s.repeat_failures.count} из ${s.repeat_failures.corrective_total} (окно ${s.repeat_failures.window_days} дн.)`}
               visual={<Gauge value={s.repeat_failures.pct} color={bad(s.repeat_failures.pct)} label={`Повторные неисправности: ${s.repeat_failures.pct ?? 'нет данных'}%`} />}
               onClick={() => setDrill({ metric: 'repeat', title: 'Повторные неисправности' })} />
-            <Kpi i={6} icon="dashboard" accent="#475467" label="Всего заявок за период" value={<CountUp value={s.tickets_total} />} />
+            <Kpi i={6} icon="dashboard" accent="#4535b5" label="Всего заявок за период" value={<CountUp value={s.tickets_total} />} />
             <Kpi i={7} icon="tasks" accent="#0d7a5f" label="Закрыто за период" value={<CountUp value={s.closed_in_period} />}
               visual={<Gauge value={s.tickets_total ? (100 * s.closed_in_period) / s.tickets_total : 0} color="#0d7a5f" label={`Закрыто ${s.closed_in_period} из ${s.tickets_total}`} />} />
           </div>
