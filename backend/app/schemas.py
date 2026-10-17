@@ -41,10 +41,20 @@ class UserCreate(In):
     role: Role
     organization_id: UUID
     capacity: int | None = Field(default=None, ge=1, le=20)
+    # необязательный пароль, который администратор назначает сам (иначе создаётся временный)
+    password: str | None = Field(default=None, max_length=128)
+    must_change_password: bool = False
+
     @field_validator("phone")
     @classmethod
     def _chk_phone(cls, v):
         return _phone(v)
+
+
+class SetPasswordIn(In):
+    version: int
+    password: str = Field(min_length=1, max_length=128)
+    must_change: bool = False
 
 
 class UserPatch(In):

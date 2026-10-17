@@ -6,6 +6,7 @@ import { Button, ConfirmModal, Empty, ErrorBox, Field, Modal, Pagination, Skelet
 import { DataTable } from '../components/DataTable'
 import { Avatar } from '../components/Avatar'
 import { IconButton } from '../components/IconButton'
+import { PasswordFields } from '../components/PasswordFields'
 import { PageHeader } from '../components/PageHeader'
 import { QueryBoundary } from '../components/QueryBoundary'
 import { GeoPicker, geoBody } from '../components/GeoPicker'
@@ -21,6 +22,7 @@ export function UsersPage() {
   const [q, setQ] = useState(''); const dq = useDebounced(q)
   const [role, setRole] = useState(''); const [page, setPage] = useState(1)
   const [edit, setEdit] = useState<any | 'new' | null>(null)
+  const [pwFor, setPwFor] = useState<any | null>(null)
   const [temp, setTemp] = useState<{ pw: string; email: string } | null>(null)
   const [confirm, setConfirm] = useState<{ u: any; kind: 'deactivate' | 'reset' | 'activate' } | null>(null)
   const users = useQuery({ queryKey: ['users', dq, role, page], queryFn: () => get('/users', { q: dq, role, page, page_size: 20 }) })
@@ -52,12 +54,14 @@ export function UsersPage() {
               ...(isAdmin ? [{ header: 'Действия', bare: true, cell: (u: any) => (
                 <div className="ibtns">
                   <IconButton icon="edit" label={`Изменить: ${u.full_name}`} onClick={() => setEdit(u)} />
+                  <IconButton icon="lock" label={`Задать пароль: ${u.full_name}`} onClick={() => setPwFor(u)} />
                   {u.is_active
                     ? <><IconButton icon="key" label={`Сбросить пароль: ${u.full_name}`} onClick={() => setConfirm({ u, kind: 'reset' })} /><IconButton icon="ban" tone="danger" label={`Деактивировать: ${u.full_name}`} onClick={() => setConfirm({ u, kind: 'deactivate' })} /></>
                     : <IconButton icon="check" label={`Активировать: ${u.full_name}`} onClick={() => setConfirm({ u, kind: 'activate' })} />}
                 </div>) }] : []),
             ]} />)}
       </QueryBoundary>
+      {pwFor && <SetPasswordModal user={pwFor} onClose={() => setPwFor(null)} onSaved={() => { setPwFor(null); qc.invalidateQueries({ queryKey: ['users'] }) }} />}
       {edit && <UserForm user={edit === 'new' ? null : edit} onClose={() => setEdit(null)} onSaved={(r) => { setEdit(null); qc.invalidateQueries({ queryKey: ['users'] }); if (r?.temp_password) setTemp({ pw: r.temp_password, email: r.user.email }) }} />}
       {confirm && <ConfirmModal title={confirm.kind === 'deactivate' ? 'Деактивировать пользователя?' : confirm.kind === 'reset' ? 'Сбросить пароль?' : 'Активировать пользователя?'}
         text={confirm.kind === 'deactivate' ? `${confirm.u.full_name} потеряет доступ, все его сессии будут завершены.` : confirm.kind === 'reset' ? `Будет создан новый временный пароль для ${confirm.u.full_name}, все его сессии завершатся.` : `Для ${confirm.u.full_name} будет создан временный пароль.`}
@@ -73,18 +77,44 @@ export function UsersPage() {
   )
 }
 
+/** Администратор задаёт конкретному пользователю свой пароль (каждому — разный) */
+function SetPasswordModal({ user, onClose, onSaved }: { user: any; onClose: () => void; onSaved: () => void }) {
+  const toast = useToast()
+  const [pw, setPw] = useState(''); const [must, setMust] = useState(false); const [err, setErr] = useState('')
+  const m = useMutation({
+    mutationFn: () => post(`/users/${user.id}/set-password`, { version: user.version, password: pw, must_change: must }),
+    onSuccess: () => { toast(`Пароль для ${user.full_name} назначен. Прежние сеансы завершены.`); onSaved() },
+    onError: (x) => setErr(x instanceof ApiError && x.status === 422 ? (x.fieldErrors().new_password ?? x.message) : errText(x)),
+  })
+  return (
+    <Modal title={`Задать пароль: ${user.full_name}`} onClose={onClose}>
+      <form className="stack" onSubmit={(e) => { e.preventDefault(); setErr(''); if (pw.length >= 12) m.mutate(); else setErr('Минимум 12 символов.') }}>
+        <div className="small muted">{user.email}</div>
+        <PasswordFields value={pw} onChange={setPw} mustChange={must} onMustChange={setMust} error={err || undefined} hint="Минимум 12 символов. Передайте пароль пользователю безопасным способом; он сразу заработает, прежние сеансы будут завершены." />
+        <div className="row" style={{ justifyContent: 'flex-end' }}><Button type="button" onClick={onClose}>Отмена</Button><Button variant="primary" type="submit" loading={m.isPending} disabled={!pw}>Назначить пароль</Button></div>
+      </form>
+    </Modal>
+  )
+}
+
 function UserForm({ user, onClose, onSaved }: { user: any | null; onClose: () => void; onSaved: (r?: any) => void }) {
   const toast = useToast(); const key = useRef(uuid())
   const orgs = useQuery({ queryKey: ['orgs-all'], queryFn: () => get('/organizations', { page_size: 100 }) })
   const [f, setF] = useState<any>(user ? { full_name: user.full_name, phone: user.phone ?? '', role: user.role, organization_id: user.organization.id, capacity: user.capacity ?? 4, email: user.email } : { email: '', full_name: '', phone: '', role: 'client', organization_id: '', capacity: 4 })
   const [errs, setErrs] = useState<Record<string, string>>({})
+  const [pw, setPw] = useState(''); const [must, setMust] = useState(false)
   const set = (k: string) => (e: any) => setF({ ...f, [k]: e.target.value })
   const m = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       const body: any = { full_name: f.full_name, phone: f.phone || null, role: f.role, organization_id: f.organization_id, capacity: f.role === 'engineer' ? Number(f.capacity) : undefined }
-      return user ? patch(`/users/${user.id}`, { ...body, version: user.version }) : post('/users', { ...body, email: f.email }, key.current)
+      if (user) {
+        const r = await patch(`/users/${user.id}`, { ...body, version: user.version })
+        if (pw) await post(`/users/${user.id}/set-password`, { version: r.version, password: pw, must_change: must })
+        return r
+      }
+      return post('/users', { ...body, email: f.email, ...(pw ? { password: pw, must_change_password: must } : {}) }, key.current)
     },
-    onSuccess: (r) => { toast('Сохранено.'); onSaved(user ? undefined : r) },
+    onSuccess: (r) => { toast(pw ? 'Сохранено, пароль назначен.' : 'Сохранено.'); onSaved(user ? undefined : r) },
     onError: (x) => { if (x instanceof ApiError && (x.status === 422 || x.status === 409)) setErrs({ ...x.fieldErrors(), ...(x.code === 'DUPLICATE' ? { email: x.message } : {}) }); toast(errText(x), true) },
   })
   const service = orgs.data?.items.find((o: any) => o.kind === 'service')
@@ -98,6 +128,8 @@ function UserForm({ user, onClose, onSaved }: { user: any | null; onClose: () =>
         <Field label="Роль" error={errs.role}><select value={f.role} onChange={(e) => setF({ ...f, role: e.target.value, organization_id: e.target.value === 'client' ? '' : service?.id ?? '' })}>{Object.entries(ROLE).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></Field>
         <Field label="Организация" error={errs.organization_id}><select value={f.organization_id} onChange={set('organization_id')} required><option value="">Выберите…</option>{list.map((o: any) => <option key={o.id} value={o.id}>{o.name}</option>)}</select></Field>
         {f.role === 'engineer' && <Field label="Максимум одновременных заявок" error={errs.capacity}><input type="number" min={1} max={20} value={f.capacity} onChange={set('capacity')} /></Field>}
+        <PasswordFields label={user ? 'Новый пароль' : 'Пароль'} value={pw} onChange={setPw} mustChange={must} onMustChange={setMust} error={errs.new_password}
+          hint={user ? 'Оставьте пустым, чтобы не менять. Прежние сеансы пользователя будут завершены.' : 'Оставьте пустым — система создаст временный пароль, который нужно будет сменить при первом входе.'} />
         <div className="row" style={{ justifyContent: 'flex-end' }}><Button type="button" onClick={onClose}>Отмена</Button><Button variant="primary" type="submit" loading={m.isPending}>{user ? 'Сохранить' : 'Создать'}</Button></div>
       </form>
     </Modal>

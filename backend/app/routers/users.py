@@ -7,9 +7,9 @@ from ..config import get_settings
 from ..db import get_db
 from ..errors import ApiError, conflict, field_error, not_found
 from ..models import Assignment, Organization, Ticket, User
-from ..schemas import UserCreate, UserPatch, VersionIn
+from ..schemas import SetPasswordIn, UserCreate, UserPatch, VersionIn
 from ..security import (EMAIL_RE, Ctx, audit, generate_temp_password, get_ctx, hash_password, require,
-                        revoke_user_sessions)
+                        revoke_user_sessions, validate_password)
 from ..serializers import page_of
 from .auth import user_out
 from .common import Page, apply_sort, paginate, strict_params, version_check
@@ -62,17 +62,22 @@ def create_user(body: UserCreate, request: Request, ctx: Ctx = Depends(require("
         if db.scalar(select(User.id).where(func.lower(User.email) == body.email.lower())):
             raise conflict("DUPLICATE", "Пользователь с таким email уже существует.")
         s, now = get_settings(), clock.now()
-        temp = generate_temp_password()
+        own = bool(body.password)
+        if own:
+            validate_password(body.password, body.email, body.full_name)
+        temp = body.password if own else generate_temp_password()
+        must = body.must_change_password if own else True
         u = User(organization_id=body.organization_id, email=body.email.lower(), full_name=body.full_name,
-                 phone=body.phone, role=body.role, password_hash=hash_password(temp), must_change_password=True,
-                 temp_password_expires_at=now + timedelta(hours=s.temp_password_ttl_hours), is_active=True,
+                 phone=body.phone, role=body.role, password_hash=hash_password(temp), must_change_password=must,
+                 temp_password_expires_at=(now + timedelta(hours=s.temp_password_ttl_hours)) if must else None, is_active=True,
                  capacity=body.capacity or 4, created_by=ctx.user.id, created_at=now, updated_at=now)
         db.add(u)
         db.flush()
         audit(db, "user_created", user=ctx.user, object_type="user", object_id=u.id, request=request,
-              details={"role": u.role, "email": u.email})
-        return 201, {"user": user_out(db, u), "temp_password": temp}
-    return idempotency.run(db, ctx, request, body.model_dump(mode="json"), go)
+              details={"role": u.role, "email": u.email, "password_set_by_admin": own})
+        return 201, ({"user": user_out(db, u)} if own else {"user": user_out(db, u), "temp_password": temp})
+    # пароль не попадает в отпечаток запроса и в сохранённый ответ
+    return idempotency.run(db, ctx, request, {**body.model_dump(mode="json"), "password": bool(body.password)}, go)
 
 
 @router.get("/users/{user_id}")
@@ -113,6 +118,25 @@ def patch_user(user_id: str, body: UserPatch, request: Request, ctx: Ctx = Depen
     audit(db, "user_updated", user=ctx.user, object_type="user", object_id=u.id, request=request,
           details={"fields": sorted(data.keys())})
     return user_out(db, u)
+
+
+@router.post("/users/{user_id}/set-password", status_code=204)
+def set_password(user_id: str, body: SetPasswordIn, request: Request, ctx: Ctx = Depends(require("admin")),
+                 db: DbSession = Depends(get_db, scope="function")):
+    """Администратор назначает пользователю конкретный пароль. Старые сеансы пользователя завершаются."""
+    u = _get(db, user_id, True)
+    version_check(u, body.version, "Пользователь")
+    validate_password(body.password, u.email, u.full_name)
+    now = clock.now()
+    u.password_hash = hash_password(body.password)
+    u.must_change_password = body.must_change
+    u.temp_password_expires_at = (now + timedelta(hours=get_settings().temp_password_ttl_hours)) if body.must_change else None
+    u.failed_login_count, u.locked_until = 0, None
+    u.version += 1
+    u.updated_at = now
+    revoke_user_sessions(db, u.id, "admin", except_id=ctx.session.id if u.id == ctx.user.id else None)
+    audit(db, "password_set", user=ctx.user, object_type="user", object_id=u.id, request=request,
+          details={"must_change": body.must_change})
 
 
 @router.post("/users/{user_id}/reset-password")
