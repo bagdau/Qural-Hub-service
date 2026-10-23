@@ -79,6 +79,17 @@ docker compose run --rm api python -m app.cli verify-storage                    
 docker compose --profile demo run --rm seed python -m app.cli seed-demo --force        # пересоздать demo (стирает ВСЕ данные БД)
 ```
 
+  <img src="https://github.com/user-attachments/assets/10819c50-1720-4890-8239-7b7d2aafe5e6" width="900" height="520" alt="Qural Hub Screenshot 1" />
+
+  <img src="https://github.com/user-attachments/assets/f297a727-877c-4024-a676-1bb9555bcf67" width="900" height="520" alt="Qural Hub Screenshot 2" />
+
+  <img src="https://github.com/user-attachments/assets/72cba90b-bb8c-4ab5-85e6-94cfd8123bf8" width="900" height="520" alt="Qural Hub Screenshot 3" />
+
+  <img src="https://github.com/user-attachments/assets/0ad75e9a-f5f5-42d3-9d23-7687a57668d8" width="900" height="520" alt="Qural Hub Screenshot 4" />
+
+  <img src="https://github.com/user-attachments/assets/edabef8b-0860-4752-986c-322180f04c27" width="900" height="520" alt="Qural Hub Screenshot 5" />
+# Qadam Media v1.0.0-rc.1
+
 ## Тесты
 
 ```bash
