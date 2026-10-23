@@ -28,8 +28,8 @@ describe('DataTable', () => {
 
 describe('titleFor', () => {
   it('подбирает заголовок вкладки по адресу, включая адреса с параметрами', () => {
-    expect(titleFor('/equipment')).toBe('Оборудование · Alageum Service Hub')
-    expect(titleFor('/equipment/8c1d0b3e-0000-4000-8000-000000000001/qr')).toBe('QR-код оборудования · Alageum Service Hub')
-    expect(titleFor('/нет-такой')).toBe('Alageum Service Hub')
+    expect(titleFor('/equipment')).toBe('Оборудование · Qural Hub')
+    expect(titleFor('/equipment/8c1d0b3e-0000-4000-8000-000000000001/qr')).toBe('QR-код оборудования · Qural Hub')
+    expect(titleFor('/нет-такой')).toBe('Qural Hub')
   })
 })

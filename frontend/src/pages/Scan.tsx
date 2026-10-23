@@ -27,7 +27,7 @@ export function ScanPage() {
   const handleRaw = (raw: string) => {
     const code = extractCode(raw)
     if (code) { setResult({ kind: 'ok', text: `QR распознан: ${code}. Открываем паспорт…` }); nav(`/e/${code}`); return }
-    setResult({ kind: 'warn', text: 'Это QR-код, но не оборудования Alageum Service Hub. Наведите камеру на этикетку оборудования.' })
+    setResult({ kind: 'warn', text: 'Это QR-код, но не оборудования Qural Hub. Наведите камеру на этикетку оборудования.' })
   }
   const sc = useQrScanner((raw) => handleRaw(raw))
 

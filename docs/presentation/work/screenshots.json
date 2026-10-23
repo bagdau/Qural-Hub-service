@@ -1,0 +1,78 @@
+{
+  "board": {
+    "url": "http://localhost:8100/board",
+    "title": "Заявки · Qural Hub"
+  },
+  "board-list": {
+    "url": "http://localhost:8100/board",
+    "title": "Заявки · Qural Hub"
+  },
+  "calendar": {
+    "url": "http://localhost:8100/board",
+    "title": "Заявки · Qural Hub"
+  },
+  "timeline": {
+    "url": "http://localhost:8100/board",
+    "title": "Заявки · Qural Hub"
+  },
+  "ticket": {
+    "url": "http://localhost:8100/tickets/a70c8e6a-d101-562f-9db9-4fc7d236b87e",
+    "title": "Заявка · Qural Hub"
+  },
+  "assign": {
+    "url": "http://localhost:8100/tickets/a70c8e6a-d101-562f-9db9-4fc7d236b87e",
+    "title": "Заявка · Qural Hub"
+  },
+  "create": {
+    "url": "http://localhost:8100/tickets/new",
+    "title": "Новая заявка · Qural Hub"
+  },
+  "drawer": {
+    "url": "http://localhost:8100/board?t=a70c8e6a-d101-562f-9db9-4fc7d236b87e",
+    "title": "Заявки · Qural Hub"
+  },
+  "journal": {
+    "url": "http://localhost:8100/board?t=a70c8e6a-d101-562f-9db9-4fc7d236b87e",
+    "title": "Заявки · Qural Hub"
+  },
+  "tasks": {
+    "url": "http://localhost:8100/my-tasks",
+    "title": "Мои задания · Qural Hub"
+  },
+  "report": {
+    "url": "http://localhost:8100/tickets/4f33652d-6b7e-5a0b-83aa-85fd32b79f46/report",
+    "title": "Отчёт о работах · Qural Hub"
+  },
+  "checklist": {
+    "url": "http://localhost:8100/board?t=4f33652d-6b7e-5a0b-83aa-85fd32b79f46",
+    "title": "Заявки · Qural Hub"
+  },
+  "used-parts": {
+    "url": "http://localhost:8100/board?t=4f33652d-6b7e-5a0b-83aa-85fd32b79f46",
+    "title": "Заявки · Qural Hub"
+  },
+  "mobile-tasks": {
+    "url": "http://localhost:8100/my-tasks",
+    "title": "Мои задания · Qural Hub"
+  },
+  "client-home": {
+    "url": "http://localhost:8100/",
+    "title": "Главная · Qural Hub"
+  },
+  "confirmation": {
+    "url": "http://localhost:8100/tickets/06d589c1-2296-53ed-b014-ecfa1275aed9",
+    "title": "Заявка · Qural Hub"
+  },
+  "act": {
+    "url": "http://localhost:8100/acts/4ef4675a-7965-4c7d-a870-d26546d55375",
+    "title": "Акт · Qural Hub"
+  },
+  "mobile-client": {
+    "url": "http://localhost:8100/board",
+    "title": "Заявки · Qural Hub"
+  },
+  "tablet-dashboard": {
+    "url": "http://localhost:8100/",
+    "title": "Главная · Qural Hub"
+  }
+}

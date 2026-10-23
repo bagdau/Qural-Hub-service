@@ -59,7 +59,7 @@ async def lifespan(app: FastAPI):
     wait_for_db()
     storage.ensure()
     realtime.hub.start()
-    log.info("Alageum Service Hub %s запущен (env=%s, clock=%s)", get_settings().app_version,
+    log.info("Qural Hub %s запущен (env=%s, clock=%s)", get_settings().app_version,
              get_settings().app_env, get_settings().app_clock_mode)
     yield
 
@@ -67,7 +67,7 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     s = get_settings()
     docs = s.enable_docs or s.app_env in ("dev", "test", "demo")
-    app = FastAPI(title="Alageum Service Hub API", version=s.app_version, lifespan=lifespan,
+    app = FastAPI(title="Qural Hub API", version=s.app_version, lifespan=lifespan,
                   openapi_url="/api/v1/openapi.json" if docs else None,
                   docs_url="/api/v1/docs" if docs else None, redoc_url=None)
     errors.install(app)

@@ -43,7 +43,7 @@ export function LoginPage() {
       <div className="login-shell">
         <aside className="login-art">
           <span className="streaks" aria-hidden />
-          <div className="art-brand"><Logo size={40} className="art-logo-img" /><b>Alageum Service Hub</b></div>
+          <div className="art-brand"><Logo size={40} className="art-logo-img" /><b>Qural Hub</b></div>
           <div className="art-copy">
             <h1 id="t">Добро<br /><b>пожаловать!</b></h1>
             <p>Учёт оборудования и сервисное обслуживание: заявки, QR-паспорта, карта аварий и вызовов — в одном окне.</p>

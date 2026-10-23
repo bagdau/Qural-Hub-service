@@ -16,17 +16,17 @@ import { PageLoader } from './components/PageLoader'
 type NavItem = { to: string; label: string; icon: string }
 const NAV: Record<string, NavItem[]> = {
   admin: [
-    { to: '/', label: 'Дашборд', icon: 'dashboard' }, { to: '/board', label: 'Заявки', icon: 'board' }, { to: '/equipment', label: 'Оборудование', icon: 'equipment' },
+    { to: '/', label: 'Панель управления', icon: 'dashboard' }, { to: '/board', label: 'Заявки', icon: 'board' }, { to: '/equipment', label: 'Оборудование', icon: 'equipment' },
     { to: '/maintenance', label: 'Плановые работы', icon: 'calendar' }, { to: '/admin/users', label: 'Пользователи', icon: 'users' },
     { to: '/admin/organizations', label: 'Организации', icon: 'building' }, { to: '/admin/spare-parts', label: 'Запчасти', icon: 'parts' },
     { to: '/admin/checklists', label: 'Чек-листы', icon: 'checklist' }, { to: '/admin/sla', label: 'Настройки SLA', icon: 'clock' }, { to: '/admin/audit', label: 'Журнал аудита', icon: 'audit' }, { to: '/scan', label: 'Сканер QR', icon: 'qr' }, { to: '/generator', label: 'Генератор QR', icon: 'print' }, { to: '/map', label: 'Карта', icon: 'pin' },
   ],
   dispatcher: [
-    { to: '/', label: 'Дашборд', icon: 'dashboard' }, { to: '/board', label: 'Заявки', icon: 'board' }, { to: '/equipment', label: 'Оборудование', icon: 'equipment' },
+    { to: '/', label: 'Панель управления', icon: 'dashboard' }, { to: '/board', label: 'Заявки', icon: 'board' }, { to: '/equipment', label: 'Оборудование', icon: 'equipment' },
     { to: '/maintenance', label: 'Плановые работы', icon: 'calendar' }, { to: '/admin/spare-parts', label: 'Запчасти', icon: 'parts' }, { to: '/scan', label: 'Сканер QR', icon: 'qr' }, { to: '/generator', label: 'Генератор QR', icon: 'print' }, { to: '/map', label: 'Карта', icon: 'pin' },
   ],
   manager: [
-    { to: '/', label: 'Дашборд', icon: 'dashboard' }, { to: '/board', label: 'Заявки', icon: 'board' }, { to: '/equipment', label: 'Оборудование', icon: 'equipment' },
+    { to: '/', label: 'Панель управления', icon: 'dashboard' }, { to: '/board', label: 'Заявки', icon: 'board' }, { to: '/equipment', label: 'Оборудование', icon: 'equipment' },
     { to: '/maintenance', label: 'Плановые работы', icon: 'calendar' }, { to: '/admin/users', label: 'Пользователи', icon: 'users' }, { to: '/map', label: 'Карта', icon: 'pin' },
   ],
   engineer: [
@@ -135,9 +135,9 @@ function Shell() {
       <header className="topbar">
         <button type="button" className="side-toggle" aria-label={(compact ? expanded : !rail) ? 'Свернуть меню' : 'Развернуть меню'} aria-expanded={compact ? expanded : !rail} aria-controls="side-nav"
           onClick={() => (compact ? setExpanded(!expanded) : setRail(!rail))}><Icon name={(compact ? expanded : !rail) ? 'panel-close' : 'panel-open'} size={22} /></button>
-        <a className="brand" href="/" aria-label="Alageum Service Hub — на главную">
+        <a className="brand" href="/" aria-label="Qural Hub — на главную">
           <Logo size={40} />
-          <span className="brand-text">Alageum Service Hub</span>
+          <span className="brand-text">Qural Hub</span>
         </a>
         <GlobalSearch />
         <div className="top-actions">
@@ -195,7 +195,6 @@ export function NotFound() {
 function Home() {
   const { me } = useAuth()
   if (me?.role === 'engineer') return <Navigate to="/my-tasks" replace />
-  if (me?.role === 'dispatcher') return <Navigate to="/board" replace />
   return <Page path="/" />
 }
 

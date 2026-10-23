@@ -1,0 +1,1895 @@
+{
+  "tickets": {
+    "items": [
+      {
+        "id": "a70c8e6a-d101-562f-9db9-4fc7d236b87e",
+        "number": "SR-2026-0016",
+        "status": "new",
+        "kind": "corrective",
+        "source": "web",
+        "priority": "normal",
+        "urgency": "planned",
+        "title": "Показания приборов РУ-10 кВ нестабильны",
+        "description": "Показания вольтметров на РУ-10 кВ скачут.",
+        "organization": {
+          "id": "6f1f2368-a3d4-56a4-9404-82ac89fad9b6",
+          "name": "ТОО «Демо Логистик»"
+        },
+        "site": {
+          "id": "8010ec6b-d2e1-517f-b781-ec1977fa7314",
+          "name": "Склад «Логистик-Центр»",
+          "address": "г. Шымкент, пр. Тестовый, 10",
+          "latitude": 42.3304,
+          "longitude": 69.6502
+        },
+        "equipment": {
+          "id": "82b01e7d-f085-5a08-ac24-e0a88be9932f",
+          "name": "РУ-10 кВ, 8 ячеек",
+          "inventory_number": "DL-RU-0003",
+          "type": "switchgear",
+          "model": "РУ-10",
+          "manufacturer": "Демо-Электро"
+        },
+        "created_by": {
+          "id": "3925fcae-1f03-569d-bac2-232d63b0a68c",
+          "full_name": "Клиент Демо-Логистик",
+          "role": "client"
+        },
+        "assigned_engineer": null,
+        "contact": {
+          "name": "Клиент Демо-Логистик",
+          "phone": "+7 700 000 00 03"
+        },
+        "scheduled_at": null,
+        "related_ticket_id": null,
+        "work_stage": null,
+        "pause": null,
+        "sla": {
+          "clock_running": true,
+          "due_at": "2026-03-19T09:30:00+00:00",
+          "is_overdue": false,
+          "overdue_kind": null,
+          "reaction_limit_seconds": 28800,
+          "resolution_limit_seconds": 259200,
+          "reaction_due_at": "2026-03-16T17:30:00+00:00",
+          "first_reacted_at": null,
+          "consumed_seconds": 1800,
+          "resolved_within_sla": null
+        },
+        "current_act": null,
+        "checklist": null,
+        "parts_count": 0,
+        "comments_count": 0,
+        "return_count": 0,
+        "plan_due_date": null,
+        "allowed_actions": [],
+        "version": 1,
+        "created_at": "2026-03-16T09:30:00+00:00",
+        "updated_at": "2026-03-16T09:30:00+00:00",
+        "archived_at": null,
+        "accepted_at": null,
+        "started_at": null,
+        "completed_at": null,
+        "closed_at": null
+      },
+      {
+        "id": "6a74ed2e-6c4c-5e3a-babf-888d2e10a156",
+        "number": "SR-2026-0017",
+        "status": "new",
+        "kind": "corrective",
+        "source": "web",
+        "priority": "critical",
+        "urgency": "emergency",
+        "title": "Отключение вводного шкафа КТП-160",
+        "description": "Вводной шкаф КТП-160 отключился, объект без питания.",
+        "organization": {
+          "id": "6f1f2368-a3d4-56a4-9404-82ac89fad9b6",
+          "name": "ТОО «Демо Логистик»"
+        },
+        "site": {
+          "id": "8010ec6b-d2e1-517f-b781-ec1977fa7314",
+          "name": "Склад «Логистик-Центр»",
+          "address": "г. Шымкент, пр. Тестовый, 10",
+          "latitude": 42.3304,
+          "longitude": 69.6502
+        },
+        "equipment": {
+          "id": "5bc0a32f-b8e0-5393-ae8a-71ff9ef0f6de",
+          "name": "КТП-160",
+          "inventory_number": "DL-KTP-0002",
+          "type": "substation",
+          "model": "КТП-160",
+          "manufacturer": "Демо-Электро"
+        },
+        "created_by": {
+          "id": "3925fcae-1f03-569d-bac2-232d63b0a68c",
+          "full_name": "Клиент Демо-Логистик",
+          "role": "client"
+        },
+        "assigned_engineer": null,
+        "contact": {
+          "name": "Клиент Демо-Логистик",
+          "phone": "+7 700 000 00 03"
+        },
+        "scheduled_at": null,
+        "related_ticket_id": null,
+        "work_stage": null,
+        "pause": null,
+        "sla": {
+          "clock_running": true,
+          "due_at": "2026-03-16T16:30:00+00:00",
+          "is_overdue": true,
+          "overdue_kind": "reaction",
+          "reaction_limit_seconds": 3600,
+          "resolution_limit_seconds": 28800,
+          "reaction_due_at": "2026-03-16T09:30:00+00:00",
+          "first_reacted_at": null,
+          "consumed_seconds": 5400,
+          "resolved_within_sla": null
+        },
+        "current_act": null,
+        "checklist": null,
+        "parts_count": 0,
+        "comments_count": 0,
+        "return_count": 0,
+        "plan_due_date": null,
+        "allowed_actions": [],
+        "version": 1,
+        "created_at": "2026-03-16T08:30:00+00:00",
+        "updated_at": "2026-03-16T08:30:00+00:00",
+        "archived_at": null,
+        "accepted_at": null,
+        "started_at": null,
+        "completed_at": null,
+        "closed_at": null
+      },
+      {
+        "id": "8e9223e6-fdae-5f31-9979-f2a70b46d93c",
+        "number": "SR-2026-0015",
+        "status": "accepted",
+        "kind": "corrective",
+        "source": "web",
+        "priority": "high",
+        "urgency": "urgent",
+        "title": "Запах гари у шкафа КТП",
+        "description": "Ощущается запах гари возле шкафа КТП.",
+        "organization": {
+          "id": "419f8499-3187-5d75-9ea4-80cac194f7a5",
+          "name": "ТОО «Демо Агро»"
+        },
+        "site": {
+          "id": "51b4c310-a8c3-5c3b-91aa-d8c86af3f010",
+          "name": "Ферма «Агро-1»",
+          "address": "Шымкент, пригород, участок 3",
+          "latitude": 42.4301,
+          "longitude": 69.7126
+        },
+        "equipment": {
+          "id": "a978cd4a-0e87-5e3d-9042-b0f3a8a1f03d",
+          "name": "КТП-250",
+          "inventory_number": "DA-KTP-0002",
+          "type": "substation",
+          "model": "КТП-250",
+          "manufacturer": "Демо-Электро"
+        },
+        "created_by": {
+          "id": "bed042cc-8885-5b28-b8cd-917919e8b024",
+          "full_name": "Клиент Демо-Агро",
+          "role": "client"
+        },
+        "assigned_engineer": null,
+        "contact": {
+          "name": "Клиент Демо-Агро",
+          "phone": "+7 700 000 00 02"
+        },
+        "scheduled_at": null,
+        "related_ticket_id": null,
+        "work_stage": null,
+        "pause": null,
+        "sla": {
+          "clock_running": true,
+          "due_at": "2026-03-17T08:00:00+00:00",
+          "is_overdue": false,
+          "overdue_kind": null,
+          "reaction_limit_seconds": 14400,
+          "resolution_limit_seconds": 86400,
+          "reaction_due_at": "2026-03-16T12:00:00+00:00",
+          "first_reacted_at": "2026-03-16T08:40:00+00:00",
+          "consumed_seconds": 7200,
+          "resolved_within_sla": null
+        },
+        "current_act": null,
+        "checklist": null,
+        "parts_count": 0,
+        "comments_count": 0,
+        "return_count": 0,
+        "plan_due_date": null,
+        "allowed_actions": [],
+        "version": 2,
+        "created_at": "2026-03-16T08:00:00+00:00",
+        "updated_at": "2026-03-16T08:40:00+00:00",
+        "archived_at": null,
+        "accepted_at": "2026-03-16T08:40:00+00:00",
+        "started_at": null,
+        "completed_at": null,
+        "closed_at": null
+      },
+      {
+        "id": "53fe0975-b678-5c96-b9b5-4c0f01d3751a",
+        "number": "SR-2026-0013",
+        "status": "assigned",
+        "kind": "corrective",
+        "source": "web",
+        "priority": "normal",
+        "urgency": "planned",
+        "title": "Повышенный шум в КТП",
+        "description": "При работе слышен периодический гул, температура корпуса выше обычной.",
+        "organization": {
+          "id": "3e9e32a4-e597-5388-97d5-5d9fbd3ff2fd",
+          "name": "ТОО «Демо Металл»"
+        },
+        "site": {
+          "id": "581fe2e4-0ffb-5ef1-bc40-ecd51a393ede",
+          "name": "Площадка «Металл-Север»",
+          "address": "г. Шымкент, ул. Условная, 1",
+          "latitude": 42.3652,
+          "longitude": 69.5583
+        },
+        "equipment": {
+          "id": "8984285e-e04e-50c5-a430-042694d604cf",
+          "name": "КТП-2 400 кВА",
+          "inventory_number": "DM-KTP-0002",
+          "type": "substation",
+          "model": "КТП-2",
+          "manufacturer": "Демо-Электро"
+        },
+        "created_by": {
+          "id": "229bfb99-e3c2-551f-9437-389a26a7a848",
+          "full_name": "Клиент Демо-Металл",
+          "role": "client"
+        },
+        "assigned_engineer": {
+          "id": "19b2c0c2-5dc3-5752-94d8-4a3a9b2f6889",
+          "full_name": "Инженер Демо-2",
+          "role": "engineer"
+        },
+        "contact": {
+          "name": "Клиент Демо-Металл",
+          "phone": "+7 700 000 00 01"
+        },
+        "scheduled_at": null,
+        "related_ticket_id": null,
+        "work_stage": null,
+        "pause": null,
+        "sla": {
+          "clock_running": true,
+          "due_at": "2026-03-19T05:00:00+00:00",
+          "is_overdue": false,
+          "overdue_kind": null,
+          "reaction_limit_seconds": 28800,
+          "resolution_limit_seconds": 259200,
+          "reaction_due_at": "2026-03-16T13:00:00+00:00",
+          "first_reacted_at": "2026-03-16T05:30:00+00:00",
+          "consumed_seconds": 18000,
+          "resolved_within_sla": null
+        },
+        "current_act": null,
+        "checklist": null,
+        "parts_count": 0,
+        "comments_count": 0,
+        "return_count": 0,
+        "plan_due_date": null,
+        "allowed_actions": [],
+        "version": 4,
+        "created_at": "2026-03-16T05:00:00+00:00",
+        "updated_at": "2026-03-16T06:00:00+00:00",
+        "archived_at": null,
+        "accepted_at": "2026-03-16T05:30:00+00:00",
+        "started_at": null,
+        "completed_at": null,
+        "closed_at": null
+      },
+      {
+        "id": "b412f6ea-ff01-5f23-869c-5d2acbd77cd4",
+        "number": "SR-2026-0008",
+        "status": "in_progress",
+        "kind": "corrective",
+        "source": "web",
+        "priority": "critical",
+        "urgency": "emergency",
+        "title": "Отказ вводного автомата РУ-0,4 кВ",
+        "description": "Вводной автомат не включается, элеватор без питания.",
+        "organization": {
+          "id": "419f8499-3187-5d75-9ea4-80cac194f7a5",
+          "name": "ТОО «Демо Агро»"
+        },
+        "site": {
+          "id": "480bdd75-13ce-5c19-8ef0-e1980d9c6abb",
+          "name": "Элеватор «Агро-2»",
+          "address": "Шымкент, пригород, участок 7",
+          "latitude": 42.2397,
+          "longitude": 69.5208
+        },
+        "equipment": {
+          "id": "ce3bb7d8-f917-52a1-ac53-988c71f614ab",
+          "name": "РУ-0,4 кВ элеватора",
+          "inventory_number": "DA-RU-0003",
+          "type": "switchgear",
+          "model": "РУ-0,4",
+          "manufacturer": "Демо-Электро"
+        },
+        "created_by": {
+          "id": "bed042cc-8885-5b28-b8cd-917919e8b024",
+          "full_name": "Клиент Демо-Агро",
+          "role": "client"
+        },
+        "assigned_engineer": {
+          "id": "19b2c0c2-5dc3-5752-94d8-4a3a9b2f6889",
+          "full_name": "Инженер Демо-2",
+          "role": "engineer"
+        },
+        "contact": {
+          "name": "Клиент Демо-Агро",
+          "phone": "+7 700 000 00 02"
+        },
+        "scheduled_at": null,
+        "related_ticket_id": null,
+        "work_stage": "repair",
+        "pause": null,
+        "sla": {
+          "clock_running": true,
+          "due_at": "2026-03-16T08:30:00+00:00",
+          "is_overdue": true,
+          "overdue_kind": "resolution",
+          "reaction_limit_seconds": 3600,
+          "resolution_limit_seconds": 28800,
+          "reaction_due_at": "2026-03-16T01:30:00+00:00",
+          "first_reacted_at": "2026-03-16T00:40:00+00:00",
+          "consumed_seconds": 34200,
+          "resolved_within_sla": null
+        },
+        "current_act": null,
+        "checklist": {
+          "done": 0,
+          "total": 7
+        },
+        "parts_count": 0,
+        "comments_count": 1,
+        "return_count": 0,
+        "plan_due_date": null,
+        "allowed_actions": [],
+        "version": 4,
+        "created_at": "2026-03-16T00:30:00+00:00",
+        "updated_at": "2026-03-16T01:30:00+00:00",
+        "archived_at": null,
+        "accepted_at": "2026-03-16T00:40:00+00:00",
+        "started_at": "2026-03-16T01:30:00+00:00",
+        "completed_at": null,
+        "closed_at": null
+      },
+      {
+        "id": "4f33652d-6b7e-5a0b-83aa-85fd32b79f46",
+        "number": "SR-2026-0009",
+        "status": "in_progress",
+        "kind": "corrective",
+        "source": "web",
+        "priority": "high",
+        "urgency": "urgent",
+        "title": "Искрение на шинах КТП",
+        "description": "На шинах КТП заметно искрение при нагрузке.",
+        "organization": {
+          "id": "6f1f2368-a3d4-56a4-9404-82ac89fad9b6",
+          "name": "ТОО «Демо Логистик»"
+        },
+        "site": {
+          "id": "8010ec6b-d2e1-517f-b781-ec1977fa7314",
+          "name": "Склад «Логистик-Центр»",
+          "address": "г. Шымкент, пр. Тестовый, 10",
+          "latitude": 42.3304,
+          "longitude": 69.6502
+        },
+        "equipment": {
+          "id": "5bc0a32f-b8e0-5393-ae8a-71ff9ef0f6de",
+          "name": "КТП-160",
+          "inventory_number": "DL-KTP-0002",
+          "type": "substation",
+          "model": "КТП-160",
+          "manufacturer": "Демо-Электро"
+        },
+        "created_by": {
+          "id": "3925fcae-1f03-569d-bac2-232d63b0a68c",
+          "full_name": "Клиент Демо-Логистик",
+          "role": "client"
+        },
+        "assigned_engineer": {
+          "id": "96db1ca2-d41e-502d-b20c-2d0283e8f499",
+          "full_name": "Инженер Демо-1",
+          "role": "engineer"
+        },
+        "contact": {
+          "name": "Клиент Демо-Логистик",
+          "phone": "+7 700 000 00 03"
+        },
+        "scheduled_at": null,
+        "related_ticket_id": null,
+        "work_stage": "repair",
+        "pause": null,
+        "sla": {
+          "clock_running": true,
+          "due_at": "2026-03-16T22:00:00+00:00",
+          "is_overdue": false,
+          "overdue_kind": null,
+          "reaction_limit_seconds": 14400,
+          "resolution_limit_seconds": 86400,
+          "reaction_due_at": "2026-03-16T02:00:00+00:00",
+          "first_reacted_at": "2026-03-15T22:30:00+00:00",
+          "consumed_seconds": 43200,
+          "resolved_within_sla": null
+        },
+        "current_act": null,
+        "checklist": {
+          "done": 0,
+          "total": 7
+        },
+        "parts_count": 0,
+        "comments_count": 0,
+        "return_count": 0,
+        "plan_due_date": null,
+        "allowed_actions": [],
+        "version": 4,
+        "created_at": "2026-03-15T22:00:00+00:00",
+        "updated_at": "2026-03-16T06:00:00+00:00",
+        "archived_at": null,
+        "accepted_at": "2026-03-15T22:30:00+00:00",
+        "started_at": "2026-03-16T06:00:00+00:00",
+        "completed_at": null,
+        "closed_at": null
+      },
+      {
+        "id": "06d589c1-2296-53ed-b014-ecfa1275aed9",
+        "number": "SR-2026-0006",
+        "status": "awaiting_confirmation",
+        "kind": "corrective",
+        "source": "web",
+        "priority": "high",
+        "urgency": "urgent",
+        "title": "Нагрев вводов трансформатора",
+        "description": "Вводы горячие на ощупь, температура выше обычной.",
+        "organization": {
+          "id": "3e9e32a4-e597-5388-97d5-5d9fbd3ff2fd",
+          "name": "ТОО «Демо Металл»"
+        },
+        "site": {
+          "id": "e63a3130-d8fb-5423-ae98-0c7985134f95",
+          "name": "Площадка «Металл-Юг»",
+          "address": "г. Шымкент, ул. Условная, 25",
+          "latitude": 42.3048,
+          "longitude": 69.6104
+        },
+        "equipment": {
+          "id": "1d635fc6-00ab-5ce2-9591-63093b4ca384",
+          "name": "Трансформатор ТМ-630/10",
+          "inventory_number": "DM-TR-0004",
+          "type": "transformer",
+          "model": "ТМ-630/10",
+          "manufacturer": "Демо-Электро"
+        },
+        "created_by": {
+          "id": "229bfb99-e3c2-551f-9437-389a26a7a848",
+          "full_name": "Клиент Демо-Металл",
+          "role": "client"
+        },
+        "assigned_engineer": {
+          "id": "19b2c0c2-5dc3-5752-94d8-4a3a9b2f6889",
+          "full_name": "Инженер Демо-2",
+          "role": "engineer"
+        },
+        "contact": {
+          "name": "Клиент Демо-Металл",
+          "phone": "+7 700 000 00 01"
+        },
+        "scheduled_at": null,
+        "related_ticket_id": null,
+        "work_stage": null,
+        "pause": null,
+        "sla": {
+          "clock_running": false,
+          "due_at": null,
+          "is_overdue": false,
+          "overdue_kind": null,
+          "reaction_limit_seconds": 14400,
+          "resolution_limit_seconds": 86400,
+          "reaction_due_at": "2026-03-15T08:00:00+00:00",
+          "first_reacted_at": "2026-03-15T04:30:00+00:00",
+          "consumed_seconds": 82800,
+          "resolved_within_sla": true
+        },
+        "current_act": {
+          "id": "4ef4675a-7965-4c7d-a870-d26546d55375",
+          "version": 1,
+          "number": "SR-2026-0006-A1",
+          "is_current": true,
+          "generated_at": "2026-03-16T03:00:00+00:00",
+          "decision": null
+        },
+        "checklist": {
+          "done": 7,
+          "total": 7
+        },
+        "parts_count": 1,
+        "comments_count": 1,
+        "return_count": 0,
+        "plan_due_date": null,
+        "allowed_actions": [],
+        "version": 5,
+        "created_at": "2026-03-15T04:00:00+00:00",
+        "updated_at": "2026-03-16T03:00:00+00:00",
+        "archived_at": null,
+        "accepted_at": "2026-03-15T04:30:00+00:00",
+        "started_at": "2026-03-15T05:00:00+00:00",
+        "completed_at": "2026-03-16T03:00:00+00:00",
+        "closed_at": null
+      },
+      {
+        "id": "710fd4af-cfa7-5f01-b52a-18b97c555928",
+        "number": "SR-2026-0010",
+        "status": "in_progress",
+        "kind": "corrective",
+        "source": "web",
+        "priority": "normal",
+        "urgency": "planned",
+        "title": "Не включается секционный выключатель РУ-10 кВ",
+        "description": "Секционный выключатель не включается дистанционно.",
+        "organization": {
+          "id": "6f1f2368-a3d4-56a4-9404-82ac89fad9b6",
+          "name": "ТОО «Демо Логистик»"
+        },
+        "site": {
+          "id": "8010ec6b-d2e1-517f-b781-ec1977fa7314",
+          "name": "Склад «Логистик-Центр»",
+          "address": "г. Шымкент, пр. Тестовый, 10",
+          "latitude": 42.3304,
+          "longitude": 69.6502
+        },
+        "equipment": {
+          "id": "82b01e7d-f085-5a08-ac24-e0a88be9932f",
+          "name": "РУ-10 кВ, 8 ячеек",
+          "inventory_number": "DL-RU-0003",
+          "type": "switchgear",
+          "model": "РУ-10",
+          "manufacturer": "Демо-Электро"
+        },
+        "created_by": {
+          "id": "3925fcae-1f03-569d-bac2-232d63b0a68c",
+          "full_name": "Клиент Демо-Логистик",
+          "role": "client"
+        },
+        "assigned_engineer": {
+          "id": "19b2c0c2-5dc3-5752-94d8-4a3a9b2f6889",
+          "full_name": "Инженер Демо-2",
+          "role": "engineer"
+        },
+        "contact": {
+          "name": "Клиент Демо-Логистик",
+          "phone": "+7 700 000 00 03"
+        },
+        "scheduled_at": null,
+        "related_ticket_id": null,
+        "work_stage": "repair",
+        "pause": null,
+        "sla": {
+          "clock_running": true,
+          "due_at": "2026-03-17T09:00:00+00:00",
+          "is_overdue": false,
+          "overdue_kind": null,
+          "reaction_limit_seconds": 28800,
+          "resolution_limit_seconds": 259200,
+          "reaction_due_at": "2026-03-14T17:00:00+00:00",
+          "first_reacted_at": "2026-03-14T09:30:00+00:00",
+          "consumed_seconds": 176400,
+          "resolved_within_sla": null
+        },
+        "current_act": null,
+        "checklist": {
+          "done": 0,
+          "total": 7
+        },
+        "parts_count": 0,
+        "comments_count": 1,
+        "return_count": 0,
+        "plan_due_date": null,
+        "allowed_actions": [],
+        "version": 4,
+        "created_at": "2026-03-14T09:00:00+00:00",
+        "updated_at": "2026-03-14T12:00:00+00:00",
+        "archived_at": null,
+        "accepted_at": "2026-03-14T09:30:00+00:00",
+        "started_at": "2026-03-14T12:00:00+00:00",
+        "completed_at": null,
+        "closed_at": null
+      },
+      {
+        "id": "798773cc-8a18-519a-9f2f-5b4650573b45",
+        "number": "SR-2026-0014",
+        "status": "assigned",
+        "kind": "planned",
+        "source": "scheduler",
+        "priority": "low",
+        "urgency": "planned",
+        "title": "Плановый профилактический осмотр трансформатора",
+        "description": "Плановые работы по графику: профилактический осмотр.",
+        "organization": {
+          "id": "3e9e32a4-e597-5388-97d5-5d9fbd3ff2fd",
+          "name": "ТОО «Демо Металл»"
+        },
+        "site": {
+          "id": "e63a3130-d8fb-5423-ae98-0c7985134f95",
+          "name": "Площадка «Металл-Юг»",
+          "address": "г. Шымкент, ул. Условная, 25",
+          "latitude": 42.3048,
+          "longitude": 69.6104
+        },
+        "equipment": {
+          "id": "1d635fc6-00ab-5ce2-9591-63093b4ca384",
+          "name": "Трансформатор ТМ-630/10",
+          "inventory_number": "DM-TR-0004",
+          "type": "transformer",
+          "model": "ТМ-630/10",
+          "manufacturer": "Демо-Электро"
+        },
+        "created_by": null,
+        "assigned_engineer": {
+          "id": "96db1ca2-d41e-502d-b20c-2d0283e8f499",
+          "full_name": "Инженер Демо-1",
+          "role": "engineer"
+        },
+        "contact": {
+          "name": null,
+          "phone": null
+        },
+        "scheduled_at": "2026-03-20T04:00:00+00:00",
+        "related_ticket_id": null,
+        "work_stage": null,
+        "pause": null,
+        "sla": {
+          "clock_running": true,
+          "due_at": "2026-03-21T05:00:00+00:00",
+          "is_overdue": false,
+          "overdue_kind": null,
+          "reaction_limit_seconds": 86400,
+          "resolution_limit_seconds": 604800,
+          "reaction_due_at": "2026-03-15T05:00:00+00:00",
+          "first_reacted_at": "2026-03-14T07:00:00+00:00",
+          "consumed_seconds": 190800,
+          "resolved_within_sla": null
+        },
+        "current_act": null,
+        "checklist": null,
+        "parts_count": 0,
+        "comments_count": 0,
+        "return_count": 0,
+        "plan_due_date": "2026-03-21",
+        "allowed_actions": [],
+        "version": 3,
+        "created_at": "2026-03-14T05:00:00+00:00",
+        "updated_at": "2026-03-14T07:10:00+00:00",
+        "archived_at": null,
+        "accepted_at": "2026-03-14T07:00:00+00:00",
+        "started_at": null,
+        "completed_at": null,
+        "closed_at": null
+      },
+      {
+        "id": "6a2519fa-8fc9-5345-b739-f82c2960b487",
+        "number": "SR-2026-0012",
+        "status": "paused",
+        "kind": "corrective",
+        "source": "web",
+        "priority": "high",
+        "urgency": "urgent",
+        "title": "Перегорание предохранителей ПКТ-10",
+        "description": "Перегорают предохранители ПКТ-10 на вводе.",
+        "organization": {
+          "id": "6f1f2368-a3d4-56a4-9404-82ac89fad9b6",
+          "name": "ТОО «Демо Логистик»"
+        },
+        "site": {
+          "id": "8010ec6b-d2e1-517f-b781-ec1977fa7314",
+          "name": "Склад «Логистик-Центр»",
+          "address": "г. Шымкент, пр. Тестовый, 10",
+          "latitude": 42.3304,
+          "longitude": 69.6502
+        },
+        "equipment": {
+          "id": "bdf37a84-58fd-5264-9410-62a60e8eaf0f",
+          "name": "Трансформатор ТМ-250/10",
+          "inventory_number": "DL-TR-0001",
+          "type": "transformer",
+          "model": "ТМ-250/10",
+          "manufacturer": "Демо-Электро"
+        },
+        "created_by": {
+          "id": "3925fcae-1f03-569d-bac2-232d63b0a68c",
+          "full_name": "Клиент Демо-Логистик",
+          "role": "client"
+        },
+        "assigned_engineer": {
+          "id": "96db1ca2-d41e-502d-b20c-2d0283e8f499",
+          "full_name": "Инженер Демо-1",
+          "role": "engineer"
+        },
+        "contact": {
+          "name": "Клиент Демо-Логистик",
+          "phone": "+7 700 000 00 03"
+        },
+        "scheduled_at": null,
+        "related_ticket_id": null,
+        "work_stage": null,
+        "pause": {
+          "reason_code": "waiting_parts",
+          "comment": "Ожидание поставки предохранителей ПКТ-10.",
+          "next_action": "Заказать запчасть и подтвердить срок поставки.",
+          "expected_resume_at": "2026-03-19T04:00:00+00:00"
+        },
+        "sla": {
+          "clock_running": false,
+          "due_at": null,
+          "is_overdue": false,
+          "overdue_kind": null,
+          "reaction_limit_seconds": 14400,
+          "resolution_limit_seconds": 86400,
+          "reaction_due_at": "2026-03-14T07:00:00+00:00",
+          "first_reacted_at": "2026-03-14T03:30:00+00:00",
+          "consumed_seconds": 46800,
+          "resolved_within_sla": null
+        },
+        "current_act": null,
+        "checklist": {
+          "done": 0,
+          "total": 7
+        },
+        "parts_count": 0,
+        "comments_count": 1,
+        "return_count": 0,
+        "plan_due_date": null,
+        "allowed_actions": [],
+        "version": 5,
+        "created_at": "2026-03-14T03:00:00+00:00",
+        "updated_at": "2026-03-14T16:00:00+00:00",
+        "archived_at": null,
+        "accepted_at": "2026-03-14T03:30:00+00:00",
+        "started_at": "2026-03-14T04:00:00+00:00",
+        "completed_at": null,
+        "closed_at": null
+      },
+      {
+        "id": "1595994d-e518-530e-8461-a64687f78582",
+        "number": "SR-2026-0018",
+        "status": "rejected",
+        "kind": "corrective",
+        "source": "web",
+        "priority": "normal",
+        "urgency": "planned",
+        "title": "Срабатывание защиты КТП (повторное обращение)",
+        "description": "Защита КТП срабатывает при пуске двигателей.",
+        "organization": {
+          "id": "419f8499-3187-5d75-9ea4-80cac194f7a5",
+          "name": "ТОО «Демо Агро»"
+        },
+        "site": {
+          "id": "51b4c310-a8c3-5c3b-91aa-d8c86af3f010",
+          "name": "Ферма «Агро-1»",
+          "address": "Шымкент, пригород, участок 3",
+          "latitude": 42.4301,
+          "longitude": 69.7126
+        },
+        "equipment": {
+          "id": "a978cd4a-0e87-5e3d-9042-b0f3a8a1f03d",
+          "name": "КТП-250",
+          "inventory_number": "DA-KTP-0002",
+          "type": "substation",
+          "model": "КТП-250",
+          "manufacturer": "Демо-Электро"
+        },
+        "created_by": {
+          "id": "bed042cc-8885-5b28-b8cd-917919e8b024",
+          "full_name": "Клиент Демо-Агро",
+          "role": "client"
+        },
+        "assigned_engineer": null,
+        "contact": {
+          "name": "Клиент Демо-Агро",
+          "phone": "+7 700 000 00 02"
+        },
+        "scheduled_at": null,
+        "related_ticket_id": null,
+        "work_stage": null,
+        "pause": null,
+        "sla": {
+          "clock_running": false,
+          "due_at": null,
+          "is_overdue": false,
+          "overdue_kind": null,
+          "reaction_limit_seconds": 28800,
+          "resolution_limit_seconds": 259200,
+          "reaction_due_at": "2026-03-12T14:20:00+00:00",
+          "first_reacted_at": "2026-03-12T06:50:00+00:00",
+          "consumed_seconds": 1800,
+          "resolved_within_sla": null
+        },
+        "current_act": null,
+        "checklist": null,
+        "parts_count": 0,
+        "comments_count": 0,
+        "return_count": 0,
+        "plan_due_date": null,
+        "allowed_actions": [],
+        "version": 2,
+        "created_at": "2026-03-12T06:20:00+00:00",
+        "updated_at": "2026-03-12T06:50:00+00:00",
+        "archived_at": null,
+        "accepted_at": null,
+        "started_at": null,
+        "completed_at": null,
+        "closed_at": null
+      },
+      {
+        "id": "cb71f88e-7c01-5c35-9173-19610b90d206",
+        "number": "SR-2026-0007",
+        "status": "awaiting_confirmation",
+        "kind": "corrective",
+        "source": "web",
+        "priority": "normal",
+        "urgency": "planned",
+        "title": "Срабатывание защиты КТП",
+        "description": "Защита КТП срабатывает при пуске двигателей.",
+        "organization": {
+          "id": "419f8499-3187-5d75-9ea4-80cac194f7a5",
+          "name": "ТОО «Демо Агро»"
+        },
+        "site": {
+          "id": "51b4c310-a8c3-5c3b-91aa-d8c86af3f010",
+          "name": "Ферма «Агро-1»",
+          "address": "Шымкент, пригород, участок 3",
+          "latitude": 42.4301,
+          "longitude": 69.7126
+        },
+        "equipment": {
+          "id": "a978cd4a-0e87-5e3d-9042-b0f3a8a1f03d",
+          "name": "КТП-250",
+          "inventory_number": "DA-KTP-0002",
+          "type": "substation",
+          "model": "КТП-250",
+          "manufacturer": "Демо-Электро"
+        },
+        "created_by": {
+          "id": "bed042cc-8885-5b28-b8cd-917919e8b024",
+          "full_name": "Клиент Демо-Агро",
+          "role": "client"
+        },
+        "assigned_engineer": {
+          "id": "96db1ca2-d41e-502d-b20c-2d0283e8f499",
+          "full_name": "Инженер Демо-1",
+          "role": "engineer"
+        },
+        "contact": {
+          "name": "Клиент Демо-Агро",
+          "phone": "+7 700 000 00 02"
+        },
+        "scheduled_at": null,
+        "related_ticket_id": null,
+        "work_stage": null,
+        "pause": null,
+        "sla": {
+          "clock_running": false,
+          "due_at": null,
+          "is_overdue": false,
+          "overdue_kind": null,
+          "reaction_limit_seconds": 28800,
+          "resolution_limit_seconds": 259200,
+          "reaction_due_at": "2026-03-12T14:00:00+00:00",
+          "first_reacted_at": "2026-03-12T06:15:00+00:00",
+          "consumed_seconds": 180000,
+          "resolved_within_sla": true
+        },
+        "current_act": {
+          "id": "0ed3f3da-5f2e-4069-978c-14d85c0d033f",
+          "version": 1,
+          "number": "SR-2026-0007-A1",
+          "is_current": true,
+          "generated_at": "2026-03-14T08:00:00+00:00",
+          "decision": null
+        },
+        "checklist": {
+          "done": 7,
+          "total": 7
+        },
+        "parts_count": 1,
+        "comments_count": 0,
+        "return_count": 0,
+        "plan_due_date": null,
+        "allowed_actions": [],
+        "version": 5,
+        "created_at": "2026-03-12T06:00:00+00:00",
+        "updated_at": "2026-03-14T08:00:00+00:00",
+        "archived_at": null,
+        "accepted_at": "2026-03-12T06:15:00+00:00",
+        "started_at": "2026-03-12T08:00:00+00:00",
+        "completed_at": "2026-03-14T08:00:00+00:00",
+        "closed_at": null
+      },
+      {
+        "id": "c6fc163e-5cf3-5b95-9e77-0b5fbba8a2aa",
+        "number": "SR-2026-0011",
+        "status": "paused",
+        "kind": "corrective",
+        "source": "web",
+        "priority": "normal",
+        "urgency": "planned",
+        "title": "Повторная течь масла",
+        "description": "Течь масла возобновилась после предыдущего ремонта.",
+        "organization": {
+          "id": "3e9e32a4-e597-5388-97d5-5d9fbd3ff2fd",
+          "name": "ТОО «Демо Металл»"
+        },
+        "site": {
+          "id": "581fe2e4-0ffb-5ef1-bc40-ecd51a393ede",
+          "name": "Площадка «Металл-Север»",
+          "address": "г. Шымкент, ул. Условная, 1",
+          "latitude": 42.3652,
+          "longitude": 69.5583
+        },
+        "equipment": {
+          "id": "fa01802c-3a08-5d50-add3-ce6ff93d7efc",
+          "name": "Трансформатор ТМ-1000/10",
+          "inventory_number": "DM-TR-0001",
+          "type": "transformer",
+          "model": "ТМ-1000/10",
+          "manufacturer": "Демо-Электро"
+        },
+        "created_by": {
+          "id": "229bfb99-e3c2-551f-9437-389a26a7a848",
+          "full_name": "Клиент Демо-Металл",
+          "role": "client"
+        },
+        "assigned_engineer": {
+          "id": "19b2c0c2-5dc3-5752-94d8-4a3a9b2f6889",
+          "full_name": "Инженер Демо-2",
+          "role": "engineer"
+        },
+        "contact": {
+          "name": "Клиент Демо-Металл",
+          "phone": "+7 700 000 00 01"
+        },
+        "scheduled_at": null,
+        "related_ticket_id": null,
+        "work_stage": null,
+        "pause": {
+          "reason_code": "waiting_client",
+          "comment": "Требуется окно отключения линии клиентом.",
+          "next_action": "Согласовать окно отключения с клиентом.",
+          "expected_resume_at": "2026-03-18T06:00:00+00:00"
+        },
+        "sla": {
+          "clock_running": false,
+          "due_at": null,
+          "is_overdue": false,
+          "overdue_kind": null,
+          "reaction_limit_seconds": 28800,
+          "resolution_limit_seconds": 259200,
+          "reaction_due_at": "2026-03-10T16:00:00+00:00",
+          "first_reacted_at": "2026-03-10T08:20:00+00:00",
+          "consumed_seconds": 90000,
+          "resolved_within_sla": null
+        },
+        "current_act": null,
+        "checklist": {
+          "done": 0,
+          "total": 7
+        },
+        "parts_count": 0,
+        "comments_count": 0,
+        "return_count": 0,
+        "plan_due_date": null,
+        "allowed_actions": [],
+        "version": 5,
+        "created_at": "2026-03-10T08:00:00+00:00",
+        "updated_at": "2026-03-11T09:00:00+00:00",
+        "archived_at": null,
+        "accepted_at": "2026-03-10T08:20:00+00:00",
+        "started_at": "2026-03-10T09:00:00+00:00",
+        "completed_at": null,
+        "closed_at": null
+      },
+      {
+        "id": "012064ff-c2b4-5ed4-a2a0-24a9e2ea5728",
+        "number": "SR-2026-0005",
+        "status": "closed",
+        "kind": "planned",
+        "source": "scheduler",
+        "priority": "low",
+        "urgency": "planned",
+        "title": "Плановое ТО: ТО-1 КТП",
+        "description": "Плановые работы по графику: ТО-1 КТП.",
+        "organization": {
+          "id": "3e9e32a4-e597-5388-97d5-5d9fbd3ff2fd",
+          "name": "ТОО «Демо Металл»"
+        },
+        "site": {
+          "id": "581fe2e4-0ffb-5ef1-bc40-ecd51a393ede",
+          "name": "Площадка «Металл-Север»",
+          "address": "г. Шымкент, ул. Условная, 1",
+          "latitude": 42.3652,
+          "longitude": 69.5583
+        },
+        "equipment": {
+          "id": "8984285e-e04e-50c5-a430-042694d604cf",
+          "name": "КТП-2 400 кВА",
+          "inventory_number": "DM-KTP-0002",
+          "type": "substation",
+          "model": "КТП-2",
+          "manufacturer": "Демо-Электро"
+        },
+        "created_by": null,
+        "assigned_engineer": {
+          "id": "96db1ca2-d41e-502d-b20c-2d0283e8f499",
+          "full_name": "Инженер Демо-1",
+          "role": "engineer"
+        },
+        "contact": {
+          "name": null,
+          "phone": null
+        },
+        "scheduled_at": null,
+        "related_ticket_id": null,
+        "work_stage": null,
+        "pause": null,
+        "sla": {
+          "clock_running": false,
+          "due_at": null,
+          "is_overdue": false,
+          "overdue_kind": null,
+          "reaction_limit_seconds": 86400,
+          "resolution_limit_seconds": 604800,
+          "reaction_due_at": "2026-03-11T05:00:00+00:00",
+          "first_reacted_at": "2026-03-10T07:00:00+00:00",
+          "consumed_seconds": 100800,
+          "resolved_within_sla": true
+        },
+        "current_act": {
+          "id": "0af0d040-6911-4c7b-8197-04978e64e786",
+          "version": 1,
+          "number": "SR-2026-0005-A1",
+          "is_current": true,
+          "generated_at": "2026-03-11T09:00:00+00:00",
+          "decision": "confirmed"
+        },
+        "checklist": {
+          "done": 7,
+          "total": 7
+        },
+        "parts_count": 0,
+        "comments_count": 0,
+        "return_count": 0,
+        "plan_due_date": "2026-03-17",
+        "allowed_actions": [],
+        "version": 8,
+        "created_at": "2026-03-10T05:00:00+00:00",
+        "updated_at": "2026-03-11T12:00:00+00:00",
+        "archived_at": null,
+        "accepted_at": "2026-03-10T07:00:00+00:00",
+        "started_at": "2026-03-11T05:00:00+00:00",
+        "completed_at": "2026-03-11T09:00:00+00:00",
+        "closed_at": "2026-03-11T12:00:00+00:00"
+      },
+      {
+        "id": "40ffd63f-9da5-54ec-9264-b6dfe7ecae61",
+        "number": "SR-2026-0004",
+        "status": "closed",
+        "kind": "corrective",
+        "source": "web",
+        "priority": "normal",
+        "urgency": "planned",
+        "title": "Повышенный уровень шума трансформатора",
+        "description": "Гул трансформатора усилился в течение недели.",
+        "organization": {
+          "id": "6f1f2368-a3d4-56a4-9404-82ac89fad9b6",
+          "name": "ТОО «Демо Логистик»"
+        },
+        "site": {
+          "id": "8010ec6b-d2e1-517f-b781-ec1977fa7314",
+          "name": "Склад «Логистик-Центр»",
+          "address": "г. Шымкент, пр. Тестовый, 10",
+          "latitude": 42.3304,
+          "longitude": 69.6502
+        },
+        "equipment": {
+          "id": "bdf37a84-58fd-5264-9410-62a60e8eaf0f",
+          "name": "Трансформатор ТМ-250/10",
+          "inventory_number": "DL-TR-0001",
+          "type": "transformer",
+          "model": "ТМ-250/10",
+          "manufacturer": "Демо-Электро"
+        },
+        "created_by": {
+          "id": "3925fcae-1f03-569d-bac2-232d63b0a68c",
+          "full_name": "Клиент Демо-Логистик",
+          "role": "client"
+        },
+        "assigned_engineer": {
+          "id": "19b2c0c2-5dc3-5752-94d8-4a3a9b2f6889",
+          "full_name": "Инженер Демо-2",
+          "role": "engineer"
+        },
+        "contact": {
+          "name": "Клиент Демо-Логистик",
+          "phone": "+7 700 000 00 03"
+        },
+        "scheduled_at": null,
+        "related_ticket_id": null,
+        "work_stage": null,
+        "pause": null,
+        "sla": {
+          "clock_running": false,
+          "due_at": null,
+          "is_overdue": false,
+          "overdue_kind": null,
+          "reaction_limit_seconds": 28800,
+          "resolution_limit_seconds": 259200,
+          "reaction_due_at": "2026-03-09T11:00:00+00:00",
+          "first_reacted_at": "2026-03-09T03:40:00+00:00",
+          "consumed_seconds": 266400,
+          "resolved_within_sla": false
+        },
+        "current_act": {
+          "id": "aa4d13c3-883a-433e-8428-cdb30a3bb0c9",
+          "version": 1,
+          "number": "SR-2026-0004-A1",
+          "is_current": true,
+          "generated_at": "2026-03-12T05:00:00+00:00",
+          "decision": "confirmed"
+        },
+        "checklist": {
+          "done": 7,
+          "total": 7
+        },
+        "parts_count": 1,
+        "comments_count": 0,
+        "return_count": 0,
+        "plan_due_date": null,
+        "allowed_actions": [],
+        "version": 6,
+        "created_at": "2026-03-09T03:00:00+00:00",
+        "updated_at": "2026-03-12T08:00:00+00:00",
+        "archived_at": null,
+        "accepted_at": "2026-03-09T03:40:00+00:00",
+        "started_at": "2026-03-09T05:00:00+00:00",
+        "completed_at": "2026-03-12T05:00:00+00:00",
+        "closed_at": "2026-03-12T08:00:00+00:00"
+      },
+      {
+        "id": "7f7772b5-26ee-5207-ac06-5b37e5aa4632",
+        "number": "SR-2026-0019",
+        "status": "cancelled",
+        "kind": "corrective",
+        "source": "web",
+        "priority": "normal",
+        "urgency": "planned",
+        "title": "Мигает индикация РУ-6 кВ",
+        "description": "Индикация на панели РУ-6 кВ периодически мигает.",
+        "organization": {
+          "id": "3e9e32a4-e597-5388-97d5-5d9fbd3ff2fd",
+          "name": "ТОО «Демо Металл»"
+        },
+        "site": {
+          "id": "e63a3130-d8fb-5423-ae98-0c7985134f95",
+          "name": "Площадка «Металл-Юг»",
+          "address": "г. Шымкент, ул. Условная, 25",
+          "latitude": 42.3048,
+          "longitude": 69.6104
+        },
+        "equipment": {
+          "id": "1228fbce-4359-5ea7-b38f-f6f50acbe0ec",
+          "name": "РУ-6 кВ, 12 ячеек",
+          "inventory_number": "DM-RU-0003",
+          "type": "switchgear",
+          "model": "РУ-6",
+          "manufacturer": "Демо-Электро"
+        },
+        "created_by": {
+          "id": "229bfb99-e3c2-551f-9437-389a26a7a848",
+          "full_name": "Клиент Демо-Металл",
+          "role": "client"
+        },
+        "assigned_engineer": null,
+        "contact": {
+          "name": "Клиент Демо-Металл",
+          "phone": "+7 700 000 00 01"
+        },
+        "scheduled_at": null,
+        "related_ticket_id": null,
+        "work_stage": null,
+        "pause": null,
+        "sla": {
+          "clock_running": false,
+          "due_at": null,
+          "is_overdue": false,
+          "overdue_kind": null,
+          "reaction_limit_seconds": 28800,
+          "resolution_limit_seconds": 259200,
+          "reaction_due_at": "2026-03-08T16:00:00+00:00",
+          "first_reacted_at": null,
+          "consumed_seconds": 3600,
+          "resolved_within_sla": null
+        },
+        "current_act": null,
+        "checklist": null,
+        "parts_count": 0,
+        "comments_count": 0,
+        "return_count": 0,
+        "plan_due_date": null,
+        "allowed_actions": [],
+        "version": 2,
+        "created_at": "2026-03-08T08:00:00+00:00",
+        "updated_at": "2026-03-08T09:00:00+00:00",
+        "archived_at": null,
+        "accepted_at": null,
+        "started_at": null,
+        "completed_at": null,
+        "closed_at": null
+      },
+      {
+        "id": "6e780dd2-eb7b-55dc-bd6a-751f463fa093",
+        "number": "SR-2026-0020",
+        "status": "cancelled",
+        "kind": "corrective",
+        "source": "web",
+        "priority": "normal",
+        "urgency": "planned",
+        "title": "Осмотр КТП-160 по графику клиента",
+        "description": "Осмотр КТП-160 по внутреннему графику клиента.",
+        "organization": {
+          "id": "6f1f2368-a3d4-56a4-9404-82ac89fad9b6",
+          "name": "ТОО «Демо Логистик»"
+        },
+        "site": {
+          "id": "8010ec6b-d2e1-517f-b781-ec1977fa7314",
+          "name": "Склад «Логистик-Центр»",
+          "address": "г. Шымкент, пр. Тестовый, 10",
+          "latitude": 42.3304,
+          "longitude": 69.6502
+        },
+        "equipment": {
+          "id": "5bc0a32f-b8e0-5393-ae8a-71ff9ef0f6de",
+          "name": "КТП-160",
+          "inventory_number": "DL-KTP-0002",
+          "type": "substation",
+          "model": "КТП-160",
+          "manufacturer": "Демо-Электро"
+        },
+        "created_by": {
+          "id": "3925fcae-1f03-569d-bac2-232d63b0a68c",
+          "full_name": "Клиент Демо-Логистик",
+          "role": "client"
+        },
+        "assigned_engineer": {
+          "id": "19b2c0c2-5dc3-5752-94d8-4a3a9b2f6889",
+          "full_name": "Инженер Демо-2",
+          "role": "engineer"
+        },
+        "contact": {
+          "name": "Клиент Демо-Логистик",
+          "phone": "+7 700 000 00 03"
+        },
+        "scheduled_at": null,
+        "related_ticket_id": null,
+        "work_stage": null,
+        "pause": null,
+        "sla": {
+          "clock_running": false,
+          "due_at": null,
+          "is_overdue": false,
+          "overdue_kind": null,
+          "reaction_limit_seconds": 28800,
+          "resolution_limit_seconds": 259200,
+          "reaction_due_at": "2026-03-07T12:00:00+00:00",
+          "first_reacted_at": "2026-03-07T04:30:00+00:00",
+          "consumed_seconds": 14400,
+          "resolved_within_sla": null
+        },
+        "current_act": null,
+        "checklist": null,
+        "parts_count": 0,
+        "comments_count": 0,
+        "return_count": 0,
+        "plan_due_date": null,
+        "allowed_actions": [],
+        "version": 4,
+        "created_at": "2026-03-07T04:00:00+00:00",
+        "updated_at": "2026-03-07T08:00:00+00:00",
+        "archived_at": null,
+        "accepted_at": "2026-03-07T04:30:00+00:00",
+        "started_at": null,
+        "completed_at": null,
+        "closed_at": null
+      },
+      {
+        "id": "04cf34db-9ab2-5178-be2e-1313f2923454",
+        "number": "SR-2026-0003",
+        "status": "closed",
+        "kind": "corrective",
+        "source": "web",
+        "priority": "critical",
+        "urgency": "emergency",
+        "title": "Аварийное отключение трансформатора",
+        "description": "Трансформатор отключился действием защиты, питание объекта потеряно.",
+        "organization": {
+          "id": "419f8499-3187-5d75-9ea4-80cac194f7a5",
+          "name": "ТОО «Демо Агро»"
+        },
+        "site": {
+          "id": "51b4c310-a8c3-5c3b-91aa-d8c86af3f010",
+          "name": "Ферма «Агро-1»",
+          "address": "Шымкент, пригород, участок 3",
+          "latitude": 42.4301,
+          "longitude": 69.7126
+        },
+        "equipment": {
+          "id": "f1669f18-86c4-5c26-9556-73c173df2601",
+          "name": "Трансформатор ТМ-400/10",
+          "inventory_number": "DA-TR-0001",
+          "type": "transformer",
+          "model": "ТМ-400/10",
+          "manufacturer": "Демо-Электро"
+        },
+        "created_by": {
+          "id": "bed042cc-8885-5b28-b8cd-917919e8b024",
+          "full_name": "Клиент Демо-Агро",
+          "role": "client"
+        },
+        "assigned_engineer": {
+          "id": "96db1ca2-d41e-502d-b20c-2d0283e8f499",
+          "full_name": "Инженер Демо-1",
+          "role": "engineer"
+        },
+        "contact": {
+          "name": "Клиент Демо-Агро",
+          "phone": "+7 700 000 00 02"
+        },
+        "scheduled_at": null,
+        "related_ticket_id": null,
+        "work_stage": null,
+        "pause": null,
+        "sla": {
+          "clock_running": false,
+          "due_at": null,
+          "is_overdue": false,
+          "overdue_kind": null,
+          "reaction_limit_seconds": 3600,
+          "resolution_limit_seconds": 28800,
+          "reaction_due_at": "2026-03-06T03:00:00+00:00",
+          "first_reacted_at": "2026-03-06T02:10:00+00:00",
+          "consumed_seconds": 25200,
+          "resolved_within_sla": true
+        },
+        "current_act": {
+          "id": "ad67621f-9833-45a7-b396-36685ba6fbaa",
+          "version": 1,
+          "number": "SR-2026-0003-A1",
+          "is_current": true,
+          "generated_at": "2026-03-06T13:00:00+00:00",
+          "decision": "confirmed"
+        },
+        "checklist": {
+          "done": 7,
+          "total": 7
+        },
+        "parts_count": 1,
+        "comments_count": 0,
+        "return_count": 0,
+        "plan_due_date": null,
+        "allowed_actions": [],
+        "version": 8,
+        "created_at": "2026-03-06T02:00:00+00:00",
+        "updated_at": "2026-03-06T15:00:00+00:00",
+        "archived_at": null,
+        "accepted_at": "2026-03-06T02:10:00+00:00",
+        "started_at": "2026-03-06T02:30:00+00:00",
+        "completed_at": "2026-03-06T13:00:00+00:00",
+        "closed_at": "2026-03-06T15:00:00+00:00"
+      },
+      {
+        "id": "6ab30f61-a9ad-5e7f-a870-8d5c167324e5",
+        "number": "SR-2026-0002",
+        "status": "closed",
+        "kind": "corrective",
+        "source": "web",
+        "priority": "high",
+        "urgency": "urgent",
+        "title": "Перегрев ячейки РУ-6 кВ",
+        "description": "Ячейка №4 заметно нагревается при нагрузке, слышен гул.",
+        "organization": {
+          "id": "3e9e32a4-e597-5388-97d5-5d9fbd3ff2fd",
+          "name": "ТОО «Демо Металл»"
+        },
+        "site": {
+          "id": "e63a3130-d8fb-5423-ae98-0c7985134f95",
+          "name": "Площадка «Металл-Юг»",
+          "address": "г. Шымкент, ул. Условная, 25",
+          "latitude": 42.3048,
+          "longitude": 69.6104
+        },
+        "equipment": {
+          "id": "1228fbce-4359-5ea7-b38f-f6f50acbe0ec",
+          "name": "РУ-6 кВ, 12 ячеек",
+          "inventory_number": "DM-RU-0003",
+          "type": "switchgear",
+          "model": "РУ-6",
+          "manufacturer": "Демо-Электро"
+        },
+        "created_by": {
+          "id": "229bfb99-e3c2-551f-9437-389a26a7a848",
+          "full_name": "Клиент Демо-Металл",
+          "role": "client"
+        },
+        "assigned_engineer": {
+          "id": "19b2c0c2-5dc3-5752-94d8-4a3a9b2f6889",
+          "full_name": "Инженер Демо-2",
+          "role": "engineer"
+        },
+        "contact": {
+          "name": "Клиент Демо-Металл",
+          "phone": "+7 700 000 00 01"
+        },
+        "scheduled_at": null,
+        "related_ticket_id": null,
+        "work_stage": null,
+        "pause": null,
+        "sla": {
+          "clock_running": false,
+          "due_at": null,
+          "is_overdue": false,
+          "overdue_kind": null,
+          "reaction_limit_seconds": 14400,
+          "resolution_limit_seconds": 86400,
+          "reaction_due_at": "2026-03-04T09:00:00+00:00",
+          "first_reacted_at": "2026-03-04T05:20:00+00:00",
+          "consumed_seconds": 68400,
+          "resolved_within_sla": true
+        },
+        "current_act": {
+          "id": "d831bdc8-b9f5-476b-b069-0ff1b3b36c2d",
+          "version": 2,
+          "number": "SR-2026-0002-A2",
+          "is_current": true,
+          "generated_at": "2026-03-05T08:00:00+00:00",
+          "decision": "confirmed"
+        },
+        "checklist": {
+          "done": 7,
+          "total": 7
+        },
+        "parts_count": 2,
+        "comments_count": 0,
+        "return_count": 1,
+        "plan_due_date": null,
+        "allowed_actions": [],
+        "version": 8,
+        "created_at": "2026-03-04T05:00:00+00:00",
+        "updated_at": "2026-03-05T10:00:00+00:00",
+        "archived_at": null,
+        "accepted_at": "2026-03-04T05:20:00+00:00",
+        "started_at": "2026-03-04T06:00:00+00:00",
+        "completed_at": "2026-03-05T08:00:00+00:00",
+        "closed_at": "2026-03-05T10:00:00+00:00"
+      },
+      {
+        "id": "50bf8568-20cf-58b3-8289-3842a323825e",
+        "number": "SR-2026-0001",
+        "status": "closed",
+        "kind": "corrective",
+        "source": "web",
+        "priority": "normal",
+        "urgency": "planned",
+        "title": "Течь масла на трансформаторе",
+        "description": "Обнаружены следы масла на баке и под трансформатором.",
+        "organization": {
+          "id": "3e9e32a4-e597-5388-97d5-5d9fbd3ff2fd",
+          "name": "ТОО «Демо Металл»"
+        },
+        "site": {
+          "id": "581fe2e4-0ffb-5ef1-bc40-ecd51a393ede",
+          "name": "Площадка «Металл-Север»",
+          "address": "г. Шымкент, ул. Условная, 1",
+          "latitude": 42.3652,
+          "longitude": 69.5583
+        },
+        "equipment": {
+          "id": "fa01802c-3a08-5d50-add3-ce6ff93d7efc",
+          "name": "Трансформатор ТМ-1000/10",
+          "inventory_number": "DM-TR-0001",
+          "type": "transformer",
+          "model": "ТМ-1000/10",
+          "manufacturer": "Демо-Электро"
+        },
+        "created_by": {
+          "id": "229bfb99-e3c2-551f-9437-389a26a7a848",
+          "full_name": "Клиент Демо-Металл",
+          "role": "client"
+        },
+        "assigned_engineer": {
+          "id": "96db1ca2-d41e-502d-b20c-2d0283e8f499",
+          "full_name": "Инженер Демо-1",
+          "role": "engineer"
+        },
+        "contact": {
+          "name": "Клиент Демо-Металл",
+          "phone": "+7 700 000 00 01"
+        },
+        "scheduled_at": null,
+        "related_ticket_id": null,
+        "work_stage": null,
+        "pause": null,
+        "sla": {
+          "clock_running": false,
+          "due_at": null,
+          "is_overdue": false,
+          "overdue_kind": null,
+          "reaction_limit_seconds": 28800,
+          "resolution_limit_seconds": 259200,
+          "reaction_due_at": "2026-03-02T12:00:00+00:00",
+          "first_reacted_at": "2026-03-02T04:30:00+00:00",
+          "consumed_seconds": 93600,
+          "resolved_within_sla": true
+        },
+        "current_act": {
+          "id": "f4ac02b8-1d96-452c-b4a5-f70f3f54a652",
+          "version": 1,
+          "number": "SR-2026-0001-A1",
+          "is_current": true,
+          "generated_at": "2026-03-03T06:00:00+00:00",
+          "decision": "confirmed"
+        },
+        "checklist": {
+          "done": 5,
+          "total": 5
+        },
+        "parts_count": 2,
+        "comments_count": 1,
+        "return_count": 0,
+        "plan_due_date": null,
+        "allowed_actions": [],
+        "version": 6,
+        "created_at": "2026-03-02T04:00:00+00:00",
+        "updated_at": "2026-03-03T09:00:00+00:00",
+        "archived_at": null,
+        "accepted_at": "2026-03-02T04:30:00+00:00",
+        "started_at": "2026-03-02T06:00:00+00:00",
+        "completed_at": "2026-03-03T06:00:00+00:00",
+        "closed_at": "2026-03-03T09:00:00+00:00"
+      }
+    ],
+    "page": 1,
+    "page_size": 100,
+    "total": 20,
+    "total_pages": 1
+  },
+  "equipment": {
+    "items": [
+      {
+        "id": "5bc0a32f-b8e0-5393-ae8a-71ff9ef0f6de",
+        "organization_id": "6f1f2368-a3d4-56a4-9404-82ac89fad9b6",
+        "site_id": "8010ec6b-d2e1-517f-b781-ec1977fa7314",
+        "type": "substation",
+        "type_label": "Подстанция (КТП)",
+        "inventory_number": "DL-KTP-0002",
+        "name": "КТП-160",
+        "manufacturer": "Демо-Электро",
+        "model": "КТП-160",
+        "serial_number": "DEMO-SN-0009",
+        "technical_state": "operational",
+        "archived_at": null,
+        "version": 1,
+        "latitude": 42.3311,
+        "longitude": 69.6511,
+        "site": {
+          "id": "8010ec6b-d2e1-517f-b781-ec1977fa7314",
+          "name": "Склад «Логистик-Центр»",
+          "address": "г. Шымкент, пр. Тестовый, 10",
+          "latitude": 42.3304,
+          "longitude": 69.6502
+        },
+        "geo": {
+          "latitude": 42.3311,
+          "longitude": 69.6511,
+          "source": "equipment"
+        },
+        "active_tickets_count": 2,
+        "next_due_date": null
+      },
+      {
+        "id": "8984285e-e04e-50c5-a430-042694d604cf",
+        "organization_id": "3e9e32a4-e597-5388-97d5-5d9fbd3ff2fd",
+        "site_id": "581fe2e4-0ffb-5ef1-bc40-ecd51a393ede",
+        "type": "substation",
+        "type_label": "Подстанция (КТП)",
+        "inventory_number": "DM-KTP-0002",
+        "name": "КТП-2 400 кВА",
+        "manufacturer": "Демо-Электро",
+        "model": "КТП-2",
+        "serial_number": "DEMO-SN-0002",
+        "technical_state": "degraded",
+        "archived_at": null,
+        "version": 1,
+        "latitude": 42.3659,
+        "longitude": 69.5592,
+        "site": {
+          "id": "581fe2e4-0ffb-5ef1-bc40-ecd51a393ede",
+          "name": "Площадка «Металл-Север»",
+          "address": "г. Шымкент, ул. Условная, 1",
+          "latitude": 42.3652,
+          "longitude": 69.5583
+        },
+        "geo": {
+          "latitude": 42.3659,
+          "longitude": 69.5592,
+          "source": "equipment"
+        },
+        "active_tickets_count": 1,
+        "next_due_date": "2026-06-09"
+      },
+      {
+        "id": "a978cd4a-0e87-5e3d-9042-b0f3a8a1f03d",
+        "organization_id": "419f8499-3187-5d75-9ea4-80cac194f7a5",
+        "site_id": "51b4c310-a8c3-5c3b-91aa-d8c86af3f010",
+        "type": "substation",
+        "type_label": "Подстанция (КТП)",
+        "inventory_number": "DA-KTP-0002",
+        "name": "КТП-250",
+        "manufacturer": "Демо-Электро",
+        "model": "КТП-250",
+        "serial_number": "DEMO-SN-0006",
+        "technical_state": "operational",
+        "archived_at": null,
+        "version": 1,
+        "latitude": 42.4308,
+        "longitude": 69.7135,
+        "site": {
+          "id": "51b4c310-a8c3-5c3b-91aa-d8c86af3f010",
+          "name": "Ферма «Агро-1»",
+          "address": "Шымкент, пригород, участок 3",
+          "latitude": 42.4301,
+          "longitude": 69.7126
+        },
+        "geo": {
+          "latitude": 42.4308,
+          "longitude": 69.7135,
+          "source": "equipment"
+        },
+        "active_tickets_count": 2,
+        "next_due_date": null
+      },
+      {
+        "id": "ce3bb7d8-f917-52a1-ac53-988c71f614ab",
+        "organization_id": "419f8499-3187-5d75-9ea4-80cac194f7a5",
+        "site_id": "480bdd75-13ce-5c19-8ef0-e1980d9c6abb",
+        "type": "switchgear",
+        "type_label": "РУ (распределительная подстанция)",
+        "inventory_number": "DA-RU-0003",
+        "name": "РУ-0,4 кВ элеватора",
+        "manufacturer": "Демо-Электро",
+        "model": "РУ-0,4",
+        "serial_number": "DEMO-SN-0007",
+        "technical_state": "out_of_service",
+        "archived_at": null,
+        "version": 1,
+        "latitude": 42.2397,
+        "longitude": 69.5208,
+        "site": {
+          "id": "480bdd75-13ce-5c19-8ef0-e1980d9c6abb",
+          "name": "Элеватор «Агро-2»",
+          "address": "Шымкент, пригород, участок 7",
+          "latitude": 42.2397,
+          "longitude": 69.5208
+        },
+        "geo": {
+          "latitude": 42.2397,
+          "longitude": 69.5208,
+          "source": "equipment"
+        },
+        "active_tickets_count": 1,
+        "next_due_date": null
+      },
+      {
+        "id": "82b01e7d-f085-5a08-ac24-e0a88be9932f",
+        "organization_id": "6f1f2368-a3d4-56a4-9404-82ac89fad9b6",
+        "site_id": "8010ec6b-d2e1-517f-b781-ec1977fa7314",
+        "type": "switchgear",
+        "type_label": "РУ (распределительная подстанция)",
+        "inventory_number": "DL-RU-0003",
+        "name": "РУ-10 кВ, 8 ячеек",
+        "manufacturer": "Демо-Электро",
+        "model": "РУ-10",
+        "serial_number": "DEMO-SN-0010",
+        "technical_state": "operational",
+        "archived_at": null,
+        "version": 1,
+        "latitude": 42.3297,
+        "longitude": 69.6513,
+        "site": {
+          "id": "8010ec6b-d2e1-517f-b781-ec1977fa7314",
+          "name": "Склад «Логистик-Центр»",
+          "address": "г. Шымкент, пр. Тестовый, 10",
+          "latitude": 42.3304,
+          "longitude": 69.6502
+        },
+        "geo": {
+          "latitude": 42.3297,
+          "longitude": 69.6513,
+          "source": "equipment"
+        },
+        "active_tickets_count": 2,
+        "next_due_date": "2026-03-24"
+      },
+      {
+        "id": "1228fbce-4359-5ea7-b38f-f6f50acbe0ec",
+        "organization_id": "3e9e32a4-e597-5388-97d5-5d9fbd3ff2fd",
+        "site_id": "e63a3130-d8fb-5423-ae98-0c7985134f95",
+        "type": "switchgear",
+        "type_label": "РУ (распределительная подстанция)",
+        "inventory_number": "DM-RU-0003",
+        "name": "РУ-6 кВ, 12 ячеек",
+        "manufacturer": "Демо-Электро",
+        "model": "РУ-6",
+        "serial_number": "DEMO-SN-0003",
+        "technical_state": "operational",
+        "archived_at": null,
+        "version": 1,
+        "latitude": 42.3048,
+        "longitude": 69.6104,
+        "site": {
+          "id": "e63a3130-d8fb-5423-ae98-0c7985134f95",
+          "name": "Площадка «Металл-Юг»",
+          "address": "г. Шымкент, ул. Условная, 25",
+          "latitude": 42.3048,
+          "longitude": 69.6104
+        },
+        "geo": {
+          "latitude": 42.3048,
+          "longitude": 69.6104,
+          "source": "equipment"
+        },
+        "active_tickets_count": 0,
+        "next_due_date": null
+      },
+      {
+        "id": "fa01802c-3a08-5d50-add3-ce6ff93d7efc",
+        "organization_id": "3e9e32a4-e597-5388-97d5-5d9fbd3ff2fd",
+        "site_id": "581fe2e4-0ffb-5ef1-bc40-ecd51a393ede",
+        "type": "transformer",
+        "type_label": "Трансформатор",
+        "inventory_number": "DM-TR-0001",
+        "name": "Трансформатор ТМ-1000/10",
+        "manufacturer": "Демо-Электро",
+        "model": "ТМ-1000/10",
+        "serial_number": "DEMO-SN-0001",
+        "technical_state": "operational",
+        "archived_at": null,
+        "version": 1,
+        "latitude": 42.3652,
+        "longitude": 69.5583,
+        "site": {
+          "id": "581fe2e4-0ffb-5ef1-bc40-ecd51a393ede",
+          "name": "Площадка «Металл-Север»",
+          "address": "г. Шымкент, ул. Условная, 1",
+          "latitude": 42.3652,
+          "longitude": 69.5583
+        },
+        "geo": {
+          "latitude": 42.3652,
+          "longitude": 69.5583,
+          "source": "equipment"
+        },
+        "active_tickets_count": 1,
+        "next_due_date": null
+      },
+      {
+        "id": "bdf37a84-58fd-5264-9410-62a60e8eaf0f",
+        "organization_id": "6f1f2368-a3d4-56a4-9404-82ac89fad9b6",
+        "site_id": "8010ec6b-d2e1-517f-b781-ec1977fa7314",
+        "type": "transformer",
+        "type_label": "Трансформатор",
+        "inventory_number": "DL-TR-0001",
+        "name": "Трансформатор ТМ-250/10",
+        "manufacturer": "Демо-Электро",
+        "model": "ТМ-250/10",
+        "serial_number": "DEMO-SN-0008",
+        "technical_state": "degraded",
+        "archived_at": null,
+        "version": 1,
+        "latitude": 42.3304,
+        "longitude": 69.6502,
+        "site": {
+          "id": "8010ec6b-d2e1-517f-b781-ec1977fa7314",
+          "name": "Склад «Логистик-Центр»",
+          "address": "г. Шымкент, пр. Тестовый, 10",
+          "latitude": 42.3304,
+          "longitude": 69.6502
+        },
+        "geo": {
+          "latitude": 42.3304,
+          "longitude": 69.6502,
+          "source": "equipment"
+        },
+        "active_tickets_count": 1,
+        "next_due_date": null
+      },
+      {
+        "id": "f1669f18-86c4-5c26-9556-73c173df2601",
+        "organization_id": "419f8499-3187-5d75-9ea4-80cac194f7a5",
+        "site_id": "51b4c310-a8c3-5c3b-91aa-d8c86af3f010",
+        "type": "transformer",
+        "type_label": "Трансформатор",
+        "inventory_number": "DA-TR-0001",
+        "name": "Трансформатор ТМ-400/10",
+        "manufacturer": "Демо-Электро",
+        "model": "ТМ-400/10",
+        "serial_number": "DEMO-SN-0005",
+        "technical_state": "operational",
+        "archived_at": null,
+        "version": 1,
+        "latitude": 42.4301,
+        "longitude": 69.7126,
+        "site": {
+          "id": "51b4c310-a8c3-5c3b-91aa-d8c86af3f010",
+          "name": "Ферма «Агро-1»",
+          "address": "Шымкент, пригород, участок 3",
+          "latitude": 42.4301,
+          "longitude": 69.7126
+        },
+        "geo": {
+          "latitude": 42.4301,
+          "longitude": 69.7126,
+          "source": "equipment"
+        },
+        "active_tickets_count": 0,
+        "next_due_date": null
+      },
+      {
+        "id": "1d635fc6-00ab-5ce2-9591-63093b4ca384",
+        "organization_id": "3e9e32a4-e597-5388-97d5-5d9fbd3ff2fd",
+        "site_id": "e63a3130-d8fb-5423-ae98-0c7985134f95",
+        "type": "transformer",
+        "type_label": "Трансформатор",
+        "inventory_number": "DM-TR-0004",
+        "name": "Трансформатор ТМ-630/10",
+        "manufacturer": "Демо-Электро",
+        "model": "ТМ-630/10",
+        "serial_number": "DEMO-SN-0004",
+        "technical_state": "operational",
+        "archived_at": null,
+        "version": 1,
+        "latitude": 42.3055,
+        "longitude": 69.6113,
+        "site": {
+          "id": "e63a3130-d8fb-5423-ae98-0c7985134f95",
+          "name": "Площадка «Металл-Юг»",
+          "address": "г. Шымкент, ул. Условная, 25",
+          "latitude": 42.3048,
+          "longitude": 69.6104
+        },
+        "geo": {
+          "latitude": 42.3055,
+          "longitude": 69.6113,
+          "source": "equipment"
+        },
+        "active_tickets_count": 2,
+        "next_due_date": "2026-03-21"
+      }
+    ],
+    "page": 1,
+    "page_size": 100,
+    "total": 10,
+    "total_pages": 1
+  }
+}

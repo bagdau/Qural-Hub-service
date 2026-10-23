@@ -59,7 +59,7 @@ def render_act(snap: dict, images: dict[str, bytes]) -> bytes:
 
     buf = io.BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=A4, leftMargin=16 * mm, rightMargin=16 * mm, topMargin=14 * mm,
-                            bottomMargin=16 * mm, title=f"Акт {snap['act_number']}", author="Alageum Service Hub")
+                            bottomMargin=16 * mm, title=f"Акт {snap['act_number']}", author="Qural Hub")
     t, eq, rep = snap["ticket"], snap["equipment"], snap["report"]
     story = [P("Акт выполненных работ", h1), P(f"№ {snap['act_number']} · версия {snap['act_version']}", base),
              P(f"Сформирован: {_dt(snap['generated_at'], tz)}", small), Spacer(1, 6)]

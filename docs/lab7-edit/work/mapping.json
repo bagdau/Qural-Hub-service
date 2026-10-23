@@ -1,0 +1,77 @@
+[
+  {
+    "task": 1,
+    "runs": 1,
+    "text": "Select task: 1\n\n--- TASK 1 ---\nFiles f1.txt and g1.txt merged.\nResult in h1.txt:\nHello, Bagdaulet!"
+  },
+  {
+    "task": 2,
+    "runs": 1,
+    "text": "Select task: 2\n\n--- TASK 2 ---\nSource: [12,-5,0,-17,8,-3]\nNegative numbers: [-5,-17,-3]\nCount: 3\nSaved to g2.txt"
+  },
+  {
+    "task": 3,
+    "runs": 1,
+    "text": "Select task: 3\n\n--- TASK 3 ---\nBefore: ABCDE\nAfter: ABCE\nFile t3.txt updated."
+  },
+  {
+    "task": 4,
+    "runs": 1,
+    "text": "Select task: 4\n\n--- TASK 4 ---\nNumbers: [1,2,3,4,5,6,7,8,9,10]\nOdd numbers: 5"
+  },
+  {
+    "task": 5,
+    "runs": 1,
+    "text": "Select task: 5\n\n--- TASK 5 ---\nNumbers: [12,-7,35,0,-19,8]\nMaximum: 35\nMinimum: -19\nSaved to g5.txt: maximum, then minimum."
+  },
+  {
+    "task": 6,
+    "runs": 1,
+    "text": "Select task: 6\n\n--- TASK 6 ---\nNumbers: 1.5, 2.0, -3.0, 4.0\nSum: 4.5\nProduct: -36"
+  },
+  {
+    "task": 7,
+    "runs": 1,
+    "text": "Select task: 7\n\n--- TASK 7 ---\nEnter a string: bagdaulet is best\nWords: [\"bagdaulet\",\"is\",\"best\"]\nWord count: 3"
+  },
+  {
+    "task": 8,
+    "runs": 1,
+    "text": "Select task: 8\n\n--- TASK 8 ---\nEnter first integer: 5\nEnter second integer: 3\nEnter operation (+, -, *, /): +\nResult: 8"
+  },
+  {
+    "task": 9,
+    "runs": 1,
+    "text": "Select task: 9\n\n--- TASK 9 ---\nEnter a sentence (exit to return): \nbagdaulet\nResult: bagdaulet\n\nEnter a sentence (exit to return): \nexit"
+  },
+  {
+    "task": 10,
+    "runs": 1,
+    "text": "Select task: 10\n\n--- TASK 10 ---\nEnter words: bagdaulet came from a Atyrau before he was a child\nOriginal: [\"bagdaulet\",\"came\",\"from\",\"a\",\"Atyrau\",\"before\",\"he\",\"was\",\"a\",\"child\"]\nSorted: [\"Atyrau\",\"a\",\"a\",\"bagdaulet\",\"before\",\"came\",\"child\",\"from\",\"he\",\"was\"]"
+  },
+  {
+    "task": 11,
+    "runs": 1,
+    "text": "Select task: 11\n\n--- TASK 11 ---\nEnter a string: bag dau let\nMinimum word length: 3\nMaximum word length: 3"
+  },
+  {
+    "task": 12,
+    "runs": 1,
+    "text": "Select task: 12\n\n--- TASK 12 ---\nOriginal words: [\"programming\",\"is\",\"very\",\"interesting\",\"I\",\"like\",\"prolog\"]\nSorted words: [\"I\",\"is\",\"very\",\"like\",\"prolog\",\"programming\",\"interesting\"]\n\nWord : length\nI : 1\nis : 2\nvery : 4\nlike : 4\nprolog : 6\nprogramming : 11\ninteresting : 11"
+  },
+  {
+    "task": 13,
+    "runs": 1,
+    "text": "Select task: 13\n\n--- TASK 13 ---\nAuthors: Auezov, Abai, Esenberlin\nEnter author surname: Auezov\nTwo-volume books:\n- Selected works\n- Collected stories"
+  },
+  {
+    "task": 14,
+    "runs": 2,
+    "text": "Select task: 14\n\n--- TASK 14 ---\nTennis: Bagdaulet, Aidar, Dana, Aruzhan\nOther sports: Arman, Dias\nEnter athlete name: Bagdaulet, Arman, Aruzhan\nThe athlete is unknown or does not play tennis.\n\nSelect task: 14\n\n--- TASK 14 ---\nTennis: Bagdaulet, Aidar, Dana, Aruzhan\nOther sports: Arman, Dias\nEnter athlete name: Bagdaulet\nPossible pairs:\nBagdaulet - Aidar\nBagdaulet - Dana\nBagdaulet - Aruzhan"
+  },
+  {
+    "task": 15,
+    "runs": 1,
+    "text": "Select task: 15\n\n--- TASK 15 ---\n80..100 : M - Magistr\n60..<80 : S - Specialist\n40..<60 : B - Bakalavr\n0..<40  : N - Neudachnik\nEnter score Z: 60\nQualification: S - Specialist"
+  }
+]

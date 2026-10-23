@@ -1,0 +1,25 @@
+const fs=require('fs'),path=require('path');
+const {chromium}=require('C:/Users/BAGDAULET-KOPTILEU/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const base='http://localhost:8100',out=path.resolve(__dirname,'../assets');
+const password=fs.readFileSync(path.resolve(__dirname,'../../../.env'),'utf8').match(/^DEMO_USER_PASSWORD=(.*)$/m)[1].trim().replace(/^["']|["']$/g,'');
+(async()=>{
+ const b=await chromium.launch({headless:true,channel:'msedge'});
+ const c=await b.newContext({viewport:{width:1440,height:980},reducedMotion:'reduce'});
+ let r=await c.request.post(base+'/api/v1/auth/login',{data:{email:'admin@demo.alageum.test',password}});
+ if(!r.ok())throw Error('login failed');
+ const p=await c.newPage();await p.goto(base+'/map');
+ await p.waitForTimeout(20000);
+ console.log('tiles',await p.locator('.leaflet-tile').evaluateAll(es=>es.map(e=>({loaded:e.complete&&e.naturalWidth>0,src:e.src}))));
+ await p.screenshot({path:path.join(out,'map.png')});
+ await c.close();
+ const e=await b.newContext({viewport:{width:1440,height:630},reducedMotion:'reduce'});
+ r=await e.request.post(base+'/api/v1/auth/login',{data:{email:'engineer1@demo.alageum.test',password}});
+ if(!r.ok())throw Error('login failed');
+ const ts=await(await e.request.get(base+'/api/v1/tickets?page_size=100')).json();
+ const t=ts.items.find(x=>x.status==='in_progress');
+ const ep=await e.newPage();await ep.goto(base+'/tickets/'+t.id+'/report');await ep.waitForTimeout(1500);
+ await ep.screenshot({path:path.join(out,'report.png')});
+ await ep.setViewportSize({width:1440,height:980});await ep.goto(base+'/notifications');await ep.waitForTimeout(1500);
+ await ep.screenshot({path:path.join(out,'notifications.png')});
+ await b.close();
+})().catch(e=>{console.error(e.message);process.exit(1)});

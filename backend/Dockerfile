@@ -14,7 +14,7 @@ RUN pip install -r /tmp/requirements.lock
 FROM base AS runtime
 ARG APP_VERSION=0.1.0
 ARG GIT_SHA=unknown
-LABEL org.opencontainers.image.title="alageum-service-hub-backend" org.opencontainers.image.version=$APP_VERSION org.opencontainers.image.revision=$GIT_SHA
+LABEL org.opencontainers.image.title="qural-hub-backend" org.opencontainers.image.version=$APP_VERSION org.opencontainers.image.revision=$GIT_SHA
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH" APP_VERSION=$APP_VERSION
 RUN useradd --uid 10001 --no-create-home --shell /usr/sbin/nologin app \

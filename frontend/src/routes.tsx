@@ -52,7 +52,7 @@ export const LazyRoute: Record<string, ComponentType<any>> = Object.fromEntries(
 /** Заголовок вкладки браузера для адреса (для экранных дикторов и истории) */
 export function titleFor(pathname: string): string {
   const r = ROUTES.find((x) => matchPath({ path: x.path, end: true }, pathname))
-  return r ? `${r.title} · Alageum Service Hub` : 'Alageum Service Hub'
+  return r ? `${r.title} · Qural Hub` : 'Qural Hub'
 }
 
 const warmed = new Set<string>()

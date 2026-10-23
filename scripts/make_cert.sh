@@ -11,6 +11,6 @@ for ip in "$@"; do san="$san,IP:$ip"; done
 MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd)/certs:/certs" alpine:3.20 sh -c "
   apk add --no-cache openssl >/dev/null &&
   openssl req -x509 -nodes -newkey rsa:2048 -days 825 -keyout /certs/server.key -out /certs/server.crt \
-    -subj '/CN=Alageum Service Hub' -addext 'subjectAltName=$san' &&
+    -subj '/CN=Qural Hub' -addext 'subjectAltName=$san' &&
   chmod 644 /certs/server.key /certs/server.crt"
 echo "Готово: certs/server.crt (адреса: $san)"

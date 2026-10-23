@@ -90,7 +90,7 @@ RED = colors.HexColor("#D91C2B")
 
 
 def draw_logo(c: canvas.Canvas, x: float, y: float, size: float) -> None:
-    """Логотип Alageum Service Hub (красное поле, белое кольцо, ветроустановка) — векторно, левый нижний угол (x, y)."""
+    """Логотип Qural Hub (красное поле, белое кольцо, ветроустановка) — векторно, левый нижний угол (x, y)."""
     def X(u: float) -> float:
         return x + u * size / 100
 
@@ -157,7 +157,7 @@ def _draw_label(c: canvas.Canvas, x: float, y: float, w: float, h: float, item: 
     c.setFont(pdf.FONT_B, 10)
     c.drawString(x + 2.5 * mm + logo + 2.5 * mm, y + h - head + 2.6 * mm, "ОБОРУДОВАНИЕ")
     c.setFont(pdf.FONT, 7)
-    c.drawRightString(x + w - 4 * mm, y + h - head + 2.8 * mm, "Alageum Service Hub")
+    c.drawRightString(x + w - 4 * mm, y + h - head + 2.8 * mm, "Qural Hub")
     c.setFillColor(TEAL)
     c.rect(x, y, w, foot, stroke=0, fill=1)
     c.setFillColor(colors.white)
@@ -208,7 +208,7 @@ def qr_labels(items: list[dict], layout_id: str = "sheet8") -> bytes:
     buf = io.BytesIO()
     c = canvas.Canvas(buf, pagesize=lay.page)
     c.setTitle("QR-этикетки оборудования")
-    c.setAuthor("Alageum Service Hub")
+    c.setAuthor("Qural Hub")
     W, H = lay.page
     per_page = lay.cols * lay.rows
     cw, ch = W / lay.cols, H / lay.rows
@@ -229,7 +229,7 @@ def equipment_passport(d: dict, history: list[dict], url: str) -> bytes:
     buf = io.BytesIO()
     c = canvas.Canvas(buf, pagesize=A4)
     c.setTitle(f"Паспорт оборудования {d['inventory_number']}")
-    c.setAuthor("Alageum Service Hub")
+    c.setAuthor("Qural Hub")
     W, H = A4
     m = 18 * mm
     y = H - m
@@ -290,6 +290,6 @@ def equipment_passport(d: dict, history: list[dict], url: str) -> bytes:
         y -= 1.6 * mm
     c.setFont(pdf.FONT, 7)
     c.setFillColor(colors.HexColor("#475467"))
-    c.drawString(m, 12 * mm, f"Сформировано системой Alageum Service Hub · {url}")
+    c.drawString(m, 12 * mm, f"Сформировано системой Qural Hub · {url}")
     c.save()
     return buf.getvalue()

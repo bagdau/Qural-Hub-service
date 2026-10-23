@@ -221,7 +221,7 @@ secrets:
 **Первоначальная настройка**
 
 ```bash
-git clone <repo-url> alageum-service-hub && cd alageum-service-hub
+git clone <repo-url> qural-hub && cd qural-hub
 cp .env.example .env
 ./scripts/gen-secrets.sh        # создаёт secrets/*.txt (права 600) со случайными значениями
 ```

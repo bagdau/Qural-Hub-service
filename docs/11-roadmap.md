@@ -144,7 +144,7 @@
 ## 14.3. Структура репозитория
 
 ```
-alageum-service-hub/
+qural-hub/
 ├─ backend/
 │  ├─ app/
 │  │  ├─ main.py  config.py  worker.py  cli.py

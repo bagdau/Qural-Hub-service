@@ -90,7 +90,7 @@ export function DashboardPage() {
   return (
     <div className="stack">
       <div className="row between dash-head">
-        <div><h1>{isClient ? 'Главная' : 'Дашборд'}</h1><div className="muted small">{s && `Состояние на ${fmtDateTime(s.period.generated_at)}`}</div></div>
+        <div><h1>{isClient ? 'Главная' : 'Панель управления'}</h1><div className="muted small">{s && `Состояние на ${fmtDateTime(s.period.generated_at)}`}</div></div>
         <div className="row">
           <Field label="С"><input type="date" value={from} onChange={(e) => setFrom(e.target.value)} /></Field>
           <Field label="По"><input type="date" value={to} onChange={(e) => setTo(e.target.value)} /></Field>

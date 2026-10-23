@@ -40,7 +40,7 @@ export function EquipmentQrPage() {
       </div>
       <div className="grid cols-2 qr-grid">
         <div className="card print-sheet" data-testid="print-sheet">
-          <div className="ps-head"><Icon name="equipment" size={20} color="#5eead4" /><span>ОБОРУДОВАНИЕ</span><small>Alageum Service Hub</small></div>
+          <div className="ps-head"><Icon name="equipment" size={20} color="#5eead4" /><span>ОБОРУДОВАНИЕ</span><small>Qural Hub</small></div>
           <div className="ps-body">
             <img className="qr-big" src={qrSrc} alt={`QR-код: ${d.name}, инвентарный номер ${d.inventory_number}`} />
             <div className="qr-meta">

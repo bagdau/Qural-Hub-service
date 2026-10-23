@@ -1,6 +1,37 @@
 import { expect, test } from '@playwright/test'
 import { as } from './helpers'
 
+test('NAV-04 диспетчер: панель управления и заявки открывают разные страницы', async ({ browser }, info) => {
+  const mobile = info.project.name === 'mobile'
+  const { ctx, page } = await as(browser, 'dispatcher', {
+    viewport: mobile ? { width: 412, height: 915 } : { width: 1440, height: 900 },
+  })
+  try {
+    await page.goto('/board')
+    const nav = page.getByRole('navigation', { name: mobile ? 'Быстрая навигация' : 'Основное меню' })
+    const home = nav.getByRole('link', { name: mobile ? 'Главная' : 'Панель управления', exact: true })
+    const tickets = nav.getByRole('link', { name: 'Заявки', exact: true })
+    await expect(tickets).toHaveAttribute('aria-current', 'page')
+    await home.click()
+    await expect(page).toHaveURL(/\/$/)
+    await expect(page.getByRole('heading', { name: 'Панель управления', exact: true })).toBeVisible()
+    await expect(home).toHaveAttribute('aria-current', 'page')
+    await expect(tickets).not.toHaveAttribute('aria-current', 'page')
+    await expect(page.getByRole('img', { name: /^Заявки по статусам:/ })).toBeVisible()
+    await page.reload()
+    await expect(page.getByRole('heading', { name: 'Панель управления', exact: true })).toBeVisible()
+    await expect(page).toHaveURL(/\/$/)
+    await tickets.click()
+    await expect(page).toHaveURL(/\/board$/)
+    await expect(tickets).toHaveAttribute('aria-current', 'page')
+    await expect(home).not.toHaveAttribute('aria-current', 'page')
+    await expect(page.getByRole('heading', { name: 'Панель управления', exact: true })).toHaveCount(0)
+    await expect(page.getByRole('searchbox', { name: 'Поиск заявок', exact: true })).toBeVisible()
+  } finally {
+    await ctx.close()
+  }
+})
+
 /** Режимы навигации: компьютер — сворачиваемая панель; планшет — узкая панель значков с раскрытием; телефон — всё внизу, как панель задач */
 test('NAV-01 компьютер: кнопка сворачивает боковую панель до значков и запоминает выбор', async ({ browser }, info) => {
   test.skip(info.project.name !== 'desktop')
