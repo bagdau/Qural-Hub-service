@@ -10,7 +10,7 @@ from content import PAGES
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "assets"
-OUTPUT = ROOT / "Alageum_Service_Hub_Overview_Technical.docx"
+OUTPUT = ROOT / "Qural_Hub_Overview_Technical.docx"
 doc = Document()
 sec = doc.sections[0]
 sec.page_width, sec.page_height = Cm(21), Cm(29.7)

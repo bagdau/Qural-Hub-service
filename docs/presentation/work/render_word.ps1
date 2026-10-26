@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $taskRoot = Split-Path -Parent $PSScriptRoot
-$taskDoc = Join-Path $taskRoot 'Alageum_Service_Hub_Overview_Technical.docx'
+$taskDoc = Join-Path $taskRoot 'Qural_Hub_Overview_Technical.docx'
 $taskPdf = Join-Path $PSScriptRoot 'render\document.pdf'
 $taskWord = New-Object -ComObject Word.Application
 $taskWord.Visible = $false

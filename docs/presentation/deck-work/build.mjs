@@ -1,10 +1,10 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import {pathToFileURL} from 'node:url';
+import {fileURLToPath,pathToFileURL} from 'node:url';
 import sharp from 'sharp';
 import {Presentation, PresentationFile} from '@oai/artifact-tool';
 
-const root = 'C:/Users/BAGDAULET-KOPTILEU/Desktop/AlageumServiceHub';
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../../..');
 const work = `${root}/docs/presentation/deck-work`;
 const assets = `${root}/docs/presentation/assets`;
 const skill = 'C:/Users/BAGDAULET-KOPTILEU/.codex/plugins/cache/openai-primary-runtime/presentations/26.1017.22136/skills/presentations';
@@ -264,7 +264,7 @@ await fs.writeFile(`${work}/slide-notes.json`,JSON.stringify(records,null,2));
 await (await PresentationFile.exportPptx(ppt)).save(`${work}/candidate.pptx`);
 console.log('Exported candidate, slides:',ppt.slides.items.length);
 const {finalizePresentation}=await import(pathToFileURL(`${skill}/container_tools/artifact_tool_utils.mjs`).href);
-const output=`${root}/docs/presentation/deck-output/Alageum_Service_Hub_Updated.pptx`;
+const output=`${root}/docs/presentation/deck-output/Qural_Hub_Updated.pptx`;
 const result=await finalizePresentation({
  workspaceDir:root,candidatePath:`${work}/candidate.pptx`,finalPath:output,
  pythonExecutable:'C:/Users/BAGDAULET-KOPTILEU/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe',

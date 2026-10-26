@@ -1,7 +1,8 @@
 const fs=require('fs');
+const path=require('path');
 const {chromium}=require('playwright');
 (async()=>{
- const root='C:/Users/BAGDAULET-KOPTILEU/Desktop/AlageumServiceHub';
+ const root=path.resolve(__dirname,'../../..');
  const env=fs.readFileSync(root+'/.env','utf8');
  const password=env.match(/^DEMO_USER_PASSWORD=(.*)$/m)[1].trim().replace(/^["']|["']$/g,'');
  const b=await chromium.launch({headless:true,channel:'msedge'});
