@@ -139,9 +139,9 @@ def build(data, path):
     doc.save(path)
 
 
-from exhibition_content import RU, KK
+from manufacturer_content import RU, KK
 
 
 if __name__ == "__main__":
-    build(RU, OUT / "Qural_Hub_Power_Outages_RU.docx")
-    build(KK, OUT / "Qural_Hub_Power_Outages_KK.docx")
+    build(RU, OUT / "Qural_Hub_Warranty_Service_RU.docx")
+    build(KK, OUT / "Qural_Hub_Warranty_Service_KK.docx")
