@@ -52,11 +52,11 @@ def build(data, path):
     styles = doc.styles
     normal = styles["Normal"]
     normal.font.name = "Arial"
-    normal.font.size = Pt(10)
+    normal.font.size = Pt(9.8)
     normal.font.color.rgb = RGBColor(35, 40, 45)
-    normal.paragraph_format.space_after = Pt(4.5)
-    normal.paragraph_format.line_spacing = 1.09
-    for sty, size, before, after in (("Title", 19, 0, 9), ("Heading 1", 12.5, 12, 6), ("Heading 2", 10.8, 8, 4)):
+    normal.paragraph_format.space_after = Pt(3.5)
+    normal.paragraph_format.line_spacing = 1.06
+    for sty, size, before, after in (("Title", 19, 0, 9), ("Heading 1", 12.5, 10, 5), ("Heading 2", 10.8, 7, 3)):
         s = styles[sty]
         s.font.name = "Arial"
         s.font.size = Pt(size)
@@ -143,5 +143,5 @@ from manufacturer_content import RU, KK
 
 
 if __name__ == "__main__":
-    build(RU, OUT / "Qural_Hub_Warranty_Service_RU.docx")
-    build(KK, OUT / "Qural_Hub_Warranty_Service_KK.docx")
+    build(RU, OUT / "Qural_Hub_Outage_Impact_RU.docx")
+    build(KK, OUT / "Qural_Hub_Outage_Impact_KK.docx")
